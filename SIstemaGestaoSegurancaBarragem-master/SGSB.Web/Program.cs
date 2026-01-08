@@ -15,11 +15,19 @@ namespace SGSB.Web
     {
         public static void Main(string[] args)
         {
-            // Forçar cultura invariante para modo invariante do .NET
+            // Forçar cultura invariante ANTES de qualquer inicialização
+            // Isso deve ser feito antes de qualquer código do .NET ser executado
+            AppDomain.CurrentDomain.SetData("REGEX_DEFAULT_MATCH_TIMEOUT", TimeSpan.FromSeconds(2.0));
+            
+            // Configurar cultura invariante globalmente
             CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
             CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+            
+            // Configurar para todos os threads futuros
+            CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+            CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
             
             CreateHostBuilder(args).Build().Run();
         }

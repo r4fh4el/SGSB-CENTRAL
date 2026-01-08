@@ -24,6 +24,8 @@ using OneSignal.CSharp;
 using Blazorise;
 using Humanizer;
 using Microsoft.AspNetCore.Http.Features;
+using System.Globalization;
+using System.Threading;
 
 namespace SGSB.Web
 {
@@ -32,6 +34,12 @@ namespace SGSB.Web
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            
+            // Garantir cultura invariante no construtor também
+            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+            CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
         }
 
         public IConfiguration Configuration { get; }
