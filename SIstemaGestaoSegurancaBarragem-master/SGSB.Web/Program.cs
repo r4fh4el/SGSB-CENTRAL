@@ -15,6 +15,14 @@ namespace SGSB.Web
     {
         public static void Main(string[] args)
         {
+            // Verificar se o argumento e para aplicar migrations
+            if (args.Length > 0 && args[0] == "ApplyMigrations")
+            {
+                var exitCode = ApplyMigrations.Main(args);
+                Environment.Exit(exitCode);
+                return;
+            }
+            
             // Inicializar workaround ANTES de qualquer coisa
             GlobalizationWorkaround.Initialize();
             
