@@ -1,0 +1,97 @@
+﻿@page "/TipoMaterialBarragem/Index"
+
+@using SGSB.Web.Data
+@inject TipoMaterialBarragemService TipoMaterialBarragemService
+@using Model 
+@inject NavigationManager NavigationManager
+@inject HttpClient http
+@using BlazorTable
+
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime
+
+@if (TipoMaterialBarragem == null)
+{
+    <p><em>Carregando...</em></p>
+}
+else
+{
+    <div class="col-md-3">
+        <a href="TipoMaterialBarragem/cadastro" class="btn btn-success h2">Adicionar Novo </a>
+    </div>
+
+    <Table style="font-size:14px;" TableItem="TipoMaterialBarragem" Items="TipoMaterialBarragem" PageSize="10">
+        <Column TableItem="TipoMaterialBarragem" Title="ID" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%" />
+        <Column TableItem="TipoMaterialBarragem" Title="Nome" Field="@(x => x.Nome)" Sortable="true" Filterable="true" Width="30%" />
+
+
+        <Column TableItem="TipoMaterialBarragem" Title="Visualizar" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%">
+            <Template>
+
+                <a href="TipoMaterialBarragem/Visualizar/@context.Id" class="btn btn-info h4"> Visualizar</a>
+            </Template>
+        </Column>
+        <Column TableItem="TipoMaterialBarragem" Title="Editar" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%">
+            <Template>
+
+                <a TableItem="TipoMaterialBarragem" href="TipoMaterialBarragem/Editar/@context.Id" class="btn btn-warning h4"> Editar</a>
+            </Template>
+        </Column>
+        <Column TableItem="TipoMaterialBarragem" Title="Excluir" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%">
+            <Template>
+
+                <a href="../TipoMaterialBarragem/Excluir/@context.Id" class="btn btn-danger h4"> Excluir</a>
+            </Template>
+        </Column>
+
+        <Pager ShowPageNumber="true" ShowTotalCount="true" />
+    </Table>
+
+}
+
+@code {
+
+    private List<TipoMaterialBarragem> TipoMaterialBarragem;
+    //private TipoMaterialBarragem TipoMaterialBarragemModel = new TipoMaterialBarragem();
+    protected override async Task OnInitializedAsync()
+    {
+        TipoMaterialBarragem = await TipoMaterialBarragemService.GetTipoMaterialBarragem();
+ 
+    }
+
+
+    private TipoMaterialBarragem objTipoMaterialBarragemModel = new TipoMaterialBarragem();
+
+
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+
+    }
+
+    protected async Task Editar(int id)
+    {
+       await TipoMaterialBarragemService.EditarTipoMaterialBarragem(objTipoMaterialBarragemModel);
+
+    }
+    protected async Task Visualizar(int id)
+    {
+
+        await TipoMaterialBarragemService.CadastrarTipoMaterialBarragem(objTipoMaterialBarragemModel);
+      
+    }
+
+    protected async Task CreateTipoMaterialBarragem()
+    {
+
+        await TipoMaterialBarragemService.CadastrarTipoMaterialBarragem(objTipoMaterialBarragemModel);
+        TipoMaterialBarragem.Add(objTipoMaterialBarragemModel);
+
+        StateHasChanged();
+
+
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("TipoMaterialBarragem/index");
+    }
+
+}

@@ -1,0 +1,19 @@
+﻿@page "/Maps/MapaSIG"
+
+<h3>MapaSIG</h3>
+<div id="map2" style="height: 100vh"></div>
+@code {
+
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; }
+    private bool polygonAdded = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("initializeMap");
+        }
+    }
+
+}

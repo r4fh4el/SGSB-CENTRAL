@@ -1,0 +1,93 @@
+﻿@page "/RotaFuga/Excluir"
+@page "/RotaFuga/Excluir/{id}"
+
+@inject RotaFugaService RotaFugaService
+@inject NavigationManager NavigationManager
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime;
+@using Model
+
+@using BlazorTable
+@using SGSB.Web.Data
+
+
+<h3 class="alert-warning">Deseja excluir?</h3>
+
+
+<EditForm Model="@RotaFugaModel" OnSubmit="ExcluirRotaFuga">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="nome" class="control-label">Nome da RotaFuga</label>
+                <InputText @bind-Value="@RotaFugaModel.Nome" type="Text" class="form-control" />
+                <ValidationMessage For="@(()=> RotaFugaModel.Nome)" />
+            </div>
+
+
+
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="submit" class="btn btn-danger" value="Excluir" />
+                <input type="button" class="btn" @onclick="@Cancel" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private RotaFuga RotaFugaModel = new RotaFuga();
+
+    [Parameter]
+    public string Id { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+
+        await Delete(Id);
+    }
+
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+
+    }
+
+    public async Task Delete(string Id)
+    {
+
+        RotaFugaModel = await RotaFugaService.GetRotaFugaId(int.Parse(Id));
+
+    }
+
+    protected async Task ExcluirRotaFuga()
+    {
+        try
+        {
+            await RotaFugaService.DeletarRotaFuga(RotaFugaModel);
+            NavigationManager.NavigateTo("RotaFuga/index");
+        }
+        catch (Exception e)
+        {
+
+            throw e;
+        }
+
+    }
+
+    protected async Task CreateRotaFuga()
+    {
+
+        await RotaFugaService.CadastrarRotaFuga(RotaFugaModel);
+        NavigationManager.NavigateTo("RotaFuga/index");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("RotaFuga/index");
+    }
+
+
+}

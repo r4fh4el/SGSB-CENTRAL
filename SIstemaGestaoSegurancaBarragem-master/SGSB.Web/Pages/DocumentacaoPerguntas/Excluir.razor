@@ -1,0 +1,93 @@
+﻿@page "/DocumentacaoPerguntas/Excluir"
+@page "/DocumentacaoPerguntas/Excluir/{id}"
+
+@inject DocumentacaoPerguntasService DocumentacaoPerguntasService
+@inject NavigationManager NavigationManager
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime;
+@using Model;
+
+@using BlazorTable
+@using SGSB.Web.Data
+
+
+<h3 class="alert-warning">Deseja excluir?</h3>
+
+
+<EditForm Model="@DocumentacaoPerguntasModel" OnSubmit="ExcluirDocumentacaoPerguntas">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="nome" class="control-label"> Pergunta</label>
+                <InputText @bind-Value="@DocumentacaoPerguntasModel.Pergunta" type="Text" class="form-control" />
+                <ValidationMessage For="@(()=> DocumentacaoPerguntasModel.Pergunta)" />
+            </div>
+
+
+
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="submit" class="btn btn-danger" value="Excluir" />
+                <input type="button" class="btn" @onclick="@Cancel" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private DocumentacaoPerguntas DocumentacaoPerguntasModel = new DocumentacaoPerguntas();
+
+    [Parameter]
+    public string Id { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+
+        await Delete(Id);
+    }
+
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+
+    }
+
+    public async Task Delete(string Id)
+    {
+
+        DocumentacaoPerguntasModel = await DocumentacaoPerguntasService.GetDocumentacaoPerguntasId(int.Parse(Id));
+
+    }
+
+    protected async Task ExcluirDocumentacaoPerguntas()
+    {
+        try
+        {
+            await DocumentacaoPerguntasService.DeletarDocumentacaoPerguntas(DocumentacaoPerguntasModel);
+            NavigationManager.NavigateTo("DocumentacaoPerguntas/index");
+        }
+        catch (Exception e)
+        {
+
+            throw e;
+        }
+
+    }
+
+    protected async Task CreateDocumentacaoPerguntas()
+    {
+
+        await DocumentacaoPerguntasService.CadastrarDocumentacaoPerguntas(DocumentacaoPerguntasModel);
+        NavigationManager.NavigateTo("DocumentacaoPerguntas/index");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("DocumentacaoPerguntas");
+    }
+
+
+}

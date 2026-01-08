@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SGSB.AppPopulacao.CadastroTicket"
+             Title="CadastroTicket">
+    <StackLayout Padding="16">
+        <Label Text="Titulo" />
+        <Entry Placeholder="Titulo" Text="{Binding TicketModel.Titulo}"  x:Name="tituloEntry" />
+
+        <Label Text="Descricao" />
+        <Entry Placeholder="Descrição" Text="{Binding TicketModel.Descricao}"  x:Name="descricaoEntry" />
+
+
+
+        <Button Text="Enviar" Clicked="OnSubmitButtonClicked" />
+    </StackLayout>
+</ContentPage>

@@ -1,0 +1,112 @@
+﻿@page "/CotaAreaVolume/Excluir"
+@page "/CotaAreaVolume/Excluir/{id}"
+
+@inject CotaAreaVolumeService CotaAreaVolumeService
+@inject NavigationManager NavigationManager
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime;
+@using Model
+
+@using BlazorTable
+@using SGSB.Web.Data
+@using SGSB.Web.Models;
+
+
+<h3 class="alert-warning">Deseja excluir?</h3>
+
+
+<EditForm Model="@CotaAreaVolumeModel" OnSubmit="ExcluirCotaAreaVolume">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+
+        <div class="form-group">
+            <label for="Cota" class="control-label">Cota </label>
+            <InputText @bind-Value="@CotaAreaVolumeModel.Cota" type="Text" class="form-control" />
+            <ValidationMessage For="@(()=> CotaAreaVolumeModel.Cota)" />
+
+
+
+            <label for="VolumeAcumulado" class="control-label">Volume Acumulado </label>
+            <InputText @bind-Value="@CotaAreaVolumeModel.VolumeAcumulado" type="Text" class="form-control" />
+            <ValidationMessage For="@(()=> CotaAreaVolumeModel.VolumeAcumulado)" />
+
+
+
+
+
+            <label for="AreaSuperficial" class="control-label">Área Superficial </label>
+            <InputText @bind-Value="@CotaAreaVolumeModel.AreaSuperficial" type="Text" class="form-control" />
+            <ValidationMessage For="@(()=> CotaAreaVolumeModel.AreaSuperficial)" />
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="submit" class="btn btn-danger" value="Excluir" />
+                <input type="button" class="btn" @onclick="@Cancel" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private CotaAreaVolume CotaAreaVolumeModel = new CotaAreaVolume();
+
+    [Parameter]
+    public string Id { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+
+        await Delete(Id);
+    }
+
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+
+    }
+
+    public async Task Delete(string Id)
+    {
+
+        CotaAreaVolumeModel = await CotaAreaVolumeService.GetCotaAreaVolumeId(int.Parse(Id));
+
+    }
+
+    protected async Task ExcluirCotaAreaVolume()
+    {
+        try
+        {
+            await CotaAreaVolumeService.DeletarCotaAreaVolume(CotaAreaVolumeModel);
+            NavigationManager.NavigateTo("CotaAreaVolume/index");
+        }
+        catch (Exception e)
+        {
+
+            throw e;
+        }
+
+    }
+
+    protected async Task CreateCotaAreaVolume()
+    {
+        var cotaAreaVolume = new CotaAreaVolumeModel()
+            {
+                Cota = CotaAreaVolumeModel.Cota,
+                AreaSuperficial = CotaAreaVolumeModel.AreaSuperficial,
+
+                VolumeAcumulado = CotaAreaVolumeModel.VolumeAcumulado
+
+
+            };
+        await CotaAreaVolumeService.CadastrarCotaAreaVolume(cotaAreaVolume);
+        NavigationManager.NavigateTo("CotaAreaVolume/index");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("CotaAreaVolume/index");
+    }
+
+
+}

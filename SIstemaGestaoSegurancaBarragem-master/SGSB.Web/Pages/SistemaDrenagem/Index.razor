@@ -1,0 +1,94 @@
+﻿@page "/SistemaDrenagem/Index"
+
+@using SGSB.Web.Data
+@inject SistemaDrenagemService SistemaDrenagemService
+@using Model 
+@inject NavigationManager NavigationManager
+@inject HttpClient http
+@using BlazorTable
+@using SGSB.Web.Models;
+
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime
+
+@if (SistemaDrenagem == null)
+{
+    <p><em>Carregando...</em></p>
+}
+else
+{
+    <div class="col-md-3">
+        <a href="SistemaDrenagem/cadastro" class="btn btn-success h2">Adicionar Novo </a>
+    </div>
+
+    <Table style="font-size:14px;" TableItem="SistemaDrenagem" Items="SistemaDrenagem" PageSize="10">
+        <Column TableItem="SistemaDrenagem" Title="ID" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%" />
+        <Column TableItem="SistemaDrenagem" Title="Nome" Field="@(x => x.Nome)" Sortable="true" Filterable="true" Width="30%" />
+
+
+        <Column TableItem="SistemaDrenagem" Title="Visualizar" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%">
+            <Template>
+
+                <a href="SistemaDrenagem/Visualizar/@context.Id" class="btn btn-info h4"> Visualizar</a>
+            </Template>
+        </Column>
+        <Column TableItem="SistemaDrenagem" Title="Editar" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%">
+            <Template>
+
+                <a TableItem="SistemaDrenagem" href="SistemaDrenagem/Editar/@context.Id" class="btn btn-warning h4"> Editar</a>
+            </Template>
+        </Column>
+        <Column TableItem="SistemaDrenagem" Title="Excluir" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%">
+            <Template>
+
+                <a href="../SistemaDrenagem/Excluir/@context.Id" class="btn btn-danger h4"> Excluir</a>
+            </Template>
+        </Column>
+
+        <Pager ShowPageNumber="true" ShowTotalCount="true" />
+    </Table>
+
+}
+
+@code {
+
+    private List<SistemaDrenagem> SistemaDrenagem;
+    //private SistemaDrenagem SistemaDrenagemModel = new SistemaDrenagem();
+    protected override async Task OnInitializedAsync()
+    {
+        SistemaDrenagem = await SistemaDrenagemService.GetSistemaDrenagem();
+ 
+    }
+
+
+    private SistemaDrenagemModel objSistemaDrenagemModel = new SistemaDrenagemModel();
+
+
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+
+    }
+
+    protected async Task Editar(int id)
+    {
+       await SistemaDrenagemService.EditarSistemaDrenagem(objSistemaDrenagemModel);
+
+    }
+    protected async Task Visualizar(int id)
+    {
+        var tipoMaterialBarragem = new Entidades.Entidades.SistemaDrenagem()
+            {
+                Nome = objSistemaDrenagemModel.Nome
+
+
+            };
+  
+      
+    }
+
+  
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("SistemaDrenagem/index");
+    }
+
+}

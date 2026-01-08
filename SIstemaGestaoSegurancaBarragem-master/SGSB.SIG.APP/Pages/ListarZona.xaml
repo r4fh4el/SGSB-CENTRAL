@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SGSB.SIG.APP.Pages.ListarZona"
+             Title="ListarZona">
+
+    <StackLayout>
+        <!-- Wizard Step 1 -->
+        <Frame HasShadow="True" Margin="20" Padding="20" CornerRadius="15" IsVisible="True" x:Name="step1Frame">
+            <StackLayout>
+                <!-- Your existing UI elements -->
+
+                <!-- Button to add a new item to the ObservableCollection -->
+                <Button Text="Adicionar Nova Zona" Clicked="Button_Clicked_1" />
+            </StackLayout>
+        </Frame>
+
+        <!-- Wizard Step 2 -->
+        <Frame HasShadow="True" Margin="10" Padding="20" CornerRadius="15" IsVisible="True" x:Name="step2Frame">
+            <ListView x:Name="zoneListView" AutomationId="lstZona" ClassId="lstZona" ItemsSource="{Binding zoneListView}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <Grid Padding="10">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                   
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="20" />
+                                    <ColumnDefinition Width="200" />
+                                    <ColumnDefinition Width="100"   />
+
+
+                                </Grid.ColumnDefinitions>
+
+                                <Label Grid.Column="0" Text="{Binding id}" FontAttributes="Bold" />
+                                <Label Grid.Column="1" Text="{Binding idZonaNome}" FontAttributes="Bold" />
+                                <!--<Button  Grid.Column="2"  Text="Excluir" FontAttributes="Bold" BackgroundColor="IndianRed" Clicked="Button_Clicked"  Padding="1" MaximumHeightRequest="30" ></Button>-->
+
+                                <Button Grid.Column="2"
+        Text="Excluir"
+        FontAttributes="Bold"
+        BackgroundColor="IndianRed"
+                                        Clicked="Button_Clicked"
+        Command="{Binding BindingContext.DeleteCommand, Source={x:Reference zoneListView}}"
+        CommandParameter="{Binding id}" 
+        Padding="1"
+        MaximumHeightRequest="30" />
+                            </Grid>
+                        </ViewCell>
+                        
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Frame>
+    </StackLayout>
+</ContentPage>

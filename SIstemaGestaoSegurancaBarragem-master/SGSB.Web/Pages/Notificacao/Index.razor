@@ -1,0 +1,207 @@
+﻿@page "/Notificacao/Index"
+@using SGSB.Web.Data;
+@using System.Text.Json;
+@using System.Text;
+@using SGSB.Web.Models;
+@inject IHttpClientFactory HttpClientFactory
+
+
+
+@if (isModalVisible)
+{
+    <div class="modal-backdrop show"></div>
+    <div class="modal show d-block">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Mensagem</h5>
+                    <button type="button" class="close" @onclick="CloseModal">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Modal content goes here -->
+                    <p>@mensagem</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseModal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<h3>Envio notificação para todos usuários</h3>
+
+
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="form-group">
+            <label for="Titulo" class="control-label">Titulo da notificação</label>
+            <InputText @bind-Value="@NotificacaoModel.Titulo" type="Text" class="form-control" />
+
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="form-group">
+            <label for="Mensagem" class="control-label">Mensagem da notificação </label>
+            <InputText @bind-Value="@NotificacaoModel.Mensagem" type="Text" class="form-control" />
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <div class="form-group">
+
+            <input type="button" class="btn" @onclick="@OnPostAsync" value="Enviar" />
+        </div>
+    </div>
+</div>
+
+@code {
+    public Index()
+    {
+        // Initialization code with default values
+    }
+    private NotificacaoModel NotificacaoModel = new NotificacaoModel();
+    private string mensagem;
+    private bool isModalVisible = false;
+
+    private void ShowModal()
+    {
+        isModalVisible = true;
+    }
+
+    private void CloseModal()
+    {
+        isModalVisible = false;
+    }
+    public readonly IHttpClientFactory _clientFactory;
+
+    public Index(IHttpClientFactory clientFactory)
+    {
+        _clientFactory = clientFactory;
+    }
+    public async Task OnPostAsync()
+    {
+        if (string.IsNullOrEmpty(NotificacaoModel.Titulo) || string.IsNullOrEmpty(NotificacaoModel.Mensagem))
+        {
+            mensagem = "Atenção! O titulo e a mensagem vazios!";
+            ShowModal();
+            return;
+        }
+
+        // Substitua com suas próprias chaves do OneSignal
+        string appId = Infra.Constantes.ONESIGNAL_APP_ID;
+        string restApiKey = Infra.Constantes.ONE_SIGNAL_API_KEY;
+
+        // URL da API do OneSignal
+        string apiUrl = "https://onesignal.com/api/v1/notifications";
+
+        // Dados da notificação
+        var payload = new
+        {
+            app_id = appId,
+            included_segments = new[] { "All" },  // Segmento de destinatários (aqui, todos os usuários)
+            contents = new { en = NotificacaoModel.Mensagem },
+            headings = new { en = NotificacaoModel.Titulo }
+        };
+
+        // Converte o payload para JSON
+        var jsonPayload = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+
+        // Cabeçalhos da solicitação
+        var headers = new Dictionary<string, string>
+            {
+                { "Authorization", "Basic " + restApiKey }
+
+            };
+        // Envia a notificação push
+        using (var httpClient = HttpClientFactory.CreateClient())
+        {
+
+            foreach (var header in headers)
+            {
+                httpClient.DefaultRequestHeaders.Add(header.Key, header.Value);
+            }
+
+            var response = await httpClient.PostAsync(apiUrl, jsonPayload);
+
+            // Verifica a resposta
+            if (response.IsSuccessStatusCode)
+            {
+                mensagem = "Notificação enviada com sucesso!";
+                ShowModal();
+            }
+            else
+            {
+                mensagem = $"Erro ao enviar a notificação: {response.StatusCode} - {await response.Content.ReadAsStringAsync()}";
+                ShowModal();
+            }
+        }
+    }
+    // protected async Task OnPostAsync()
+    // {
+    //     if (string.IsNullOrEmpty(NotificacaoModel.Titulo) || string.IsNullOrEmpty(NotificacaoModel.Mensagem))
+    //     {
+    //         mensagem = "Atenção! O titulo e a mensagem vazios!";
+    //         ShowModal();
+    //     }
+    //     // Substitua com suas próprias chaves do OneSignal
+    //     string appId = Infra.Constantes.ONESIGNAL_APP_ID;
+    //     string restApiKey = Infra.Constantes.ONE_SIGNAL_API_KEY;
+
+    //     // URL da API do OneSignal
+    //     string apiUrl = "https://onesignal.com/api/v1/notifications";
+
+    //     // Dados da notificação
+    //     var payload = new
+    //     {
+    //         app_id = appId,
+    //         included_segments = new[] { "All" },  // Segmento de destinatários (aqui, todos os usuários)
+    //         contents = new { en = "Esta é uma notificação de teste do OneSignal" },
+    //         headings = new { en = "Título da Notificação" }
+    //     };
+
+    //     // Converte o payload para JSON
+    //     var jsonPayload = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+
+    //     // Cabeçalhos da solicitação
+    //     var headers = new Dictionary<string, string>
+    //         {
+    //             { "Authorization", "Basic " + restApiKey }
+    //         };
+
+    //     // Envia a notificação push
+    //     using (var httpClient = _clientFactory.CreateClient())
+    //     {
+    //         foreach (var header in headers)
+    //         {
+    //             httpClient.DefaultRequestHeaders.Add(header.Key, header.Value);
+    //         }
+
+    //         var response = await httpClient.PostAsync(apiUrl, jsonPayload);
+
+    //         // Verifica a resposta
+    //         if (response.IsSuccessStatusCode)
+    //         {
+    //             mensagem = "Notificação enviada com sucesso!";
+    //             ShowModal();
+    //         }
+    //         else
+    //         {
+    //             mensagem = $"Erro ao enviar a notificação: {response.StatusCode} - {await response.Content.ReadAsStringAsync()}";
+    //             ShowModal();
+    //         }
+    //     }
+    //}
+    public void OnGet()
+    {
+    }
+}

@@ -1,0 +1,77 @@
+﻿@page "/UsoBarragem/Cadastro"
+
+
+@inject UsoBarragemService UsoBarragemService
+@inject NavigationManager NavigationManager
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime;
+@using Model Endidades
+
+@using BlazorTable
+@using SGSB.Web.Data
+
+
+<h3>Cadastro</h3>
+
+
+<EditForm Model="@UsoBarragemModel" OnSubmit="CreateUsoBarragem">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="nome" class="control-label">Nome uso da barragem </label>
+                <InputText @bind-Value="@UsoBarragemModel.Nome" type="Text" class="form-control" />
+                <ValidationMessage For="@(()=> UsoBarragemModel.Nome)" />
+            </div>
+
+
+
+
+        </div>
+       
+
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="submit" class="btn btn-primary" value="Salvar" />
+                <input type="button" class="btn" @onclick="@Cancel" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private UsoBarragem UsoBarragemModel = new UsoBarragem();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+
+    }
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+
+    }
+
+
+
+    protected async Task CreateUsoBarragem()
+    {
+        var usoBarragemModel = new Models.UsoBarragemModel()
+            {
+                Nome = UsoBarragemModel.Nome
+
+
+            };
+        await UsoBarragemService.CadastrarUsoBarragem(usoBarragemModel);
+        NavigationManager.NavigateTo("UsoBarragem/index");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("UsoBarragem/index");
+    }
+
+
+}

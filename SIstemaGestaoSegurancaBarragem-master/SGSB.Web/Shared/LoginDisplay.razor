@@ -1,0 +1,12 @@
+﻿<AuthorizeView>
+    <Authorized>
+        <a href="Identity/Account/Manage">Olá, @context.User.Identity.Name!</a>
+        <a href="Apresentacao/Index">Portfólio</a>
+        <a href="Identity/Account/LogOut">Sair</a>
+   
+    </Authorized>
+    <NotAuthorized>
+        <a href="Identity/Account/Register">Cadastrar</a>
+        <a href="Identity/Account/Login">Entrar</a>
+    </NotAuthorized>
+</AuthorizeView>

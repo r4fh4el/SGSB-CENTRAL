@@ -1,0 +1,91 @@
+﻿@page "/DocumentacaoPerguntas/Editar"
+@page "/DocumentacaoPerguntas/Editar/{id}"
+
+@inject DocumentacaoPerguntasService DocumentacaoPerguntasService
+@inject NavigationManager NavigationManager
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime;
+@using Model;
+
+@using BlazorTable
+@using SGSB.Web.Data
+
+
+<h3>Editar</h3>
+
+
+<EditForm Model="@DocumentacaoPerguntasModel" OnSubmit="EditarTipoMaterial" >
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="nome" class="control-label">Pergunta</label>
+                <InputText @bind-Value="@DocumentacaoPerguntasModel.Pergunta" type="Text" class="form-control" />
+                <ValidationMessage For="@(()=> DocumentacaoPerguntasModel.Pergunta)" />
+            </div>
+
+
+
+
+        </div>
+  @*      <div class="col-md-8">
+            <div class="form-group">
+
+                <RadzenCheckBox @bind-Value=@DocumentacaoPerguntasModel.Resposta Name="CheckBox12" />
+                <RadzenLabel Text="Descrição/Resposta" Component="CheckBox12" Style="margin-left: 8px; vertical-align: middle;" />
+
+            </div>
+        </div>*@
+
+
+
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="submit" class="btn btn-primary" value="Editar" />
+                <input type="button" class="btn" @onclick="@Cancel" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private DocumentacaoPerguntas DocumentacaoPerguntasModel = new DocumentacaoPerguntas();
+
+    [Parameter]
+    public string Id { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+
+       await Edit(Id);
+    }
+
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+        
+
+    }
+
+    
+
+    public async Task Edit(string Id)
+    {
+        DocumentacaoPerguntasModel = await  DocumentacaoPerguntasService.GetDocumentacaoPerguntasId(int.Parse(Id));
+        
+    }
+
+    protected async Task EditarTipoMaterial()
+    {
+
+        await DocumentacaoPerguntasService.EditarDocumentacaoPerguntas(DocumentacaoPerguntasModel);
+        NavigationManager.NavigateTo("DocumentacaoPerguntas/index");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("DocumentacaoPerguntas");
+    }
+
+
+}

@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:maps="clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls.Maps"
+             xmlns:loc="clr-namespace:Microsoft.Maui.Devices.Sensors;assembly=Microsoft.Maui.Essentials"
+             x:Class="SGSB.SIG.APP.MainPage">
+
+    <Grid>
+        <!-- Background Gradient -->
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#3498db" Offset="0.1" />
+                <GradientStop Color="#2c3e50" Offset="1" />
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <!-- Header -->
+     
+
+        <!-- WebView for Power BI Report -->
+        <WebView Source="https://app.anm.gov.br/SIGBM/Publico/ClassificacaoNacionalDaBarragem"
+                 VerticalOptions="FillAndExpand"
+                 HorizontalOptions="FillAndExpand"
+                 Margin="20,40,20,20" />
+    </Grid>
+
+</ContentPage>

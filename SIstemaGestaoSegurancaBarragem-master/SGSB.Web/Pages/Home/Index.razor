@@ -1,0 +1,306 @@
+﻿@page "/Home/Index"
+
+
+@using Microsoft.AspNet.Identity;
+@using Microsoft.AspNet.Identity.EntityFramework;
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+@using System.Globalization
+@using System.Security.Claims;
+@inject SGSB.Web.Data.BarragemService BarragemService
+@inject SGSB.Web.Data.DanoPotencialAssociadoService DanoPotencialAssociadoService
+@inject SGSB.Web.Data.CategoriaRiscoService CategoriaRiscoService
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+
+<AuthorizeView>
+
+    <Authorized>
+
+    </Authorized>
+    <NotAuthorized>
+        <p>Você não esta logado.</p>
+        @{
+            NavigationManager.NavigateTo("Identity/Account/Login", false);
+        }
+    </NotAuthorized>
+</AuthorizeView>
+
+<div class="container-fluid">
+
+
+    <div class="row p-3">
+        <div class="col">
+            <RadzenCard class="mb-4">
+                @*        <RadzenCheckBox @bind-Value=@showMadridMarker Name="showMarker" />
+                <RadzenLabel Text="Show marker for Madrid" Component="showMarker" Style="margin-left: 8px; vertical-align: middle;" />
+                *@
+
+                Mapa de Barragens
+            </RadzenCard>
+
+            <RadzenGoogleMap @ref=map style="height: 400px"
+                             Options=@(new Dictionary<string, object> { { "disableDoubleClickZoom", true } })
+                             Zoom=@zoom
+                             Center=@(new GoogleMapPosition() { Lat = -12.798326, Lng = -38.326739 })
+                             MapClick=@OnMapClick
+                             ApiKey=@ApiKey 
+                             MarkerClick=@OnMarkerClick>
+                <Markers>
+
+                    @foreach (var item in Barragems)
+                    {
+                        if (item.Latitude != null && item.Longitude != null)
+
+                        {
+                            @*       string url = "<a href='Barragem/Editar/" + @item.Id + "'> " + @item.BaciaHidrograficaAbrangencia + "</a>"; *@
+                            <RadzenGoogleMapMarker Title="@item.Id.ToString()" Label="@item.Nome" Position=@(new GoogleMapPosition() { Lat = double.Parse(item.Latitude, CultureInfo.InvariantCulture), Lng = double.Parse(item.Longitude, CultureInfo.InvariantCulture) }) />
+                        }
+                    }
+
+
+                    @if (showMadridMarker)
+                    {
+                        <RadzenGoogleMapMarker Title="Madrid " Label="Madrid" Position=@(new GoogleMapPosition() { Lat = 40.4168, Lng = -3.7038 }) />
+                    }
+                </Markers>
+            </RadzenGoogleMap>
+        </div>
+    </div>
+</div>
+
+<div class="col-sm-12 col-lg-4">
+
+    <RadzenCard class="mb-4">
+        <div class="form-group">
+            <label for="barragems" class="control-label">Barragem </label>
+            @*<RadzenDropDown @bind-Value="@BarragemModel.Tipo_Material_Id" Data=@lstTipoMaterialBarragem class="form-control" />*@
+            <RadzenDropDown @bind-Value="@idBarragem" Placeholder="Selecione a barragem" TextProperty="Nome" ValueProperty="Id" Data="@Barragems" Change="@CarregaBarragem"></RadzenDropDown>
+
+        </div>
+    </RadzenCard>
+</div>
+<RadzenCard class="mb-4">
+    Onda de Cheia
+</RadzenCard>
+
+
+<RadzenCard class="mb-4">
+    <div class="form-group">
+        <div id="mapaOnda" style="height: 500px;"></div>
+    </div>
+</RadzenCard>
+<RadzenCard class="mb-4">
+    Classificação da Barragem
+</RadzenCard>
+
+<div class="container-fluid">
+
+    <RadzenCard class="mt-4 w-100 mb-4 d-flex align-items-center">
+        <h2>Dano Potencial</h2>
+        <RadzenRadialGauge Style="width: 100%; height: 300px;">
+            <RadzenRadialGaugeScale StartAngle="-150" EndAngle="150" Step="1" Min="0" Max="17">
+                <RadzenRadialGaugeScalePointer Value=@valorTotal Length="0.6" ShowValue=@showValue>
+                    <Template Context="pointer">
+                        <h4>
+                            @valorTotal <sup>Pontos</sup>
+                        </h4>
+                    </Template>
+                </RadzenRadialGaugeScalePointer>
+                <RadzenRadialGaugeScaleRange From="0" To="6" Fill="green" />
+                <RadzenRadialGaugeScaleRange From="6" To="11" Fill="orange" />
+                <RadzenRadialGaugeScaleRange From="11" To="17" Fill="red" />
+            </RadzenRadialGaugeScale>
+        </RadzenRadialGauge>
+        <h2>Categoria Risco</h2>
+        <RadzenRadialGauge Style="width: 100%; height: 300px;">
+            <RadzenRadialGaugeScale StartAngle="-150" EndAngle="150" Step="1" Min="0" Max="17">
+                <RadzenRadialGaugeScalePointer Value=@valorTotalCategoriaRisco Length="0.6" ShowValue=@showValue>
+                    <Template Context="pointer">
+                        <h4>
+                            @valorTotalCategoriaRisco <sup>Pontos</sup>
+                        </h4> s
+                    </Template>
+                </RadzenRadialGaugeScalePointer>
+                <RadzenRadialGaugeScaleRange From="0" To="6" Fill="green" />
+                <RadzenRadialGaugeScaleRange From="6" To="11" Fill="orange" />
+                <RadzenRadialGaugeScaleRange From="11" To="17" Fill="red" />
+            </RadzenRadialGaugeScale>
+        </RadzenRadialGauge>
+        <div class="col-sm-12 col-lg-4">
+            <RadzenChart ColorScheme="@colorScheme">
+                <RadzenPieSeries Data="@revenue.Where(r => r.Year == 2020)" Title="Revenue" CategoryProperty="Quarter" ValueProperty="Revenue" />
+            </RadzenChart>
+        </div>
+    </RadzenCard>
+
+</div>
+@*<div class="container-fluid">
+    <RadzenCard class="mt-4 w-100 mb-4 d-flex align-items-center">
+        <RadzenLabel Text="Color scheme:" Style="margin-right: 8px; vertical-align: middle;" />
+        <RadzenDropDown Data="@colorSchemes" @bind-Value="@colorScheme" />
+    </RadzenCard>
+    <div class="row my-5">
+        <div class="col-sm-12 col-lg-8">
+            <RadzenChart ColorScheme="@colorScheme">
+                @for (var year = 2013; year <= 2020; year++)
+                {
+                    var currentYearRevenue = revenue.Where(r => r.Year == year).ToList();
+                    <RadzenColumnSeries Data="@currentYearRevenue" CategoryProperty="Quarter" Title="@year.ToString()" ValueProperty="Revenue" />
+                }
+                <RadzenColumnOptions Margin="0" />
+                <RadzenValueAxis Formatter="@FormatAsUSD" />
+            </RadzenChart>
+        </div>
+        <div class="col-sm-12 col-lg-4">
+            <RadzenChart ColorScheme="@colorScheme">
+                <RadzenPieSeries Data="@revenue.Where(r => r.Year == 2020)" Title="Revenue" CategoryProperty="Quarter" ValueProperty="Revenue" />
+            </RadzenChart>
+        </div>
+    </div>
+
+</div>*@
+
+
+
+
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    //string ADMINISTRATION_ROLE = "Administrators";
+    string ADMINISTRATION_ROLE = "Admin";
+
+    bool showValue = true;
+    int valorTotal = 0;
+    int valorTotalCategoriaRisco = 0;
+    int zoom = 6;
+    bool showMadridMarker;
+    private List<Model.Barragem> Barragems = new List<Model.Barragem>();
+    private string ApiKey = "AIzaSyCT89o7saeSx0MFUCUqNMIM1eNUE0IO6-s";
+    RadzenGoogleMap map;
+    int idBarragem = 2;
+    bool flagBarragem = false;
+
+
+    public Index()
+    {
+        CarregaGraficos();
+
+    }
+    async Task CarregaBarragem(object value)
+    {
+        var result = Convert.ToInt32(value);
+        var objDanoPotencialAssociado = await DanoPotencialAssociadoService.GetDanoPotencialAssociadoBarragemId(result);
+        var lstCategoriaRisco = await CategoriaRiscoService.GetCategoriaRisco();
+
+        var objCategoriaRisco = lstCategoriaRisco.Where(x => x.BarragemId == result).FirstOrDefault();
+
+        valorTotal = objDanoPotencialAssociado.DpaTotal;
+        if (objCategoriaRisco != null)
+        {
+            valorTotalCategoriaRisco = objCategoriaRisco.ValorTotal;
+        }
+
+
+
+    }
+    public void CarregaGraficos()
+    {
+
+
+
+    }
+    // public List<string> GetRoles(ClaimsPrincipal user)
+    // {
+    //     var userIdentity = (ClaimsIdentity)user.Identity;
+    //     var claims = userIdentity.Claims;
+    //     return claims.Where(c => c.Type == ClaimTypes.Role).Select(_ => _.Value).ToList();
+    // }
+    void VoltarLogin()
+    {
+        NavigationManager.NavigateTo("Login", false);
+    }
+    void OnMapClick(GoogleMapClickEventArgs args)
+    {
+        //console.Log($"Map clicked at Lat: {args.Position.Lat}, Lng: {args.Position.Lng}");
+    }
+
+    async Task OnMarkerClick(RadzenGoogleMapMarker marker)
+    {
+        var message = $"Bacia Hidrográfica: <b>{marker.Title}</b>";
+
+        var code = $@"
+                        var map = Radzen['{map.UniqueID}'].instance;
+                        var marker = map.markers.find(m => m.title == '{marker.Title}');
+                        if(window.infoWindow) {{window.infoWindow.close();}}
+                        window.infoWindow = new google.maps.InfoWindow({{content: '{message}'}});
+                        setTimeout(() => window.infoWindow.open(map, marker), 200);
+                        ";
+        await JSRuntime.InvokeAsync<object>("open", "Barragem/Editar/" + marker.Title + "", "_self");
+        await JSRuntime.InvokeVoidAsync("eval", code);
+    }
+
+
+
+    // Inicio exemplo char
+    IEnumerable<ColorScheme> colorSchemes = Enum.GetValues(typeof(ColorScheme)).Cast<ColorScheme>();
+    ColorScheme colorScheme = ColorScheme.Palette;
+
+    class DataItem
+    {
+        public int Year { get; set; }
+        public string Quarter { get; set; }
+        public double Revenue { get; set; }
+    }
+
+    string FormatAsUSD(object value)
+    {
+        return ((double)value).ToString("C0", CultureInfo.CreateSpecificCulture("pt-BR"));
+    }
+
+    IList<DataItem> revenue = new List<DataItem>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+      
+
+        Barragems = await BarragemService.GetBarragemAsync();
+        if (Barragems.Count() > 0)
+        {
+            await CarregaBarragem(Barragems[0].Id);
+
+        }
+
+
+        var random = new Random();
+
+        for (var year = 2013; year <= 2020; year++)
+        {
+            for (var quarter = 1; quarter <= 4; quarter++)
+            {
+                revenue.Add(new DataItem
+                    {
+                        Year = year,
+                        Quarter = $"Q{quarter}",
+                        Revenue = random.NextDouble() * 200000
+                    });
+            }
+        }
+        await JSRuntime.InvokeVoidAsync("initializeMap");
+    }
+    //Fim exemplo char
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // await JSRuntime.InvokeVoidAsync("initializeMap");
+        }
+    }
+
+} 

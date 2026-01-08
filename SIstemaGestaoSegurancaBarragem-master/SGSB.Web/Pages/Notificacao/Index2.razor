@@ -1,0 +1,28 @@
+﻿@page "/Notificacao/Index2"
+@using Radzen.Blazor;
+@using Radzen;
+@using SGSB.Web.Data
+@inject NotificacaoService NotificacaoService
+@inject BarragemService BarragemService
+@using Model
+@inject NavigationManager NavigationManager
+@inject HttpClient http
+@using BlazorTable
+
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime
+<h3>Index</h3>
+<h3>Send Push Notification</h3>
+
+
+<button @onclick="SendNotification">Send Notification</button> 
+@code {
+
+    private async Task SendNotification()
+    {
+        string playerId = "PLAYER_ID"; // Replace with the actual player ID
+        string message = "Hello from Blazor!";
+        await NotificacaoService.SendPushNotificationAsync(playerId , message);
+
+    }
+
+}

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="SGSB.SIG.APP.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:SGSB.SIG.APP"
+    xmlns:localPages="clr-namespace:SGSB.SIG.APP.Pages"
+    Shell.FlyoutBehavior="Flyout">
+
+    <FlyoutItem Title="Home">
+        <ShellContent
+            Title="Home"
+            Icon="home.png"
+            ContentTemplate="{DataTemplate local:MainPage}"
+            Route="MainPage" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Listar Zonas">
+        <ShellContent
+            Icon="alerta.png"
+            Title="Listar Zonas"
+            ContentTemplate="{DataTemplate localPages:ListarZona}"
+            Route="ListarZona" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Zona">
+        <ShellContent
+            Icon="alerta.png"
+            Title="Zona"
+            ContentTemplate="{DataTemplate local:Zona}"
+            Route="Zona" />
+    </FlyoutItem>
+
+    <!-- New FlyoutItem for Login -->
+    <FlyoutItem Title="Login">
+        <ShellContent
+            Icon="login.png"
+            Title="Sair"
+            ContentTemplate="{DataTemplate localPages:LoginPage}"
+            Route="LoginPage" />
+    </FlyoutItem>
+
+</Shell>

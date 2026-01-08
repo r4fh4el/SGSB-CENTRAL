@@ -1,0 +1,33 @@
+﻿@page "/"
+
+@using Microsoft.AspNet.Identity;
+@using Microsoft.AspNet.Identity.EntityFramework;
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+@using System.Globalization
+@using System.Security.Claims;
+@inject SGSB.Web.Data.BarragemService BarragemService
+@inject SGSB.Web.Data.DanoPotencialAssociadoService DanoPotencialAssociadoService
+@inject SGSB.Web.Data.CategoriaRiscoService CategoriaRiscoService
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+
+
+<AuthorizeView>
+
+    <Authorized>
+        @{
+            NavigationManager.NavigateTo("Home/Index", false);
+
+        }
+    </Authorized>
+    <NotAuthorized>
+        <p>Você não esta logado.</p>
+        @{
+            NavigationManager.NavigateTo("Identity/Account/Login", true);
+            NavigationManager.NavigateTo("Identity/Account/Login", true);
+      
+        }
+    </NotAuthorized>
+</AuthorizeView>

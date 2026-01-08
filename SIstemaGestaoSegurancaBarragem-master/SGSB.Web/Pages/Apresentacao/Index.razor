@@ -1,0 +1,151 @@
+﻿@page "/Apresentacao/Index"
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGSB</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: #e8f6f3; /* Cor de fundo com tema natureza */
+        }
+
+        header {
+            background-color: #2ecc71; /* Verde vibrante */
+            color: white;
+            text-align: center;
+            padding: 1em;
+        }
+
+        section {
+            padding: 2em;
+            text-align: center;
+        }
+
+            section h2 {
+                color: #2ecc71; /* Cor verde para os títulos de seção */
+            }
+
+            section p {
+                color: #333; /* Cor padrão para o texto */
+            }
+
+        footer {
+            background-color: #2ecc71; /* Verde vibrante para o rodapé */
+            color: white;
+            text-align: center;
+            padding: 1em;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        button {
+            background-color: #3498db; /* Azul claro para os botões */
+            color: white;
+            padding: 0.5em 1em;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+            button:hover {
+                background-color: #2980b9; /* Tom mais escuro no hover */
+            }
+
+        /* Adicionando uma imagem de fundo de natureza */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('natureza.jpg') center/cover no-repeat; /* Substitua 'natureza.jpg' pelo caminho da sua imagem */
+            z-index: -1; /* Coloca a imagem de fundo atrás do conteúdo */
+        }
+        /* Seu estilo CSS existente permanece o mesmo */
+        /* ... */
+
+        /* Adicionando estilos para o botão de download */
+        #download-button {
+            background-color: #005021;
+            color: #e8f6f3;
+            padding: 0.5em 1em;
+            border: none;
+            border-color: #333;
+            cursor: pointer;
+            font-size: 16px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+            #download-button img {
+                margin-right: 10px; /* Espaçamento à direita do ícone */
+            }
+
+            #download-button:hover {
+                background-color: #2980b9;
+            }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>SGSB - Sistema de Gestão de Segurança de Barragem</h1>
+    </header>
+
+    <section>
+        <h2>Apresentação</h2>
+        <p>Bem-vindo ao nosso tutorial. Por aqui você tera acesso aos aplicativos e o funcionamento da aplicação</p>
+    </section>
+
+    <section>
+        <h2>Recursos</h2>
+        <ul>
+            <li>SGSB - API</li>
+            <li>SGSB - Dashboard</li>
+            <li>SGSB - SIG APP</li>
+            <li>SGSB - APP População</li>
+        </ul>
+    </section>
+    <section>
+        <h2>Download</h2>
+        <p>Baixe nosso aplicativo agora e transforme sua experiência! </p>
+        <h3>SIG População</h3>
+        <a id="download-button" href="https://drive.google.com/file/d/1vbETW2suFroQldUlN6WRIyvF_KM2hKUl/view?usp=sharing" download>
+
+        
+            Baixar Agora
+        </a>
+        <h3>App SIG</h3>
+        <a id="download-button" href="https://drive.google.com/file/d/1_Rzv5HSiyH3BCDoifUFPI88PWHGlTIAg/view?usp=sharing" download>
+
+
+            Baixar Agora
+        </a>
+    </section>
+    
+    <footer>
+        &copy; 2024 SGSB. Todos os direitos reservados.
+    </footer>
+
+    <script>
+        function baixarApp() {
+            alert('Aplicativo baixado com sucesso!');
+
+            // Adicione aqui qualquer lógica adicional ao clicar no botão de download
+        }
+    </script>
+
+</body>
+</html>
+
+
+@code {
+
+}

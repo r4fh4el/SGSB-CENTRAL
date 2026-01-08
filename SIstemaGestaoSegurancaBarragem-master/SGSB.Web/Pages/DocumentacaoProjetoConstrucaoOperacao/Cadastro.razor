@@ -1,0 +1,88 @@
+﻿@page "/DocumentacaoProjetoConstrucaoOperacao/Cadastro"
+
+
+@inject DocumentacaoProjetoConstrucaoOperacaoService DocumentacaoProjetoConstrucaoOperacaoService
+@inject NavigationManager NavigationManager
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime;
+@using Model Endidades;
+
+@using BlazorTable
+@using SGSB.Web.Data
+@using SGSB.Web.Models;
+
+
+<h3>Cadastro</h3>
+
+
+<EditForm Model="@DocumentacaoProjetoConstrucaoOperacaoModel" OnSubmit="CreateDocumentacaoProjetoConstrucaoOperacao">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="Pergunta" class="control-label">Pergunta</label>
+                <InputText @bind-Value="@DocumentacaoProjetoConstrucaoOperacaoModel.Pergunta" type="Text" class="form-control" />
+                <ValidationMessage For="@(()=> DocumentacaoProjetoConstrucaoOperacaoModel.Pergunta)" />
+            </div>
+
+
+
+
+        </div>
+@*         <div class="col-md-8">
+                            <div class="form-group">
+
+                <RadzenCheckBox @bind-Value=@DocumentacaoProjetoConstrucaoOperacaoModel.Resposta Name="CheckBox12" />
+                <RadzenLabel Text="Descrição/Resposta" Component="CheckBox12" Style="margin-left: 8px; vertical-align: middle;" />
+
+                            </div>
+                        </div>*@
+    
+       
+
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="submit" class="btn btn-primary" value="Salvar" />
+                <input type="button" class="btn" @onclick="@Cancel" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private DocumentacaoProjetoConstrucaoOperacao DocumentacaoProjetoConstrucaoOperacaoModel = new DocumentacaoProjetoConstrucaoOperacao();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+
+    }
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+
+    }
+
+
+
+    protected async Task CreateDocumentacaoProjetoConstrucaoOperacao()
+    {
+        var documentacaoProjetoConstrucaoOperacao = new DocumentacaoProjetoConstrucaoOperacaoModel()
+            {
+                Pergunta = DocumentacaoProjetoConstrucaoOperacaoModel.Pergunta,
+                Resposta = DocumentacaoProjetoConstrucaoOperacaoModel.Resposta
+
+
+            };
+        await DocumentacaoProjetoConstrucaoOperacaoService.CadastrarDocumentacaoProjetoConstrucaoOperacao(documentacaoProjetoConstrucaoOperacao);
+        NavigationManager.NavigateTo("DocumentacaoProjetoConstrucaoOperacao/index");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("DocumentacaoProjetoConstrucaoOperacao");
+    }
+
+
+}

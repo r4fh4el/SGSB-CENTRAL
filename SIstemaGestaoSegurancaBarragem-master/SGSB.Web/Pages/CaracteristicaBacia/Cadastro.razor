@@ -1,0 +1,268 @@
+﻿@page "/CaracteristicaBacia/Cadastro"
+
+
+@inject CaracteristicaBacia CaracteristicaBacia
+@inject CaracteristicaBaciaService CaracteristicaBaciaService
+@inject UsoSoloPredominanteService UsoSoloPredominanteService
+
+@inject NavigationManager NavigationManager
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime;
+@using Model
+
+@using BlazorTable
+@using Radzen.Blazor
+@using SGSB.Web.Data
+@using SGSB.Web.Models
+@using Model.Enums
+
+
+<h3>Cadastro</h3>
+
+
+<EditForm Model="@CaracteristicaBaciaModel" OnSubmit="CreateCaracteristicaBacia">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <RadzenStack>
+        <Radzen.Blazor.RadzenFieldset Text="Características da bacia hidrográfica que compreende a Barragem">
+            <RadzenRow>
+                <RadzenColumn Size="12" SizeMD="6">
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="nome" class="control-label">Nome da Bacia Hidrográfica</label>
+                            <InputText @bind-Value="@CaracteristicaBaciaModel.nome" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> CaracteristicaBaciaModel.nome)" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="cursoHidrico" class="control-label">Nome do curso hídrico onde encontra-se a Barragem </label>
+                            <InputText @bind-Value="@CaracteristicaBaciaModel.cursoHidrico" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> CaracteristicaBaciaModel.cursoHidrico)" />
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="SetorDestino" class="control-label">Setor Destino</label>
+                            <RadzenDropDown AllowClear="true" TValue="CaracteristicaBacia" AllowVirtualization="true"
+                                            AllowFiltering="true" TextProperty="Nome" ValueProperty="Id"  Data="Enum.GetNames(typeof(EnumCaracteristicaPredominante)).ToList()"  class="form-control"
+                                            Change=@(args => OnChange(args, "EnumCaracteristicaPredominanteBaciaId")) />
+                            <ValidationMessage For="@(()=> CaracteristicaBaciaModel.EnumCaracteristicaPredominanteBacia)" />
+                        </div>
+                    </div>
+
+                       <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="Assunto" class="control-label">Assuntos</label>
+                            <RadzenDropDown AllowClear="true" TValue="UsoSoloPredominante" AllowVirtualization="true"
+                                            AllowFiltering="true" TextProperty="Nome" ValueProperty="Id" Data=@lstUsoSoloPredominante class="form-control"
+                                            Change=@(args => OnChange(args, "UsoSoloPredominanteId")) />
+                            <ValidationMessage For="@(()=> CaracteristicaBaciaModel.UsoSoloPredominante)" />
+                        </div>
+                    </div>
+               
+               
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="AreaBacia" class="control-label">Área da Bacia Hidrográfica (Km²) </label>
+                            <InputNumber @bind-Value="@CaracteristicaBaciaModel.AreaBacia" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> CaracteristicaBaciaModel.AreaBacia)" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="AreaDrenagem" class="control-label">Área de drenagem (Km²) </label>
+                            <InputNumber @bind-Value="@CaracteristicaBaciaModel.AreaDrenagem" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> CaracteristicaBaciaModel.AreaDrenagem)" />
+                        </div>
+                    </div>
+                    
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="Perimetro" class="control-label">Perímetro (Km) </label>
+                            <InputNumber @bind-Value="@CaracteristicaBaciaModel.Perimetro" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> CaracteristicaBaciaModel.Perimetro)" />
+                        </div>
+                    </div>
+                    
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="ComprimentoRioPrincipal" class="control-label">Comprimento do rio principal (Km)  </label>
+                            <InputNumber @bind-Value="@CaracteristicaBaciaModel.ComprimentoRioPrincipal" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> CaracteristicaBaciaModel.ComprimentoRioPrincipal)" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="ComprimentoVetorialRioPrincipal" class="control-label">Comprimento vetorial do rio principal (Km) </label>
+                            <InputNumber @bind-Value="@CaracteristicaBaciaModel.ComprimentoVetorialRioPrincipal" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> CaracteristicaBaciaModel.ComprimentoVetorialRioPrincipal)" />
+                        </div>
+                    </div>
+                    
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="ComprimentototalRio" class="control-label">Comprimento total dos rios da bacia (Km) </label>
+                            <InputNumber @bind-Value="@CaracteristicaBaciaModel.ComprimentototalRio" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> CaracteristicaBaciaModel.ComprimentototalRio)" />
+                        </div>
+                    </div>
+                    
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="ComprimentoAxial" class="control-label">Comprimento axial da bacia (Km) </label>
+                            <InputNumber @bind-Value="@CaracteristicaBaciaModel.ComprimentoAxial" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> CaracteristicaBaciaModel.ComprimentoAxial)" />
+                        </div>
+                    </div>
+                    
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="AltitudeMinima" class="control-label">Altitude Mínima da bacia (m) </label>
+                            <InputNumber @bind-Value="@CaracteristicaBaciaModel.AltitudeMinima" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> CaracteristicaBaciaModel.AltitudeMinima)" />
+                        </div>
+                    </div>
+                    
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="AltitudeMaxima" class="control-label">Altitude Máxima da bacia (m) </label>
+                            <InputNumber @bind-Value="@CaracteristicaBaciaModel.AltitudeMaxima" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> CaracteristicaBaciaModel.AltitudeMaxima)" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="AltitudeAltimetricaM" class="control-label">Amplitude altimétrica da bacia (m) </label>
+                            <InputNumber @bind-Value="@CaracteristicaBaciaModel.AltitudeAltimetricaM" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> CaracteristicaBaciaModel.AltitudeAltimetricaM)" />
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="AltitudeAltimetricaKm" class="control-label">Amplitude altimétrica da bacia (km)</label>
+                            <InputNumber @bind-Value="@CaracteristicaBaciaModel.AltitudeAltimetricaKm" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> CaracteristicaBaciaModel.AltitudeAltimetricaKm)" />
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="Declividade" class="control-label">Declividade da bacia (m/m)</label>
+                            <InputNumber @bind-Value="@CaracteristicaBaciaModel.Declividade" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> CaracteristicaBaciaModel.Declividade)" />
+                        </div>
+                    </div>
+
+                 
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="6">
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="MunicipioNascenteRio" class="control-label">Município da Nascente do rio principal </label>
+                            <InputText @bind-Value="@CaracteristicaBaciaModel.MunicipioNascenteRio" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> CaracteristicaBaciaModel.MunicipioNascenteRio)" />
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="MunicipioFozRio" class="control-label">Município da Foz do rio principal</label>
+                            <InputText @bind-Value="@CaracteristicaBaciaModel.MunicipioFozRio" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> CaracteristicaBaciaModel.MunicipioFozRio)" />
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="DefinicaoPadraoDrenagem" class="control-label">Definição do padrão de drenagem da rede hidrográfica</label>
+                            <InputText @bind-Value="@CaracteristicaBaciaModel.DefinicaoPadraoDrenagem" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> CaracteristicaBaciaModel.DefinicaoPadraoDrenagem)" />
+                        </div>
+                    </div>
+
+                 
+                </RadzenColumn>
+            </RadzenRow>
+        </Radzen.Blazor.RadzenFieldset>
+    </RadzenStack>
+
+
+
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="submit" class="btn btn-primary" value="Salvar" />
+                <input type="button" class="btn" @onclick="@Cancel" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private CaracteristicaBacia CaracteristicaBaciaModel = new CaracteristicaBacia();
+    private List<UsoSoloPredominante> lstUsoSoloPredominante = new List<UsoSoloPredominante>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        lstUsoSoloPredominante = await CaracteristicaBaciaService.GetUsoSoloPredominante();
+
+        StateHasChanged();
+    }
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+
+    }
+
+    private async Task OnChange(object value, string name)
+    {
+
+        if (value != null)
+        {
+            if (name == "EnumCaracteristicaPredominanteBaciaId")
+            {
+                CaracteristicaBaciaModel.EnumCaracteristicaPredominanteBacia = (int)value;
+         
+            }  
+            if (name == "UsoSoloPredominanteId")
+            {
+                CaracteristicaBaciaModel.UsoSoloPredominanteId = (int)value;
+
+            }
+           
+
+
+        }
+       
+        // var str = value is IEnumerable<object> ? string.Join(", ", (IEnumerable<object>)value) : value;
+        StateHasChanged();
+
+    }
+
+    protected async Task CreateCaracteristicaBacia()
+    {
+       
+
+        await CaracteristicaBaciaService.CadastrarCaracteristicaBacia(CaracteristicaBaciaModel);
+        NavigationManager.NavigateTo("CaracteristicaBacia/index");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("CaracteristicaBacia/index");
+    }
+  
+
+}

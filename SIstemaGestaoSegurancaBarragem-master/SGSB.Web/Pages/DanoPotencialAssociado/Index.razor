@@ -1,0 +1,480 @@
+﻿@page "/DanoPotencialAssociado/Index"
+
+@using Radzen.Blazor;
+@using SGSB.Web.Data
+@inject DanoPotencialAssociadoService DanoPotencialAssociadoService
+@inject BarragemService BarragemService
+@using Model
+@inject NavigationManager NavigationManager
+@inject HttpClient http
+@using BlazorTable
+@inject DialogService DialogService
+
+
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime
+
+
+@if (flagBarragem)
+{
+    <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Default">
+        Atenção! Selecionar barragem é obrigatório!
+    </RadzenAlert>
+}
+
+
+<RadzenCard class="mb-4">
+    <div class="form-group">
+        <label for="barragems" class="control-label">Barragem </label>
+        @*<RadzenDropDown @bind-Value="@BarragemModel.Tipo_Material_Id" Data=@lstTipoMaterialBarragem class="form-control" />*@
+        <RadzenDropDown @bind-Value="@idBarragemDano" Placeholder="Selecione a barragem" TextProperty="Nome" ValueProperty="Id" Data="@lstBarragem" Change=@(args => VerificaBarragem(args))></RadzenDropDown>
+
+    </div>
+</RadzenCard>
+<div class="rz-shadow-8">
+    <span>
+        <div class="rz-p-12 ">
+
+            <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.P">Quadro para classificação quanto ao dano potencial associado - DPA (Acumulação de Água)</RadzenText>
+        </div>
+    </span>
+    <RadzenPanel id="ResultadoPanel" Visible="@showResultadoPanel">
+        <div class="rz-shadow-8">
+            <span>
+                <div class="rz-p-4 ">
+
+                    <RadzenText TextStyle="TextStyle.H5" TagName="TagName.P">Pontos: @valorTotal </RadzenText>
+                </div>
+                @if (valorTotal < 6)
+                {
+                    resultado = "Baixo";
+                }
+                @if (valorTotal >= 6)
+                {
+                    resultado = "Alto";
+                }
+                @if ((6 < valorTotal) && (valorTotal < 11))
+                {
+                    resultado = "Médio";
+                }
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-12 col-lg-4 my-lg-5 order-lg-last text-center text-lg-start">
+
+
+                            @if (resultado == "Médio")
+                            {
+                                <RadzenAlert AlertStyle="Radzen.AlertStyle.Warning" ShowIcon="true" Variant="Radzen.Variant.Flat" Shade="Radzen.Shade.Lighter">
+                                    <p>
+                                        <label style="font-size:18px; font-weight:bold;" class="mt-6"><RadzenCheckBox @bind-Value=@showValue /> Dano Potencial @resultado.ToString().ToUpper() </label>
+                                    </p>
+                                </RadzenAlert>
+                            }
+                            @if (resultado == "Alto")
+                            {
+                                <RadzenAlert AlertStyle="Radzen.AlertStyle.Danger" ShowIcon="true" Variant="Radzen.Variant.Flat" Shade="Radzen.Shade.Lighter">
+                                    <p>
+                                        <label style="font-size:18px; font-weight:bold;" class="mt-6"><RadzenCheckBox @bind-Value=@showValue /> Dano Potencial @resultado.ToString().ToUpper() </label>
+                                    </p>
+                                </RadzenAlert>
+                            }
+                            @if (resultado == "Baixo")
+                            {
+                                <RadzenAlert AlertStyle="Radzen.AlertStyle.Success" ShowIcon="true" Variant="Radzen.Variant.Flat" Shade="Radzen.Shade.Lighter">
+                                    <p>
+                                        <label style="font-size:18px; font-weight:bold;" class="mt-6"><RadzenCheckBox @bind-Value=@showValue /> Dano Potencial @resultado.ToString().ToUpper() </label>
+                                    </p>
+                                </RadzenAlert>
+                            }
+
+
+
+                            <p>
+                                <label class="mt-3">Volume Total do Reservatório @valueVTR </label>
+                            </p>
+                            <p>
+                                <label class="mt-3">Potencial de perdas de vidas humanas(t) @valuePPV </label>
+                            </p>
+                            <p>
+                                <label class="mt-3">Impacto ambiental @valueIA </label>
+                            </p>
+                            <p>
+                                <label class="mt-3">Impacto sócio-econômico @valueISE </label>
+                            </p>
+                        </div>
+                        <div class="col-sm-12 col-lg-8 my-3 my-lg-5">
+                            <RadzenRadialGauge Style="width: 100%; height: 300px;">
+                                <RadzenRadialGaugeScale StartAngle="-150" EndAngle="150" Step="1" Min="0" Max="17">
+                                    <RadzenRadialGaugeScalePointer Value=@valorTotal Length="0.6" ShowValue=@showValue>
+                                        <Template Context="pointer">
+                                            <h4>
+                                                @valorTotal <sup>Pontos</sup>
+                                            </h4>
+                                        </Template>
+                                    </RadzenRadialGaugeScalePointer>
+                                    <RadzenRadialGaugeScaleRange From="0" To="6" Fill="green" />
+                                    <RadzenRadialGaugeScaleRange From="6" To="11" Fill="orange" />
+                                    <RadzenRadialGaugeScaleRange From="11" To="17" Fill="red" />
+                                </RadzenRadialGaugeScale>
+                            </RadzenRadialGauge>
+
+                        </div>
+                    </div>
+                </div>
+            </span>
+        </div>
+    </RadzenPanel>
+</div>
+
+
+<RadzenTabs @bind-SelectedIndex=@selectedIndex>
+    <Tabs>
+
+        <RadzenTabsItem Text="A">
+            <RadzenLabel Text="a) Volume Total do Reservatório">    </RadzenLabel>
+            <div class="row">
+                <div class="rz-p-12 rz-text-align-center">
+                    <RadzenRadioButtonList @bind-Value=@valueVTR @onclick="() =>  ChangeValueVTR(valueVTR)" TValue="int" Orientation=Radzen.Orientation.Vertical class="mb-5">
+                        <Items>
+                            <RadzenRadioButtonListItem Text="Pequeno = 5 milhões de m³(1)" Value="1" />
+                            <RadzenRadioButtonListItem Text="Médio a 75 milhões de m³(2)" Value="2" />
+                            <RadzenRadioButtonListItem Text="Grande 75 a 200 milhões de m³(3)" Value="3" />
+                            <RadzenRadioButtonListItem Text="Muito Grande >  200 milhões de m³(5)" Value="5" />
+                        </Items>
+                    </RadzenRadioButtonList>
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+
+                        <input type="button" class="btn btn-primary" @onclick="() => Proximo(1)" value="Próximo" />
+                    </div>
+                </div>
+            </div>
+
+        </RadzenTabsItem>
+
+        <RadzenTabsItem Text="B">
+            <RadzenLabel Text="b) Potencial de perdas de vidas humanas(t)">    </RadzenLabel>
+            <div class="row">
+                <div class="rz-p-12 rz-text-align-center">
+                    <RadzenRadioButtonList @bind-Value=@valuePPV @onclick="() =>  ChangeValuePPV(valuePPV)" TValue="int" Orientation=Radzen.Orientation.Vertical class="mb-5">
+                        <Items>
+                            <RadzenRadioButtonListItem Text="INEXISTENTE(0)" Value="0" />
+                            <RadzenRadioButtonListItem Text="POUCO FREQUENTE (4)" Value="4" />
+                            <RadzenRadioButtonListItem Text="FREQUENTE (8)" Value="8" />
+                            <RadzenRadioButtonListItem Text="EXISTENTE (12)" Value="12" />
+                        </Items>
+                    </RadzenRadioButtonList>
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+
+                        <input type="button" class="btn btn-primary" @onclick="() => Proximo(2)" value="Próximo" />
+                    </div>
+                </div>
+            </div>
+            <div class="rz-shadow-8">
+                <span>
+                    <div class="rz-p-12 ">
+                        <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.P">Legendas:</RadzenText>
+
+                        <RadzenText TextStyle="TextStyle.Overline" TagName="TagName.P">Inexistente (Não existem pessoas permanentes/residentes ou temporárias/transitando na área afetada a jusante da barragem)</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Overline" TagName="TagName.P">Pouco Frequente  (Não existem pessoas ocupando permanentemente a área afetada a jusante da barragem, mas existe estrada vicinal de uso local). </RadzenText>
+                        <RadzenText TextStyle="TextStyle.Overline" TagName="TagName.P">Frequente (Não existem pessoas ocupando permanentemente a área afetada a jusante da barragem, mas existe rodovia municipal, estadual, federal ou outro local e/ou empreendimento de permanência eventual de pessoas que poderão ser atingidas). </RadzenText>
+                        <RadzenText TextStyle="TextStyle.Overline" TagName="TagName.P">Existente (Existem pessoas ocupando permanentemente a área afetada a jusante da barragem, portanto, vidas humanas poderão ser atingidas)</RadzenText>
+                    </div>
+                </span>
+            </div>
+        </RadzenTabsItem>
+
+        <RadzenTabsItem Text="C">
+            <RadzenLabel Text="c) Impacto ambiental">    </RadzenLabel>
+            <div class="row">
+
+                <div class="rz-p-12 rz-text-align-center">
+                    <RadzenRadioButtonList @bind-Value=@valueIA @onclick="() =>  ChangeValueIA(valueIA)" TValue="int" Orientation=Radzen.Orientation.Vertical class="mb-5">
+                        <Items>
+                            <RadzenRadioButtonListItem Text="Significativo (3)" Value="3" />
+                            <RadzenRadioButtonListItem Text="Muito Significativo (5)" Value="5" />
+
+                        </Items>
+                    </RadzenRadioButtonList>
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+
+                        <input type="button" class="btn btn-primary" @onclick="() => Proximo(3)" value="Próximo" />
+                    </div>
+                </div>
+            </div>
+            <div class="rz-shadow-8">
+                <span>
+                    <div class="rz-p-12 ">
+                        <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.P">Legendas:</RadzenText>
+
+                        <RadzenText TextStyle="TextStyle.Overline" TagName="TagName.P">SIGNIFICATIVO  (Área afetada da barragem não representa área de interesse ambiental, áreas protegidas em legislação específica ou encontra-se totalmente descaracterizada de suas condições naturais)</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Overline" TagName="TagName.P">MUITO SIGNIFICATIVO (Área afetada da barragem apresenta interesse ambiental relevante ou protegida em legislação específica). </RadzenText>
+                    </div>
+                </span>
+            </div>
+        </RadzenTabsItem>
+
+        <RadzenTabsItem Text="D">
+            <div class="rz-shadow-8">
+                <span>
+                    <div class="rz-p-12 ">
+                        <RadzenLabel Text="d) Impacto sócio-econômico">    </RadzenLabel>
+
+
+
+                        <div class="rz-p-12 rz-text-align-center">
+                            <RadzenRadioButtonList id="idValueISE" @onclick="() =>  ChangeValueISE(valueISE)" @bind-Value=@valueISE TValue="int" Orientation=Radzen.Orientation.Vertical class="mb-5">
+                                <Items>
+                                    <RadzenRadioButtonListItem Text="Inexistente (0)" Value="0" />
+
+                                    <RadzenRadioButtonListItem Text="Baixo (4)" Value="4" />
+
+                                    <RadzenRadioButtonListItem Text="Alto (8)" Value="8" />
+
+                                </Items>
+                            </RadzenRadioButtonList>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group">
+
+                                        <input type="button" class="btn btn-primary" @onclick="() => Salvar()" value="Salvar" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </span>
+            </div>
+
+            <div class="rz-shadow-8">
+                <span>
+                    <div class="rz-p-12 ">
+                        <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.P">Legendas:</RadzenText>
+
+                        <RadzenText TextStyle="TextStyle.Overline" TagName="TagName.P">Inexistente (Não existem quaisquer instalações e servicos de navegacao na área afetada por acidente da barragem)</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Overline" TagName="TagName.P">Baixo (Existe pequena concentração de instalações residenciais e comerciais, agrícolas, industriais ou de infraestrutura  na área afetada da barragem ou instalações portuárias ou serviços de navegação) </RadzenText>
+                        <RadzenText TextStyle="TextStyle.Overline" TagName="TagName.P">Alto (Existe grande concentração de  instalações residenciais e comerciais, agrícolas, industriais, de infraestrutura e servicos de lazer e turismo na área afetada da barragem ou instalações portuárias ou servicos de navegacão)</RadzenText>
+                    </div>
+                </span>
+            </div>
+
+
+
+
+        </RadzenTabsItem>
+    </Tabs>
+</RadzenTabs>
+<style>
+    .shadows div {
+        padding: 1rem;
+        width: 10rem;
+        text-align: center;
+    }
+</style>
+
+
+
+
+@code {
+    int valueVTR = 0;
+    int valuePPV = 0;
+    int valueIA = 0;
+    int valueISE = 0;
+    int valorTotal = 0;
+
+    string resultado = "Baixo";
+    private int selectedIndex = 0;
+    private List<DanoPotencialAssociado> DanoPotencialAssociado;
+    private List<Barragem> lstBarragem;
+    bool showValue = true;
+    bool showResultadoPanel = false;
+    bool flagBarragem = false;
+    int idBarragemDano = 0;
+    double value = 17;
+
+    IEnumerable<GaugeTickPosition> tickPositions = Enum.GetValues(typeof(GaugeTickPosition)).Cast<GaugeTickPosition>();
+    GaugeTickPosition tickPosition = GaugeTickPosition.Inside;
+
+    protected override async Task OnInitializedAsync()
+    {
+        lstBarragem = new List<Barragem>();
+        lstBarragem = await BarragemService.GetBarragemAsync();
+
+
+    }
+
+    protected async Task Salvar()
+    {
+        if (idBarragemDano == 0)
+        {
+            flagBarragem = true;
+            StateHasChanged();
+
+            return;
+        }
+
+        valorTotal = 0;
+        valorTotal = valueVTR + valuePPV + valueIA + valueISE;
+
+        DanoPotencialAssociado danoPotencialAssociado = new DanoPotencialAssociado();
+
+        danoPotencialAssociado.VTR_Resposta = valueVTR;
+        danoPotencialAssociado.PPV_Resposta = valuePPV;
+        danoPotencialAssociado.IA_Resposta = valueIA;
+        danoPotencialAssociado.ISE_Resposta = valueISE;
+        danoPotencialAssociado.DpaTotal = valorTotal;
+        danoPotencialAssociado.BarragemId = idBarragemDano;
+
+        var resultado = await DanoPotencialAssociadoService.GetDanoPotencialAssociado();
+        var resultadoFiltrado = resultado.Where(x => x.BarragemId == idBarragemDano).Count() > 0;
+
+        showResultadoPanel = true;
+        if (resultadoFiltrado && resultado.Count() > 0)
+        {
+            danoPotencialAssociado.Id = resultado.Find(x => x.BarragemId == idBarragemDano).Id;
+            await DanoPotencialAssociadoService.EditarDanoPotencialAssociado(danoPotencialAssociado);
+        }
+        else
+        {
+            danoPotencialAssociado.DataCadastro = DateTime.Now;
+            await DanoPotencialAssociadoService.CadastrarDanoPotencialAssociado(danoPotencialAssociado);
+        }
+
+
+
+    }
+
+    public async Task ChangeValueISE(int pontos)
+    {
+
+        valueISE = pontos;
+
+
+
+        StateHasChanged();
+    }
+
+    public async Task ChangeValueIA(int pontos)
+    {
+
+
+        valueIA = pontos;
+
+
+        StateHasChanged();
+    }
+
+    public async Task ChangeValuePPV(int pontos)
+    {
+
+        valuePPV = pontos;
+
+
+        StateHasChanged();
+    }
+    public async Task ChangeValueVTR(int pontos)
+    {
+
+        valueVTR = pontos;
+
+
+        StateHasChanged();
+    }
+
+    public async Task VerificaBarragem(object args)
+    {
+        var resultado = await DanoPotencialAssociadoService.GetDanoPotencialAssociado();
+        var resultadoFiltrado = resultado.Find(x => x.BarragemId == (int)args);
+
+
+
+        DanoPotencialAssociado danoPotencialAssociado = new DanoPotencialAssociado();
+
+        if (resultadoFiltrado != null)
+        {
+            danoPotencialAssociado.VTR_Resposta = resultadoFiltrado.VTR_Resposta;
+            danoPotencialAssociado.PPV_Resposta = resultadoFiltrado.PPV_Resposta;
+            danoPotencialAssociado.IA_Resposta = resultadoFiltrado.IA_Resposta;
+            danoPotencialAssociado.ISE_Resposta = resultadoFiltrado.ISE_Resposta;
+            danoPotencialAssociado.DpaTotal = resultadoFiltrado.DpaTotal;
+            danoPotencialAssociado.BarragemId = resultadoFiltrado.BarragemId;
+
+            valueVTR = resultadoFiltrado.VTR_Resposta;
+            valuePPV = resultadoFiltrado.PPV_Resposta;
+            valueIA = resultadoFiltrado.IA_Resposta;
+            valueISE = resultadoFiltrado.ISE_Resposta;
+            valorTotal = resultadoFiltrado.DpaTotal;
+            idBarragemDano = resultadoFiltrado.BarragemId;
+
+            valorTotal = 0;
+            valorTotal = valueVTR + valuePPV + valueIA + valueISE;
+
+
+        }
+        else
+        {
+
+            await EditSkill();
+        }
+
+
+          async Task EditSkill()
+    {
+     await DialogService.OpenAsync("Edit Skill", ds =>
+        @<RadzenCard>
+          <div>
+            <p class="mb-4">Skill ID <b>1</b></p>
+            <div class="row">
+                <div class="col">
+                    Teste
+                </div>
+            </div>
+        </div>
+        </RadzenCard>);
+    }
+
+        ///ATUALIZAR Dano
+        StateHasChanged();
+    }
+
+    protected async Task Proximo(int intSelectedIndex)
+    {
+
+
+        this.selectedIndex = intSelectedIndex;
+
+        //switch (selectedIndex)
+        //{
+
+        //    case 1:
+        //        // Barragem
+        //        //this.SalvarBarragem();
+        //        break;
+        //    default:
+        //        // code block
+        //        break;
+        //}
+
+        StateHasChanged();
+    }
+}
+

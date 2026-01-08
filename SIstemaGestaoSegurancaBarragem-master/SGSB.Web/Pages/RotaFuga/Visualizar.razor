@@ -1,0 +1,70 @@
+﻿
+@page "/RotaFuga/Visualizar"
+@page "/RotaFuga/Visualizar/{id}"
+
+@inject RotaFugaService RotaFugaService
+@inject NavigationManager NavigationManager
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime;
+@using Model
+
+@using BlazorTable
+@using SGSB.Web.Data
+
+
+<h3>Visualizar</h3>
+
+
+<EditForm Model="@RotaFugaModel" >
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="nome" class="control-label">Nome da Tipo de Material de Barragem </label>
+                <InputText @bind-Value="@RotaFugaModel.Nome" type="Text" class="form-control" />
+                <ValidationMessage For="@(()=> RotaFugaModel.Nome)" />
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+       
+                <input type="button" class="btn" @onclick="@Cancel" value="Voltar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private RotaFuga RotaFugaModel = new RotaFuga();
+
+    [Parameter]
+    public string Id { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+
+       await Ver(Id);
+    }
+
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+
+    }
+
+    public async Task Ver(string Id)
+    {
+        RotaFugaModel =  await RotaFugaService.GetRotaFugaId(int.Parse(Id));
+    }
+
+
+
+  
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("RotaFuga/index");
+    }
+
+
+}

@@ -1,0 +1,964 @@
+﻿@page "/VazaoPico/Index"
+@using System.Globalization
+@using Plotly.Blazor.Traces.ScatterLib
+@using SGSB.Web.Data
+@inject VazaPicoService VazaoPicoService
+@inject TempoRupturaService TempoRupturaService
+@inject HidrogramaTriangulaService HidrogramaTriangulaService
+@using Model
+@inject NavigationManager NavigationManager
+@inject HttpClient http
+@using BlazorTable
+@using SGSB.Web.Infra.Enum;
+
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime
+
+
+
+@if (flagBarragem)
+{
+    <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Default">
+        Atenção! Selecionar barragem é obrigatório!
+    </RadzenAlert>
+}
+
+<div class="col-md-8">
+    <div class="form-group">
+        <label for="barragems" class="control-label">Barragem </label>
+        @*<RadzenDropDown @bind-Value="@BarragemModel.Tipo_Material_Id" Data=@lstTipoMaterialBarragem class="form-control" />*@
+        <RadzenDropDown @bind-Value="@idBarragemVazaoPico" TextProperty="Nome" ValueProperty="Id" Data="@barragems"></RadzenDropDown>
+
+    </div>
+</div>
+<RadzenTabs @bind-SelectedIndex=@selectedIndex>
+    <Tabs>
+
+        <RadzenTabsItem Text="Etapa 1: Definição da vazão de pico">
+            <RadzenCard>
+                <div Class="rz-p-0 rz-p-md-12">
+                    <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                        <RadzenColumn Size="12" SizeMD="6">
+                            <RadzenFieldset Text="Dados de entrada para as Fórmulas">
+                                <RadzenStack Gap="1rem">
+                                    <RadzenRow Gap="1rem">
+                                        <RadzenColumn Size="12" SizeSM="6">
+                                            <RadzenStack>
+                                                <RadzenLabel Text="Bd - Largura da barragem - comprimento(m)"></RadzenLabel>
+                                                <RadzenFormField Text="Bd - Largura da barragem - comprimento(m)">
+
+                                                    <RadzenNumeric TValue="double" @bind-Value=@objVazaPico.valorLarguraBarragem />
+                                                </RadzenFormField>
+
+                                            </RadzenStack>
+                                        </RadzenColumn>
+
+                                    </RadzenRow>
+
+                                    <RadzenRow Gap="1rem">
+                                        <RadzenColumn Size="12" SizeSM="6">
+                                            <RadzenStack>
+                                                <RadzenLabel Text="Hbarr, H ou Hd - Altura do Maciço Principal (considerando o nível do solo do talude de jusante até a crista da barragem).(m)"></RadzenLabel>
+                                                <RadzenFormField Text="Hbarr, H ou Hd - Altura do Maciço Principal (considerando o nível do solo do talude de jusante até a crista da barragem).(m)">
+
+                                                    <RadzenNumeric TValue="double" @bind-Value=@objVazaPico.valorHbarr />
+                                                </RadzenFormField>
+
+                                            </RadzenStack>
+                                        </RadzenColumn>
+
+                                    </RadzenRow>
+
+
+                                    <RadzenRow Gap="1rem">
+                                        <RadzenColumn Size="12" SizeSM="6">
+                                            <RadzenStack>
+                                                <RadzenLabel Text="Vhid = V =Vres - volume do reservatório no instante inicial da ruptura ou Volume de água descarregado durante a ruptura(m³
+)"></RadzenLabel>
+                                                <RadzenFormField Text="Vhid = V =Vres - volume do reservatório no instante iniciala(m³)">
+
+                                                    <RadzenNumeric TValue="double" @bind-Value=@objVazaPico.valorVhid />
+                                                </RadzenFormField>
+
+                                            </RadzenStack>
+                                        </RadzenColumn>
+
+                                    </RadzenRow>
+                                    <RadzenRow Gap="1rem">
+                                        <RadzenColumn Size="12" SizeSM="6">
+                                            <RadzenStack>
+                                                <RadzenLabel Text="Hhid - carga hidráulica máxima sobre a base da brecha. Hhid = Hbarr = Hd(m)"></RadzenLabel>
+                                                <RadzenFormField Text="Hhid - carga hidráulica máxima sobre a base da brecha. Hhid = Hbarr = Hd (m)">
+
+                                                    <RadzenNumeric TValue="double" @bind-Value=@objVazaPico.valorHhid />
+
+                                                </RadzenFormField>
+
+                                            </RadzenStack>
+                                        </RadzenColumn>
+
+                                    </RadzenRow>
+
+                                    <RadzenRow Gap="1rem">
+                                        <RadzenColumn Size="12" SizeSM="6">
+                                            <RadzenStack>
+                                                <RadzenLabel Text="Ymed - Profundidade média do reservatório no início da ruptura (Ymed = 1/3x Hd)(m)"></RadzenLabel>
+                                                <RadzenFormField Text="Ymed - Profundidade média do reservatório no início da ruptura (Ymed = 1/3x Hd)(m)">
+
+                                                    <RadzenNumeric TValue="double" @bind-Value=@objVazaPico.valorYmed />
+
+                                                </RadzenFormField>
+
+                                            </RadzenStack>
+                                        </RadzenColumn>
+
+                                    </RadzenRow>
+
+
+                                    <RadzenRow Gap="1rem">
+                                        <RadzenColumn Size="12" SizeSM="6">
+                                            <RadzenStack>
+                                                <RadzenLabel Text="As - Área do reservatório(m2)"></RadzenLabel>
+                                                <RadzenFormField Text="As - Área do reservatório (m2)">
+
+                                                    <RadzenNumeric TValue="double" @bind-Value=@objVazaPico.valorAS />
+
+                                                </RadzenFormField>
+
+                                            </RadzenStack>
+                                        </RadzenColumn>
+
+                                    </RadzenRow>
+
+                                </RadzenStack>
+                            </RadzenFieldset>
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="6">
+
+                            <RadzenFieldset Text="Equações empíricas">
+                                <RadzenStack Gap="1rem">
+                                    <RadzenRow class="rz-text-align-center rz-border-success-light" Gap="0.5rem">
+                                        <RadzenColumn class="rz-background-color-success-lighter rz-color-on-info-lighter rz-p-5" Style="font-size:10px;">
+                                            AUTOR
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-success-lighter rz-color-on-info-lighter rz-p-5" Style="font-size:10px;">
+                                            RESULTADO
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-success-lighter rz-color-on-info-lighter rz-p-5" Style="font-size:10px;">
+                                            UNIDADE DE MEDIDA
+                                        </RadzenColumn>
+
+                                    </RadzenRow>
+
+                                    <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            Lou (1981) apud Mascarenhas (1990) Kirkpatrick (1977)
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            @lou
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            m³/s
+                                        </RadzenColumn>
+
+                                    </RadzenRow>
+
+                                    <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            Saint-Venant (-) apud U.S. Army Corps of Enginners (1997)
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            @saintVenant
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            m³/s
+                                        </RadzenColumn>
+
+                                    </RadzenRow>
+                                    <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            USBR (1982) apud USBR (1987)
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            @USBR1982
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            m³/s
+                                        </RadzenColumn>
+                                    </RadzenRow>
+                                    <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            Soil Conservation Service (1981)
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            @soilConservationService
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            m³/s
+                                        </RadzenColumn>
+
+                                    </RadzenRow>
+
+                                    <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            Kirkpatrick (1977)
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            @Kirkpatrick
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            m³/s
+                                        </RadzenColumn>
+
+                                    </RadzenRow>
+                                    <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            Froehlich (1995)
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            @Froehlich
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            m³/s
+                                        </RadzenColumn>
+
+                                    </RadzenRow>
+
+                                    <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            Institution Of Civil Engineers (1996)
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            @InstitutionCivilEngineers
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            m³/s
+                                        </RadzenColumn>
+
+                                    </RadzenRow>
+
+                                    <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            Evans (1986)
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            @Evans
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            m³/s
+                                        </RadzenColumn>
+
+                                    </RadzenRow>
+                                    <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            Costa (1985)
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            @Costa
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            m³/s
+                                        </RadzenColumn>
+
+                                    </RadzenRow>
+                                    <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            Webby (1996)
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            @Webby
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            m³/s
+                                        </RadzenColumn>
+
+                                    </RadzenRow>
+
+                                    <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            USBR (1989)
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            @USBR1989
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            m³/s
+                                        </RadzenColumn>
+
+                                    </RadzenRow>
+
+
+                                    <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            Lemperière (1996)
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            @Lemperiere
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            m³/s
+                                        </RadzenColumn>
+
+                                    </RadzenRow>
+
+
+                                    <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            Espanha - Ministerio de Medio Ambiente (1998)
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            @EspanhaMinisterioMedioAmbiente
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            m³/s
+                                        </RadzenColumn>
+
+                                    </RadzenRow>
+
+                                    <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            Singh e Snorrason (1984)
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            @SinghSnorrason
+                                        </RadzenColumn>
+                                        <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                            m³/s
+                                        </RadzenColumn>
+
+                                    </RadzenRow>
+                                </RadzenStack>
+                            </RadzenFieldset>
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+
+                                <input type="button" class="btn btn-primary" @onclick="() => Salvar()" value="Próximo" />
+                                
+                    
+                                <RadzenButton Visible="@CheckEtapa1" id="btnProximoEtapa2" e type="button" class="btn btn-primary" style="visibility:hidden;" @onclick="() => Proximo(2)" value="Próximo" />
+                    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </RadzenCard>
+        </RadzenTabsItem>
+
+        <RadzenTabsItem Text="Etapa 2: Definição do tempo de ruptura" Disabled="@DisabledEtapa2">
+            <div class="col-md-8">
+                <div class="form-group">
+                    <label for="valorTempoRuptura" class="control-label">Tempo de Ruptura selecionado pelo usuário</label>
+                    @*<InputNumber @bind-Value="@objVazaPico.valorTempoRuptura" class="form-control" onchange="LoadTempoRuptura()" />*@
+                    <RadzenNumeric TValue="double" @bind-Value=@objVazaPico.valorTempoRuptura Change="LoadTempoRuptura" />
+                </div>
+            </div>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+
+                                <input type="button" class="btn btn-primary" @onclick="() => SalvarTempoRupotura()" value="Próximo" />
+                                
+                    
+                                <RadzenButton Visible="@CheckEtapa1" id="btnProximoEtapa2" e type="button" class="btn btn-primary" style="visibility:hidden;" @onclick="() => Proximo(2)" value="Próximo" />
+                    
+                            </div>
+                        </div>
+                    </div>
+                
+            <RadzenColumn Size="12" SizeMD="6">
+
+                <RadzenFieldset Text="Referências para definição do Tempo de Ruptura">
+                    <RadzenStack Gap="1rem">
+                        <RadzenRow class="rz-text-align-center rz-border-success-light" Gap="0.5rem">
+                            <RadzenColumn class="rz-background-color-success-lighter rz-color-on-info-lighter rz-p-5" Style="font-size:10px;">
+                                REFERENCIA
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-success-lighter rz-color-on-info-lighter rz-p-5" Style="font-size:10px;">
+                                DEFINIÇÃO
+                            </RadzenColumn>
+
+
+                        </RadzenRow>
+
+                        <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                USBR (1989)
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                <RadzenLabel Text="0,5 < tr < 3 (bem construída) "></RadzenLabel>
+                            </RadzenColumn>
+
+
+                        </RadzenRow>
+
+                        <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Eletrobrás (2003)
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                <RadzenLabel Text="0,1 h < Trup < 1 h (compactada)"></RadzenLabel>
+                            </RadzenColumn>
+
+
+                        </RadzenRow>
+                        <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Singh (1989)
+
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                <RadzenLabel Text="0,25h< Trup < 1,0 h"></RadzenLabel>
+                            </RadzenColumn>
+
+                        </RadzenRow>
+                        <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                USACE (1980)
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                <RadzenLabel Text=" 0,5 a 4,0"></RadzenLabel>
+                            </RadzenColumn>
+
+
+                        </RadzenRow>
+
+                        <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                USACE (2007)
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                <RadzenLabel Text=" 0,1 a 4,0"></RadzenLabel>
+                            </RadzenColumn>
+
+
+                        </RadzenRow>
+                        <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                FERC (1988)
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                <RadzenLabel Text="0,1 a 1,0"></RadzenLabel>
+                            </RadzenColumn>
+
+
+                        </RadzenRow>
+
+                        <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                FREAD (2006)
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                <RadzenLabel Text="0,1 a 1,0"></RadzenLabel>
+                            </RadzenColumn>
+
+
+                        </RadzenRow>
+
+
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenTabsItem>
+        <RadzenTabsItem Text="Etapa 3: Elaboração do hidrograma de ruptura">
+            <RadzenStack>
+                <RadzenRow Gap="1rem">
+                    <RadzenColumn Size="12" SizeSM="6">
+                        <RadzenStack>
+                            <RadzenLabel Text="Volumes do reservatório (m³)"></RadzenLabel>
+                            <RadzenFormField Text="Volumes do reservatório (m³)">
+
+                                <RadzenNumeric TValue="double" @bind-Value=@objVazaPico.HidrogramaRupturaTriangular.valorVolumeReservatorio />
+
+                            </RadzenFormField>
+
+                        </RadzenStack>
+                    </RadzenColumn>
+
+                </RadzenRow>
+                <RadzenRow Gap="1rem">
+                    <RadzenColumn Size="12" SizeSM="6">
+                        <RadzenStack>
+
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <label for="barragems" class="control-label">Tipo de Equação </label>
+
+                                    <RadzenDropDown id="dropQP" Placeholder="Selecione a equação" TValue="int" Data="@enumQPs" Change="@DropDownChanged" />
+                                </div>
+                            </div>
+                            <RadzenLabel Text="Qp (m³/s)"></RadzenLabel>
+                            <RadzenFormField Text="Qp (m³/s)">
+
+                                <RadzenNumeric TValue="double" Change="LoadTempoPico" @bind-Value=@objVazaPico.HidrogramaRupturaTriangular.valorQP />
+
+                            </RadzenFormField>
+
+                        </RadzenStack>
+                    </RadzenColumn>
+
+                </RadzenRow>
+
+                <RadzenRow Gap="1rem">
+                    <RadzenColumn Size="12" SizeSM="6">
+                        <RadzenStack>
+                            <RadzenLabel Text="Tempo de pico (Horas) "></RadzenLabel>
+                            <RadzenFormField Text="Tempo de pico (Horas) ">
+
+                                <RadzenNumeric TValue="double" Change="LoadTempoPico" @bind-Value=@objVazaPico.HidrogramaRupturaTriangular.valorTempoPico />
+
+                            </RadzenFormField>
+
+                        </RadzenStack>
+                    </RadzenColumn>
+
+                </RadzenRow>
+                <RadzenRow Gap="1rem">
+                    <RadzenColumn Size="12" SizeSM="6">
+                        <RadzenStack>
+                            <RadzenLabel Text="Tempo de Base (Hora)"></RadzenLabel>
+                            <RadzenFormField Text="Tempo de Base (Hora)">
+
+                                <RadzenNumeric TValue="double" @bind-Value=@objVazaPico.HidrogramaRupturaTriangular.valorTempoBase />
+
+                            </RadzenFormField>
+
+                        </RadzenStack>
+                    </RadzenColumn>
+
+                </RadzenRow>
+            </RadzenStack>
+            <PlotlyChart @bind-Config="config" @bind-Layout="layout" @bind-Data="data" @ref="chart"  />
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+
+                        <input type="button" class="btn btn-primary" @onclick="() => SalvarHidrogramaRupturaTriangular()" value="Próximo" />
+                    </div>
+                </div>
+            </div>
+        </RadzenTabsItem>
+
+    </Tabs>
+</RadzenTabs>
+<style> 
+    .shadows div {
+        padding: 1rem;
+        width: 10rem;
+        text-align: center;
+    }
+</style>
+
+
+
+
+@code {
+    private PlotlyChart chart;
+    private Config config = new Config();
+    private Layout layout = new Layout();
+    private IList<ITrace> data;
+
+
+    /////ETAPA  3 FIM
+
+    private bool DisabledEtapa2 = true;
+
+
+
+    Variant variant = Variant.Outlined;
+    private int selectedIndex = 0;
+    private List<VazaPico> lstVazaPico;
+    private List<Barragem> barragems;
+    public VazaPico objVazaPico = new VazaPico();
+    private double indiceCircularidade;
+    private double fatorForma;
+    /// <summary>
+    /// Lou (1981) apud Mascarenhas (1990) Kirkpatrick (1977)
+    /// </summary>
+    private double lou;
+    /// <summary>
+    /// Saint-Venant (-) apud U.S. Army Corps of Enginners (1997)
+    /// </summary>
+    private double saintVenant;
+
+    /// <summary>
+    /// Lemperière
+    /// </summary>
+    private double Lemperiere;
+
+    //// <summary>
+    ///USBR (1982) apud USBR (1987)
+    /// </summary>
+    private double USBR1982;
+
+    //// <summary>
+    /// Soil Conservation Service (1981)
+    /// </summary>
+    private double soilConservationService;
+    //// <summary>
+    /// Kirkpatrick (1977)
+    /// </summary>
+    private double Kirkpatrick;
+
+    //// <summary>
+    /// Froehlich (1995)
+    /// </summary>
+    private double Froehlich;
+    //// <summary>
+    /// Institution Of Civil Engineers (1996)
+    /// </summary>
+    private double InstitutionCivilEngineers;
+
+    //// <summary>
+    /// Evans (1986)
+    /// </summary>
+    private double Evans;
+
+    //// <summary>
+    /// Costa (1985)
+    /// </summary>
+    private double Costa;
+
+    //// <summary>
+    /// Webby (1996)
+    /// </summary>
+    private double Webby;
+
+    //// <summary>
+    /// USBR (1989)
+    /// </summary>
+    private double USBR1989;
+
+    //// <summary>
+    /// Lemperière (1996)
+    /// </summary>
+    private double indiceRugosidade;
+
+
+
+    //// <summary>
+    ///Espanha - Ministerio de Medio Ambiente (1998)
+    /// </summary>
+    private double EspanhaMinisterioMedioAmbiente;
+
+
+    int idBarragemVazaoPico = 0;
+    bool flagBarragem = false;
+    private List<Model.Barragem> lstBarragem;
+
+    protected async Task Proximo(int intSelectedIndex)
+    {
+        this.selectedIndex = intSelectedIndex;
+
+        switch (selectedIndex)
+        {
+
+            case 2:
+                // Barragem
+
+                break;
+            default:
+                // code block
+                break;
+        }
+
+        StateHasChanged();
+    }
+    //// <summary>
+    /// Singh e Snorrason (1984)
+    /// </summary>
+    private double SinghSnorrason;
+
+    private bool CheckEtapa1;
+
+    protected void LoadChart()
+    {
+
+        var tempo = objVazaPico.HidrogramaRupturaTriangular.valorQP;
+        var tempoPico = objVazaPico.HidrogramaRupturaTriangular.valorTempoPico;
+        ///// ETAPA 3
+
+
+        // Using of the interface IList is important for the event callback!
+        data = new List<ITrace>
+    {
+
+    new Scatter
+    {
+        Name = "ScatterTrace",
+        Mode = ModeFlag.Lines | ModeFlag.Markers,
+        X = LoadTempoPico(tempoPico) ,
+        Y = LoadTempoBase(tempo) 
+    }
+    };
+
+        chart.Layout = layout;
+        chart.Data = data;
+        chart.Update();
+        OnAfterRender(true);
+
+
+    }
+
+    private List<object> LoadTempoPico(double tempoPico)
+    {
+        List<object> tempoList = new List<object>();
+        bool flagMaior = true;
+        for (double i = 0.0; i <= 5.0; i = i + 0.2)
+        {
+            if (i > tempoPico && flagMaior)
+            {
+                tempoList.Add(tempoPico);
+                flagMaior = false;
+            }      
+            tempoList.Add(i);
+        }
+        //tempoList.Add(0.0);
+
+        return tempoList;
+    }
+    private List<object> LoadTempoBase(double tempo)
+    {
+        List<object> tempoList = new List<object>();
+        bool flagMaior = true;
+
+        for (double i = 0; i <= 10000; i = i + 500)
+        {
+            if (i > tempo && flagMaior)
+            {
+                tempoList.Add(tempo);
+                flagMaior = false;
+                tempoList.Add(0);
+                return tempoList;
+            }
+            tempoList.Add(i);
+        }
+        //tempoList.Add(0);
+
+        return tempoList;
+    }
+
+    protected async Task DropDownChanged(object value)
+    {
+        if (value.ToString() == "Lou")
+        {
+            objVazaPico.HidrogramaRupturaTriangular.valorQP = lou;
+        }
+
+        if (value.ToString() == "Saint")
+        {
+            objVazaPico.HidrogramaRupturaTriangular.valorQP = saintVenant;
+        }
+        if (value.ToString() == "USBR_1982")
+        {
+            objVazaPico.HidrogramaRupturaTriangular.valorQP = USBR1982;
+        }
+        if (value.ToString() == "Soil")
+        {
+            objVazaPico.HidrogramaRupturaTriangular.valorQP = soilConservationService;
+        }
+        if (value.ToString() == "Kirkpatrick")
+        {
+            objVazaPico.HidrogramaRupturaTriangular.valorQP = Kirkpatrick;
+        }
+        if (value.ToString() == "Froehlich")
+        {
+            objVazaPico.HidrogramaRupturaTriangular.valorQP = Froehlich;
+        }
+        if (value.ToString() == "Institution")
+        {
+            objVazaPico.HidrogramaRupturaTriangular.valorQP = InstitutionCivilEngineers;
+        }
+        if (value.ToString() == "Costa")
+        {
+            objVazaPico.HidrogramaRupturaTriangular.valorQP = Costa;
+        }
+        if (value.ToString() == "Webby")
+        {
+            objVazaPico.HidrogramaRupturaTriangular.valorQP = Webby;
+        }
+        if (value.ToString() == "USBR")
+        {
+            objVazaPico.HidrogramaRupturaTriangular.valorQP = USBR1989;
+        }
+        if (value.ToString() == "Lemperiere")
+        {
+            objVazaPico.HidrogramaRupturaTriangular.valorQP = Lemperiere;
+        }
+        if (value.ToString() == "Espanha")
+        {
+            objVazaPico.HidrogramaRupturaTriangular.valorQP = EspanhaMinisterioMedioAmbiente;
+        }
+        if (value.ToString() == "Singh")
+        {
+            objVazaPico.HidrogramaRupturaTriangular.valorQP = SinghSnorrason;
+        }
+
+        LoadTempoPico();
+
+
+        LoadChart();
+        StateHasChanged();
+    }
+    private List<EnumQP> enumQPs = Enum.GetValues(typeof(EnumQP)).Cast<EnumQP>().ToList();
+    List<EnumQP> selectedOptions = new List<EnumQP>();
+    protected override async Task OnInitializedAsync()
+    {
+
+        barragems = new List<Barragem>();
+        barragems = await VazaoPicoService.GetBarragemAsync();
+        enumQPs = Enum.GetValues(typeof(EnumQP)).Cast<EnumQP>().ToList();
+        selectedOptions = new List<EnumQP>();
+        this.CheckEtapa1 = false;
+        this.DisabledEtapa2 = true;
+
+        var tempo = objVazaPico.HidrogramaRupturaTriangular.valorQP;
+
+
+    }
+
+    protected async Task LoadTempoRuptura()
+    {
+
+        objVazaPico.HidrogramaRupturaTriangular.valorTempoPico = objVazaPico.valorTempoRuptura;
+
+        StateHasChanged();
+    }
+
+    protected async Task LoadTempoPico()
+    {
+        ////=((2*B4)/B5)/3600
+        objVazaPico.HidrogramaRupturaTriangular.valorTempoBase =  (2 * objVazaPico.HidrogramaRupturaTriangular.valorVolumeReservatorio ) / (objVazaPico.HidrogramaRupturaTriangular.valorQP) / 3600;
+
+        StateHasChanged();
+    }
+
+
+
+    protected async Task SalvarHidrogramaRupturaTriangular()
+    {
+
+        objVazaPico.HidrogramaRupturaTriangular.BarragemId = idBarragemVazaoPico;
+        await HidrogramaTriangulaService.CadastrarHidrogramaTriangula(objVazaPico.HidrogramaRupturaTriangular);
+
+
+
+
+        var resultado = await HidrogramaTriangulaService.GetHidrogramaTriangula();
+        var resultadoFiltrado = resultado.Where(x => x.BarragemId == idBarragemVazaoPico).Count() > 0;
+
+
+        if (resultadoFiltrado && resultado.Count() > 0)
+        {
+            objVazaPico.HidrogramaRupturaTriangular.Id = resultado.Find(x => x.BarragemId == idBarragemVazaoPico).Id;
+            await HidrogramaTriangulaService.EditarHidrogramaTriangula(objVazaPico.HidrogramaRupturaTriangular);
+        }
+        else
+        {
+            objVazaPico.HidrogramaRupturaTriangular.DataCadastro = DateTime.Now;
+            await HidrogramaTriangulaService.CadastrarHidrogramaTriangula(objVazaPico.HidrogramaRupturaTriangular);
+        }
+    }
+
+    protected async Task SalvarTempoRupotura()
+    {
+        TempoRuptura tempoRuptura = new TempoRuptura();
+        tempoRuptura.valorTempoRuptura = objVazaPico.valorTempoRuptura;
+        tempoRuptura.BarragemId = idBarragemVazaoPico;
+
+        var resultado = await TempoRupturaService.GetTempoRuptura();
+        var resultadoFiltrado = resultado.Where(x => x.BarragemId == idBarragemVazaoPico).Count() > 0;
+
+
+        if (resultadoFiltrado && resultado.Count() > 0)
+        {
+            tempoRuptura.Id = resultado.Find(x => x.BarragemId == idBarragemVazaoPico).Id;
+            await TempoRupturaService.EditarTempoRuptura(tempoRuptura);
+        }
+        else
+        {
+            tempoRuptura.DataCadastro = DateTime.Now;
+
+            await TempoRupturaService.CadastrarTempoRuptura(tempoRuptura);
+        }
+    }
+    protected async Task Salvar()
+    {
+        //////=7,683*(B8)^1,909
+        lou = 7.683 * Math.Pow(objVazaPico.valorHhid, 1.909);
+        //////=(8/27)*(B4)*(RAIZ(9,8*(B9^(3/2))))
+
+        var valorx = Math.Pow(objVazaPico.valorYmed, 1.5);
+        saintVenant = (0.296) * (objVazaPico.valorLarguraBarragem) * (Math.Sqrt(9.8 * valorx));
+
+        //////=19*(B8)^1,85
+        USBR1982 = 19 * (Math.Pow(objVazaPico.valorHhid, 1.85));
+
+        //////=16,6*(B8)^1,85
+        soilConservationService = 16.6 * Math.Pow(objVazaPico.valorHhid, 1.85);
+
+
+        //////=1,268*(B8+0,3)^2,5
+        Kirkpatrick = 1.268 * Math.Pow(objVazaPico.valorHhid + 0.3, 2.5);
+        //////=0,607*0,934*(B7^0,295)*(B8^1,24)
+        Froehlich = 0.607 * 0.934 * Math.Pow(objVazaPico.valorVhid, 0.295) * Math.Pow(objVazaPico.valorHhid, 1.24);
+        //////=1,3*(B8)^2,5
+        InstitutionCivilEngineers = 1.3 * Math.Pow(objVazaPico.valorHhid, 2.5);
+
+        //////=0,72*(B7)^0,53
+        Evans = 0.72 * Math.Pow(objVazaPico.valorVhid, 0.53);
+
+        //////=0,763*(B7*B8)^0,42
+        Costa = 0.763 * Math.Pow(objVazaPico.valorVhid * objVazaPico.valorHhid, 0.42);
+
+
+        //////=0,0443*(9,8^0,5)*(B8^1,4)*(B7^0,367)
+        Webby = 0.0443 * (Math.Pow(9.8, 0.5)) * (Math.Pow(objVazaPico.valorHhid, 1.4)) * (Math.Pow(objVazaPico.valorVhid, 0.367));
+
+        //////=6,14*(B5^1,81)*(B7^0,061)
+        USBR1989 = 6.14 * Math.Pow(objVazaPico.valorHbarr, 1.81) * Math.Pow(objVazaPico.valorVhid, 0.061);
+
+        //////=(B8)^0,5*((B8^2)+(0,1*B7^0,5))
+        Lemperiere = Math.Pow(objVazaPico.valorHhid, 0.5) * (Math.Pow(objVazaPico.valorHhid, 2) + (0.1 * Math.Pow(objVazaPico.valorVhid, 0.5)));
+
+        //////=0,78*(B5*B7)^0,5
+        EspanhaMinisterioMedioAmbiente = 0.78 * Math.Pow((objVazaPico.valorHbarr * objVazaPico.valorVhid), 0.5);
+
+        //////=13,4*(B5)^1,89
+        SinghSnorrason = 13.4 * Math.Pow(objVazaPico.valorHbarr, 1.89);
+
+        this.CheckEtapa1 = true;
+        DisabledEtapa2 = false;
+
+        objVazaPico.HidrogramaRupturaTriangular.valorVolumeReservatorio = objVazaPico.valorVhid;
+
+
+
+        objVazaPico.BarragemId = idBarragemVazaoPico;
+
+       
+        var resultado = await VazaoPicoService.GetVazaPico();
+        var resultadoFiltrado = resultado.Where(x => x.BarragemId == idBarragemVazaoPico).Count() > 0;
+
+      
+        if (resultadoFiltrado && resultado.Count() > 0)
+        {
+            objVazaPico.Id = resultado.Find(x => x.BarragemId == idBarragemVazaoPico).Id;
+            await VazaoPicoService.EditarVazaPico(objVazaPico);
+        }
+        else
+        {
+            objVazaPico.DataCadastro = DateTime.Now;
+            await VazaoPicoService.CadastrarVazaPico(objVazaPico);
+        }
+
+    }
+
+    protected void Submit(VazaPico arg)
+    {
+        //
+    }
+}
+

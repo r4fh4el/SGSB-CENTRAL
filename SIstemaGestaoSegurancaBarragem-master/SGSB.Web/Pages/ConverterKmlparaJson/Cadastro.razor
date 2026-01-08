@@ -1,0 +1,270 @@
+﻿@page "/ConverterKmlparaJson/Cadastro"
+@using System.IO;
+@using System.Xml.Linq;
+@using Newtonsoft.Json.Linq;
+@using System.Text.Json;
+@using System.Xml;
+@using System.Globalization;
+@inject BarragemService BarragemService
+@inject ConverterKmlparaJsonService ConverterKmlparaJsonService
+@inject NavigationManager NavigationManager
+@using Model Endidades
+@using SGSB.Web.Data;
+@using SGSB.Web.Models;
+<h3>KML to JSON Conversion</h3>
+
+<p>
+    <InputFile OnChange="HandleFileSelect" />
+</p>
+
+@if (flagBarragem)
+{
+    <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Default">
+        Atenção! Já existe para essa  barragem!
+    </RadzenAlert>
+}
+
+
+@* 
+
+<EditForm Model="@BarragemKmlModel" OnSubmit="CreateBarragemKMLModel">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+
+        @if (flagBarragem)
+        {
+            <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Default">
+                Atenção! Já existe para essa  barragem!
+            </RadzenAlert>
+        }
+
+
+        <RadzenCard class="mb-4">
+            <div class="form-group">
+                <label for="barragems" class="control-label">Barragem </label>
+                  <RadzenDropDown @bind-Value="@idBarragemMapa" Placeholder="Selecione a barragem" TextProperty="Nome" ValueProperty="Id" Data="@lstBarragem" Change=@(args => VerificaBarragem(args))></RadzenDropDown>
+
+            </div>
+        </RadzenCard>
+
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="Coordenadas" class="control-label">Nome </label>
+                <RadzenTextBox MaxLength="8000"   id="idCoordenada"    @bind-Value="@BarragemKmlModel.Coordenadas"   class="form-control" />
+                <ValidationMessage For="@(()=> BarragemKmlModel.Coordenadas)" />
+            </div>
+
+            <input type="button" class="btn"  @onclick="@Gerar" value="Gerar" />
+
+    </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="submit" class="btn btn-primary" value="Salvar" />
+                <input type="button" class="btn" @onclick="@Cancel" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm> *@
+
+<div id="mapaKML" style="height: 500px;"></div>
+@if (jsonResult != null)
+{
+
+    <div>
+        <h4>JSON Result</h4>
+        <pre>@jsonResult</pre>
+    </div>
+}
+
+@code {
+    private BarragemKmlModel BarragemKmlModel = new BarragemKmlModel();
+    bool flagBarragem = false;
+    int idBarragemMapa = 0;
+    private List<Barragem> lstBarragem;
+    protected override async Task OnInitializedAsync()
+    {
+        lstBarragem = new List<Barragem>();
+        lstBarragem = await BarragemService.GetBarragemAsync();
+
+    }
+    private string jsonResult;
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; }
+    private string polygonCoords;
+    private async Task HandleFileSelect(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+
+        if (file != null)
+        {
+            using var stream = file.OpenReadStream();
+            using var reader = new StreamReader(stream);
+            var kmlContent = await reader.ReadToEndAsync();
+
+            List<List<double>> coordinates = KmlToCoordinates(kmlContent);
+
+            if (coordinates.Count() > 0)
+            {
+
+                await JSRuntime.InvokeVoidAsync("inicializarMapaKML", coordinates);
+                await JSRuntime.InvokeVoidAsync("showMessage", polygonCoords);
+                StateHasChanged();
+            }
+
+
+
+            jsonResult = JsonSerializer.Serialize(coordinates, new JsonSerializerOptions { WriteIndented = true });
+
+            StateHasChanged();
+        }
+    }
+
+
+    protected async Task CreateBarragemKMLModel()
+    {
+        var resultado = await BarragemService.GetBarragemId(idBarragemMapa);
+
+        if (resultado != null)
+
+        {
+            flagBarragem = true;
+            NavigationManager.NavigateTo("RotaFuga/index");
+        }
+
+
+        BarragemKmlModel.BarragemId = idBarragemMapa;
+
+        await ConverterKmlparaJsonService.CadastrarBarragemKml(BarragemKmlModel);
+        NavigationManager.NavigateTo("Baragem/index");
+    }
+
+    public async Task VerificaBarragem(object args)
+    {
+
+
+        idBarragemMapa = (int)args;
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("Barragem/index");
+    }
+
+    // static List<List<double>> ConvertStringToPolygonCoords(string polygonCoordsString)
+    // {
+    //     List<List<double>> polygonCoords = new List<List<double>>();
+
+    //     // Remove square brackets and split the string into individual coordinate strings
+    //     string[] coordinateStrings = polygonCoordsString.Trim('[', ']').Split(new[] { "],[" }, StringSplitOptions.None);
+
+    //     foreach (string coordinateString in coordinateStrings)
+    //     {
+    //         // Split each coordinate string into latitude and longitude
+    //         string[] coordinates = coordinateString.Split(',');
+
+    //         if (coordinates.Length == 2 && double.TryParse(coordinates[0], out double latitude) && double.TryParse(coordinates[1], out double longitude))
+    //         {
+    //             // Add the coordinates to the polygonCoords list
+    //             polygonCoords.Add(new List<double> { latitude, longitude });
+    //         }
+    //         else
+    //         {
+    //             // Handle invalid coordinate format
+    //             Console.WriteLine($"Invalid coordinate format: {coordinateString}");
+    //         }
+    //     }
+
+    //     return polygonCoords;
+    // }
+    public async Task Gerar()
+    {
+
+        if (!string.IsNullOrEmpty(BarragemKmlModel.Coordenadas))
+        {
+            var teste = ConvertStringToPolygonCoords(BarragemKmlModel.Coordenadas);
+            await JSRuntime.InvokeVoidAsync("inicializarMapaKML", teste);
+        }
+     
+    }
+    private static List<List<double>> ConvertStringToPolygonCoords(string coordsString)
+    {
+        List<List<double>> polygonCoords = new List<List<double>>();
+        string[] coordinates = coordsString.Split(',');
+
+        for (int i = 0; i < coordinates.Length; i += 2)
+        {
+            if (i + 1 < coordinates.Length) // Check if there are enough coordinates
+            {
+                double latitude, longitude;
+                if (double.TryParse(coordinates[i].Trim(), out latitude) && double.TryParse(coordinates[i + 1].Trim(), out longitude))
+                {
+                    polygonCoords.Add(new List<double> { latitude, longitude });
+                }
+            }
+        }
+
+        return polygonCoords;
+    }
+     static List<List<double>> KmlToCoordinates(string kmlData)
+    {
+        XNamespace ns = "http://www.opengis.net/kml/2.2";
+
+        XDocument xmlDoc = XDocument.Parse(kmlData);
+
+        var coordinatesElement = xmlDoc.Descendants(ns + "coordinates").FirstOrDefault();
+
+        if (coordinatesElement != null)
+        {
+            List<List<double>> coordinatesList = new List<List<double>>();
+
+            string[] coordinateStrings = coordinatesElement.Value.Split(' ');
+
+            foreach (var coordinateString in coordinateStrings)
+            {
+                string[] parts = coordinateString.Split(',');
+
+                if (parts.Length >= 2)
+                {
+                    double latitude, longitude;
+
+                    // Use InvariantCulture to handle '.' as decimal separator
+                    if (double.TryParse(parts[1], System.Globalization.NumberStyles.Any, CultureInfo.InvariantCulture, out latitude) &&
+                        double.TryParse(parts[0], NumberStyles.Any, CultureInfo.InvariantCulture, out longitude))
+                    {
+                        coordinatesList.Add(new List<double> { latitude, longitude });
+                    }
+                }
+            }
+
+            return coordinatesList;
+        }
+        else
+        {
+            return new List<List<double>>();
+        }
+    }
+   
+   
+
+    public class Feature
+    {
+        public string Type { get; set; }
+        public Properties Properties { get; set; }
+        public Geometry Geometry { get; set; }
+    }
+
+    public class Properties
+    {
+        public string Name { get; set; }
+        public string Description { get; set; }
+        // Add other properties as needed
+    }
+
+    public class Geometry
+    {
+        public string Type { get; set; }
+        public string Coordinates { get; set; }
+    }
+}

@@ -1,0 +1,209 @@
+﻿<div class="top-row pl-4 navbar navbar-dark">
+    <a class="navbar-brand" href="">
+   
+        SGSB
+    </a>
+    <br />
+    <button class="navbar-toggler" @onclick="ToggleNavMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <ul class="nav flex-column">
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="Home/Index" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Home
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="Barragem/Index">
+                <span class="oi oi-star" aria-hidden="true"></span> Barragem
+            </NavLink>
+        </li>
+         <li class="nav-item px-3">
+            <NavLink class="nav-link" href="" @onclick="()=> expandirApp =! expandirApp">
+                <span class="oi oi-shield" aria-hidden="true"></span> APP
+            </NavLink>
+        </li>
+        @if (expandirApp)
+            {
+                 <li class="nav-item px-3">
+                <NavLink class="nav-link" href="Notificacao/Index">
+                    <span class="oi oi-bullhorn" aria-hidden="true"></span>Notificação
+                </NavLink>
+            </li>
+
+          
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="RotaFuga/Index">
+                    <span class="oi oi-pin" aria-hidden="true"></span>Rota de Fuga
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="PontoEncontro/Index">
+                    <span class="oi oi-people" aria-hidden="true"></span>Ponto de Encontro
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="Ticket/Index">
+                    <span class="oi oi-task" aria-hidden="true"></span>Ticket
+                </NavLink>
+            </li>
+            }
+           
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="" @onclick="()=> expandirSubMenu =! expandirSubMenu">
+                <span class="oi oi-shield" aria-hidden="true"></span> Configurações
+            </NavLink>
+        </li>
+            @if (expandirSubMenu)
+            {
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="ConverterKmlparaJson/Cadastro">
+                    <span class="oi oi-briefcase" aria-hidden="true"></span>Vincular Kml
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="SistemaDrenagem/Index">
+                    <span class="oi oi-briefcase" aria-hidden="true"></span>Sistema de Drenagem
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="CotaAreaVolume/Index">
+                    <span class="oi oi-british-pound" aria-hidden="true"></span>Cota Área Volume
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="CondicaoFundacao/Index">
+                    <span class="oi oi-star" aria-hidden="true"></span> Condição Fundação
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="DocumentacaoPerguntas/Index">
+                    <span class="oi oi-british-pound" aria-hidden="true"></span>Documentação
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="Instrumentos/Index">
+                    <span class="oi oi-caret-top" aria-hidden="true"></span>Instrumentos
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="TipoEmpreendedor/Index">
+                    <span class="oi oi-fork" aria-hidden="true"></span>Tipo Empreendedor
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="TipoEdificacao/Index">
+                    <span class="oi oi-home" aria-hidden="true"></span> Tipo Edificação
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="TipoMaterialBarragem/Index">
+                    <span class="oi oi-flag" aria-hidden="true"></span> Tipo Material
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="TipoEstruturaBarragem/Index">
+                    <span class="oi oi-globe" aria-hidden="true"></span> Tipo Estrutura
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="UsoBarragem/Index">
+                    <span class="oi oi-flash" aria-hidden="true"></span> Uso Barragem
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="UsoSoloPredominante/Index">
+                    <span class="oi oi-warning" aria-hidden="true"></span> Uso Solo Predominante
+                </NavLink>
+            </li>
+            }
+       
+              <li class="nav-item px-3">
+            <NavLink class="nav-link" href="" @onclick="()=> expandirClassificacao =! expandirClassificacao">
+                <span class="oi oi-graph" aria-hidden="true"></span> Classificação Barragem
+            </NavLink>
+        </li>
+        @if (expandirClassificacao)
+            {
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="DanoPotencialAssociado/Index">
+                    <span class="oi oi-audio" aria-hidden="true"></span> Dano Potencial
+                </NavLink>
+            </li>
+
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="CategoriaRisco/Index">
+                    <span class="oi oi-book" aria-hidden="true"></span> Categoria Risco
+                </NavLink>
+            </li>
+            }
+            <li class="nav-item px-3">
+            <NavLink class="nav-link" href="" @onclick="()=> expandirCaracterizacao =! expandirCaracterizacao">
+                <span class="oi oi-cloudy" aria-hidden="true"></span> Caracterização Bacia
+                </NavLink>
+            </li>
+        @if (expandirCaracterizacao)
+            {
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="TempoConcentracao/Index">
+                    <span class="oi oi-clock" aria-hidden="true"></span> Tempo Concentração
+                </NavLink>
+            </li>
+
+
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="IndiceCaracterizacaoBH/Index">
+                <span class="oi oi-book" aria-hidden="true"></span> Índice Caracterização
+            </NavLink>
+        </li>
+        }
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="" @onclick="()=> expandirEstudoRuptura =! expandirEstudoRuptura">
+                <span class="oi oi-clipboard" aria-hidden="true"></span> Estudo de Ruptura
+                </NavLink>
+            </li>
+        @if (expandirEstudoRuptura)
+            {
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="VazaoPico/Index">
+                    <span class="oi oi-dial" aria-hidden="true"></span> Vazão de Pico
+                </NavLink>
+            </li>
+
+@*
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="IndiceCaracterizacaoBH/Index">
+                <span class="oi oi-book" aria-hidden="true"></span> Tempo de Ruptura
+            </NavLink>
+        </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="IndiceCaracterizacaoBH/Index">
+                <span class="oi oi-book" aria-hidden="true"></span> Elaboração do Hidrograma
+            </NavLink>
+        </li>*@
+     
+        }
+    </ul>
+    
+</div>
+<a class="navbar-brand" style="text-align:center;" href="">
+    <img width="93%" src="images/LogoFinalTranparente2.png">
+</a>
+@code {
+    private bool collapseNavMenu = true;
+    
+    private bool expandirSubMenu;
+    private bool expandirApp;
+    private bool expandirClassificacao;
+    private bool expandirCaracterizacao;
+    private bool expandirEstudoRuptura;
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+  
+}

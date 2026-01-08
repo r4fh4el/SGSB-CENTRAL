@@ -1,0 +1,95 @@
+﻿@page "/Ticket/Cadastro"
+
+
+@inject TicketService TicketService
+@inject NavigationManager NavigationManager
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime;
+@using Model Endidades
+
+@using BlazorTable
+@using SGSB.Web.Data
+
+
+<h3>Cadastro</h3>
+
+
+<EditForm Model="@TicketModel" OnSubmit="CreateTipoBarragem">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="nome" class="control-label">Titulo </label>
+                <InputText @bind-Value="@TicketModel.Titulo" type="Text" class="form-control" />
+                <ValidationMessage For="@(()=> TicketModel.Titulo)" />
+            </div>
+
+
+
+
+        </div>
+           <div class="col-md-8">
+            <div class="form-group">
+                <label for="nome" class="control-label">Descrição </label>
+                <InputText @bind-Value="@TicketModel.Descricao" type="Text" class="form-control" />
+                <ValidationMessage For="@(()=> TicketModel.Descricao)" />
+            </div>
+
+
+
+
+        </div>
+
+  
+
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="submit" class="btn btn-primary" value="Salvar" />
+                <input type="button" class="btn" @onclick="@Cancel" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private Ticket TicketModel = new Ticket();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+
+    }
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+
+    }
+
+
+
+    protected async Task CreateTipoBarragem()
+    {
+        var objTicketModel = new Entidades.Entidades.Ticket()
+            {
+                Id = TicketModel.Id,
+                TIcket = TicketModel.TIcket,
+                DataAlteracao = TicketModel.DataAlteracao,
+                Descricao = TicketModel.Descricao,
+                Titulo = TicketModel.Titulo,
+                IdUsuario = TicketModel.IdUsuario,
+                Status = TicketModel.Status,
+                DataCadastro = TicketModel.DataCadastro
+
+            };
+        await TicketService.CadastrarTicket(objTicketModel);
+        NavigationManager.NavigateTo("Ticket/index");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("Ticket/index");
+    }
+
+
+}

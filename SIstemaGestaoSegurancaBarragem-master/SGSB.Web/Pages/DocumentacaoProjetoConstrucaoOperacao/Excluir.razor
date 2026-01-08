@@ -1,0 +1,88 @@
+﻿@page "/DocumentacaoProjetoConstrucaoOperacao/Excluir"
+@page "/DocumentacaoProjetoConstrucaoOperacao/Excluir/{id}"
+
+@inject DocumentacaoProjetoConstrucaoOperacaoService DocumentacaoProjetoConstrucaoOperacaoService
+@inject NavigationManager NavigationManager
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime;
+@using Model;
+
+@using BlazorTable
+@using SGSB.Web.Data
+
+
+<h3 class="alert-warning">Deseja excluir?</h3>
+
+
+<EditForm Model="@DocumentacaoProjetoConstrucaoOperacaoModel" OnSubmit="ExcluirDocumentacaoProjetoConstrucaoOperacao">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="nome" class="control-label"> Pergunta</label>
+                <InputText @bind-Value="@DocumentacaoProjetoConstrucaoOperacaoModel.Pergunta" type="Text" class="form-control" />
+                <ValidationMessage For="@(()=> DocumentacaoProjetoConstrucaoOperacaoModel.Pergunta)" />
+            </div>
+
+
+
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="submit" class="btn btn-danger" value="Excluir" />
+                <input type="button" class="btn" @onclick="@Cancel" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private DocumentacaoProjetoConstrucaoOperacao DocumentacaoProjetoConstrucaoOperacaoModel = new DocumentacaoProjetoConstrucaoOperacao();
+
+    [Parameter]
+    public string Id { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+
+        await Delete(Id);
+    }
+
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+
+    }
+
+    public async Task Delete(string Id)
+    {
+
+        DocumentacaoProjetoConstrucaoOperacaoModel = await DocumentacaoProjetoConstrucaoOperacaoService.GetDocumentacaoProjetoConstrucaoOperacaoId(int.Parse(Id));
+
+    }
+
+    protected async Task ExcluirDocumentacaoProjetoConstrucaoOperacao()
+    {
+        try
+        {
+            await DocumentacaoProjetoConstrucaoOperacaoService.DeletarDocumentacaoProjetoConstrucaoOperacao(DocumentacaoProjetoConstrucaoOperacaoModel);
+            NavigationManager.NavigateTo("DocumentacaoProjetoConstrucaoOperacao/index");
+        }
+        catch (Exception e)
+        {
+
+            throw e;
+        }
+
+    }
+
+  
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("DocumentacaoProjetoConstrucaoOperacao");
+    }
+
+
+}

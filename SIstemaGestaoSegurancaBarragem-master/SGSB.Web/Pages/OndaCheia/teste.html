@@ -1,0 +1,26 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Maps KML Example</title>
+    <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCT89o7saeSx0MFUCUqNMIM1eNUE0IO6-s&callback=initMap">
+    </script>
+</head>
+<body>
+    <div id="map" style="height: 400px;"></div>
+
+    <script>
+        function initMap() {
+            var map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: 37.422006, lng: -122.084143 },
+                zoom: 13
+            });
+
+            var kmlLayer = new google.maps.KmlLayer({
+                url: 'https://developers.google.com/maps/documentation/javascript/examples/kml/westcampus.kml',
+                map: map
+            });
+        }
+    </script>
+</body>
+</html>

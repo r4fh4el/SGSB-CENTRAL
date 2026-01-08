@@ -1,0 +1,161 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <UserSecretsId>aspnet-SGSB.Web-8335F14F-5942-48B5-8CEB-EC2E003B8E8B</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+
+    <Compile Remove="Pages\CondicaoFundacao2\**" />
+
+    <Compile Remove="Pages\VazaPico\**" />
+
+    <Content Remove="Pages\CondicaoFundacao2\**" />
+
+    <Content Remove="Pages\VazaPico\**" />
+
+    <EmbeddedResource Remove="Pages\CondicaoFundacao2\**" />
+
+    <EmbeddedResource Remove="Pages\VazaPico\**" />
+
+    <None Remove="Pages\CondicaoFundacao2\**" />
+
+    <None Remove="Pages\VazaPico\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Data\EmpresaService.cs" />
+    <Compile Remove="Data\TipoBarragemService.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Areas\Identity\Pages\Account\Login - Cópia.cshtml" />
+    <Content Remove="Pages\ConverterKmlparaJson\Editar.razor" />
+    <Content Remove="Pages\ConverterKmlparaJson\Excluir.razor" />
+    <Content Remove="Pages\ConverterKmlparaJson\Index.razor" />
+    <Content Remove="Pages\ConverterKmlparaJson\Visualizar.razor" />
+    <Content Remove="Pages\Maps\Rota.razor" />
+    <Content Remove="Pages\Notificacao\Index2.razor" />
+    <Content Remove="wwwroot\images\icons\android-icon.png" />
+    <Content Remove="wwwroot\mapa.html" />
+
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="BARRAGEMAGUAFRIA.kmz" />
+    <None Remove="kmz\BARRAGEMAGUAFRIA.kmz" />
+    <None Remove="kmz\JUSANTEAGUAFRIAII.kmz" />
+    <None Remove="kmz\MONTANTEAGUAFRIAII.kmz" />
+    <None Remove="onda.kml" />
+    <None Remove="Pages\Apresentacao\android-icon.png" />
+    <None Remove="Pages\Apresentacao\com.companyname.sgsb.sig.app-Signed.apk" />
+    <None Remove="Pages\Apresentacao\Index.html" />
+    <None Remove="Pages\Apresentacao\natureza.jpg" />
+    <None Remove="Pages\OndaCheia\BARRAGEMAGUAFRIA.kmz" />
+    <None Remove="Pages\OndaCheia\Index.html" />
+    <None Remove="Pages\OndaCheia\mapa.html" />
+    <None Remove="Pages\OndaCheia\onda.kml" />
+    <None Remove="westcampus.kml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BlazorGoogleMaps" Version="3.2.0" />
+    <PackageReference Include="Blazorise" Version="1.3.1" />
+    <PackageReference Include="BlazorMapbox" Version="0.5.1" />
+    <PackageReference Include="BlazorTable" Version="1.17.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="7.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.11" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="7.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.11">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.10" />
+    <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="4.0.0" />
+    <PackageReference Include="OneSignal.CSharp.SDK" Version="0.10.0" />
+    <PackageReference Include="Plotly.Blazor" Version="2.25.1" />
+    <PackageReference Include="Quick.AspNetCore.Components.Web.Extensions" Version="6.0.2" />
+    <PackageReference Include="Radzen.Blazor" Version="4.16.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Entidades\Entidades.csproj" />
+    <ProjectReference Include="..\Infraestrutura\Infraestrutura.csproj" />
+    <ProjectReference Include="..\Models\Model.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\Maps\Rota.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Pages\Maps\Rota.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="BARRAGEMAGUAFRIA.kmz">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="kmz\BARRAGEMAGUAFRIA.kmz">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="kmz\JUSANTEAGUAFRIAII.kmz">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="kmz\MONTANTEAGUAFRIAII.kmz">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="onda.kml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="Pages\Apresentacao\android-icon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Pages\Apresentacao\Index.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Pages\Apresentacao\com.companyname.sgsb.sig.app-Signed.apk">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Pages\Apresentacao\natureza.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Pages\OndaCheia\BARRAGEMAGUAFRIA.kmz">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="westcampus.kml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Resource Include="Pages\OndaCheia\onda.kml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <EmbeddedResource Include="wwwroot\images\icons\android-icon.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Pages\Maps\Rota.razor" />
+    <None Include="Pages\Notificacao\Index.razor" />
+    <None Include="wwwroot\mapa.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\kmz\onda.kml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

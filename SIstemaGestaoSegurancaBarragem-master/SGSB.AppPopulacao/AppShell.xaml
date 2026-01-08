@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="SGSB.AppPopulacao.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:SGSB.AppPopulacao"
+    Shell.FlyoutBehavior="Flyout">
+
+ 
+    <ShellContent
+        Title="Home"
+        Icon="home.png"
+        ContentTemplate="{DataTemplate local:MainPage}"
+        Route="MainPage" />
+
+    <ShellContent
+        Icon="alerta.png"
+        Title="Pânico"
+        ContentTemplate="{DataTemplate local:MainPage}"
+        Route="MainPage" />
+
+    <ShellContent
+        Icon="rotadefuga.png"
+        Title="Rota de Fuga"
+        ContentTemplate="{DataTemplate local:RotaFuga}"
+        Route="RotaFuga" />
+  
+    <ShellContent
+        Icon="pontoencontro.png"
+        Title="Ponto de Encontro"
+        ContentTemplate="{DataTemplate local:PontoEncontro}"
+        Route="PontoEncontro" />
+
+    <ShellContent
+        Icon="quadrado.png"
+        Title="Fale Conosco"
+        ContentTemplate="{DataTemplate local:CadastroTicket}"
+        Route="CadastroTicket" />
+
+
+    <ShellContent
+          Icon="chat.png"
+         
+        Title="Chat"
+        ContentTemplate="{DataTemplate local:Chat}"
+        Route="Chat" />
+
+    <ShellContent
+         Icon="shared.png"
+        Title="Compartilhar"
+        ContentTemplate="{DataTemplate local:MainPage}"
+        Route="MainPage" />
+
+</Shell>

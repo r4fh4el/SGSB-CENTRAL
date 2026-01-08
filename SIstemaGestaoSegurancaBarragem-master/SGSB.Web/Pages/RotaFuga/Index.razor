@@ -1,0 +1,100 @@
+﻿@page "/RotaFuga/Index"
+
+@using SGSB.Web.Data
+@inject RotaFugaService RotaFugaService
+@using Model 
+@inject NavigationManager NavigationManager
+@inject HttpClient http
+@using BlazorTable
+
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime
+
+@if (RotaFuga == null)
+{
+    <p><em>Carregando...</em></p>
+}
+else
+{
+    <div class="col-md-3">
+        <a href="RotaFuga/cadastro" class="btn btn-success h2">Adicionar Novo </a>
+    </div>
+
+    <Table style="font-size:14px;" TableItem="RotaFuga" Items="RotaFuga" PageSize="10">
+        <Column TableItem="RotaFuga" Title="ID" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%" />
+        <Column TableItem="RotaFuga" Title="BarragemId" Field="@(x => x.BarragemId)" Sortable="true" Filterable="true" Width="10%" />
+        <Column TableItem="RotaFuga" Title="Nome" Field="@(x => x.Nome)" Sortable="true" Filterable="true" Width="30%" />
+        <Column TableItem="RotaFuga" Title="Latitude" Field="@(x => x.Latitude)" Sortable="true" Filterable="true" Width="30%" />
+        <Column TableItem="RotaFuga" Title="Longitude" Field="@(x => x.Longitude)" Sortable="true" Filterable="true" Width="30%" />
+
+
+        <Column TableItem="RotaFuga" Title="Visualizar" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%">
+            <Template>
+
+                <a href="RotaFuga/Visualizar/@context.Id" class="btn btn-info h4"> Visualizar</a>
+            </Template>
+        </Column>
+        <Column TableItem="RotaFuga" Title="Editar" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%">
+            <Template>
+
+                <a TableItem="RotaFuga" href="RotaFuga/Editar/@context.Id" class="btn btn-warning h4"> Editar</a>
+            </Template>
+        </Column>
+        <Column TableItem="RotaFuga" Title="Excluir" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%">
+            <Template>
+
+                <a href="../RotaFuga/Excluir/@context.Id" class="btn btn-danger h4"> Excluir</a>
+            </Template>
+        </Column>
+
+        <Pager ShowPageNumber="true" ShowTotalCount="true" />
+    </Table>
+
+}
+
+@code {
+
+    private List<RotaFuga> RotaFuga;
+    //private RotaFuga RotaFugaModel = new RotaFuga();
+    protected override async Task OnInitializedAsync()
+    {
+        RotaFuga = await RotaFugaService.GetRotaFuga();
+ 
+    }
+
+
+    private RotaFuga objRotaFugaModel = new RotaFuga();
+
+
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+
+    }
+
+    protected async Task Editar(int id)
+    {
+       await RotaFugaService.EditarRotaFuga(objRotaFugaModel);
+
+    }
+    protected async Task Visualizar(int id)
+    {
+
+        await RotaFugaService.CadastrarRotaFuga(objRotaFugaModel);
+      
+    }
+
+    protected async Task CreateRotaFuga()
+    {
+
+        await RotaFugaService.CadastrarRotaFuga(objRotaFugaModel);
+        RotaFuga.Add(objRotaFugaModel);
+
+        StateHasChanged();
+
+
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("RotaFuga/index");
+    }
+
+}

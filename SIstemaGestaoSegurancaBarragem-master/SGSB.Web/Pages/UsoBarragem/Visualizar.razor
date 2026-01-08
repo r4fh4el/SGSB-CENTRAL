@@ -1,0 +1,70 @@
+﻿
+@page "/UsoBarragem/Visualizar"
+@page "/UsoBarragem/Visualizar/{id}"
+
+@inject UsoBarragemService UsoBarragemService
+@inject NavigationManager NavigationManager
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime;
+@using Model
+
+@using BlazorTable
+@using SGSB.Web.Data
+
+
+<h3>Visualizar</h3>
+
+
+<EditForm Model="@UsoBarragemModel" >
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="nome" class="control-label">Nome uso da barragem </label>
+                <InputText @bind-Value="@UsoBarragemModel.Nome" type="Text" class="form-control" />
+                <ValidationMessage For="@(()=> UsoBarragemModel.Nome)" />
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+       
+                <input type="button" class="btn" @onclick="@Cancel" value="Voltar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private UsoBarragem UsoBarragemModel = new UsoBarragem();
+
+    [Parameter]
+    public string Id { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+
+       await Ver(Id);
+    }
+
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+
+    }
+
+    public async Task Ver(string Id)
+    {
+        UsoBarragemModel =  await UsoBarragemService.GetUsoBarragemId(int.Parse(Id));
+    }
+
+
+
+  
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("UsoBarragem/index");
+    }
+
+
+}

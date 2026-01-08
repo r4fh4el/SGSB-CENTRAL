@@ -1,0 +1,98 @@
+﻿@page "/Ticket/Excluir"
+@page "/Ticket/Excluir/{id}"
+
+@inject TicketService TicketService
+@inject NavigationManager NavigationManager
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime;
+@using Model
+
+@using BlazorTable
+@using SGSB.Web.Data
+
+
+<h3 class="alert-warning">Deseja excluir?</h3>
+
+
+<EditForm Model="@TicketModel" OnSubmit="ExcluirTicket">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="nome" class="control-label">Nome da Ticket</label>
+                <InputText @bind-Value="@TicketModel.Titulo" type="Text" class="form-control" />
+                <ValidationMessage For="@(()=> TicketModel.Titulo)" />
+            </div>
+
+
+
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="submit" class="btn btn-danger" value="Excluir" />
+                <input type="button" class="btn" @onclick="@Cancel" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private Ticket TicketModel = new Ticket();
+
+    [Parameter]
+    public string Id { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+
+        await Delete(Id);
+    }
+
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+
+    }
+
+    public async Task Delete(string Id)
+    {
+
+        TicketModel = await TicketService.GetTicketId(int.Parse(Id));
+
+    }
+
+    protected async Task ExcluirTicket()
+    {
+        try
+        {
+            await TicketService.DeletarTicket(TicketModel);
+            NavigationManager.NavigateTo("Ticket/index");
+        }
+        catch (Exception e)
+        {
+
+            throw e;
+        }
+
+    }
+
+    protected async Task CreateTicket()
+    {
+        var Ticket = new Entidades.Entidades.Ticket()
+            {
+                Titulo = TicketModel.Titulo
+
+
+            };
+        await TicketService.CadastrarTicket(Ticket);
+        NavigationManager.NavigateTo("Ticket/index");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("Ticket/index");
+    }
+
+
+}

@@ -1,0 +1,97 @@
+﻿@page "/UsoSoloPredominante/Index"
+
+@using SGSB.Web.Data
+@inject UsoSoloPredominanteService UsoSoloPredominanteService
+@using Model 
+@inject NavigationManager NavigationManager
+@inject HttpClient http
+@using BlazorTable
+
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime
+
+@if (UsoSoloPredominante == null)
+{
+    <p><em>Carregando...</em></p>
+}
+else
+{
+    <div class="col-md-3">
+        <a href="UsoSoloPredominante/cadastro" class="btn btn-success h2">Adicionar Novo </a>
+    </div>
+
+    <Table style="font-size:14px;" TableItem="UsoSoloPredominante" Items="UsoSoloPredominante" PageSize="10">
+        <Column TableItem="UsoSoloPredominante" Title="ID" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%" />
+        <Column TableItem="UsoSoloPredominante" Title="Nome" Field="@(x => x.Nome)" Sortable="true" Filterable="true" Width="30%" />
+
+
+        <Column TableItem="UsoSoloPredominante" Title="Visualizar" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%">
+            <Template>
+
+                <a href="UsoSoloPredominante/Visualizar/@context.Id" class="btn btn-info h4"> Visualizar</a>
+            </Template>
+        </Column>
+        <Column TableItem="UsoSoloPredominante" Title="Editar" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%">
+            <Template>
+
+                <a TableItem="UsoSoloPredominante" href="UsoSoloPredominante/Editar/@context.Id" class="btn btn-warning h4"> Editar</a>
+            </Template>
+        </Column>
+        <Column TableItem="UsoSoloPredominante" Title="Excluir" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%">
+            <Template>
+
+                <a href="../UsoSoloPredominante/Excluir/@context.Id" class="btn btn-danger h4"> Excluir</a>
+            </Template>
+        </Column>
+
+        <Pager ShowPageNumber="true" ShowTotalCount="true" />
+    </Table>
+
+}
+
+@code {
+
+    private List<UsoSoloPredominante> UsoSoloPredominante;
+    //private UsoSoloPredominante UsoSoloPredominanteModel = new UsoSoloPredominante();
+    protected override async Task OnInitializedAsync()
+    {
+        UsoSoloPredominante = await UsoSoloPredominanteService.GetUsoSoloPredominante();
+ 
+    }
+
+
+    private UsoSoloPredominante objUsoSoloPredominanteModel = new UsoSoloPredominante();
+
+
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+
+    }
+
+    protected async Task Editar(int id)
+    {
+       await UsoSoloPredominanteService.EditarUsoSoloPredominante(objUsoSoloPredominanteModel);
+
+    }
+    protected async Task Visualizar(int id)
+    {
+
+        await UsoSoloPredominanteService.CadastrarUsoSoloPredominante(objUsoSoloPredominanteModel);
+      
+    }
+
+    protected async Task CreateUsoSoloPredominante()
+    {
+
+        await UsoSoloPredominanteService.CadastrarUsoSoloPredominante(objUsoSoloPredominanteModel);
+        UsoSoloPredominante.Add(objUsoSoloPredominanteModel);
+
+        StateHasChanged();
+
+
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("UsoSoloPredominante/index");
+    }
+
+}

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SGSB.SIG.APP.Pages.MapModalPage"
+                 xmlns:maps="clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls.Maps"
+        
+             Title="MapModalPage">
+    <Frame HasShadow="True" Margin="20" Padding="20" CornerRadius="15">
+        <StackLayout Margin="20">
+            <!-- Adicionando o controle de mapa -->
+            <maps:Map x:Name="mappy"
+                  IsShowingUser="True"
+                  IsTrafficEnabled="True"
+                  MapType="Hybrid"
+                  HorizontalOptions="FillAndExpand"
+                  VerticalOptions="FillAndExpand" />
+
+            <Button Text="Fechar Mapa"
+                BackgroundColor="#e74c3c"
+                TextColor="White"
+                FontSize="20"
+                CornerRadius="8"
+                Margin="20"
+                Clicked="OnCloseMapClicked" />
+        </StackLayout>
+    </Frame>
+</ContentPage>

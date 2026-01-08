@@ -1,0 +1,101 @@
+﻿@page "/CotaAreaVolume/Editar"
+@page "/CotaAreaVolume/Editar/{id}"
+
+@inject CotaAreaVolumeService CotaAreaVolumeService
+@inject NavigationManager NavigationManager
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime;
+@using Model
+
+@using BlazorTable
+@using SGSB.Web.Data
+@using SGSB.Web.Models;
+
+
+<h3>Editar</h3>
+
+
+<EditForm Model="@CotaAreaVolumeModel" OnSubmit="EditarCotaAreaVolume" >
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+
+        <div class="form-group">
+            <label for="Cota" class="control-label">Cota </label>
+            <InputText @bind-Value="@CotaAreaVolumeModel.Cota" type="Text" class="form-control" />
+            <ValidationMessage For="@(()=> CotaAreaVolumeModel.Cota)" />
+
+
+
+            <label for="VolumeAcumulado" class="control-label">Volume Acumulado </label>
+            <InputText @bind-Value="@CotaAreaVolumeModel.VolumeAcumulado" type="Text" class="form-control" />
+            <ValidationMessage For="@(()=> CotaAreaVolumeModel.VolumeAcumulado)" />
+
+
+
+
+
+            <label for="AreaSuperficial" class="control-label">Área Superficial </label>
+            <InputText @bind-Value="@CotaAreaVolumeModel.AreaSuperficial" type="Text" class="form-control" />
+            <ValidationMessage For="@(()=> CotaAreaVolumeModel.AreaSuperficial)" />
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="submit" class="btn btn-primary" value="Editar" />
+                <input type="button" class="btn" @onclick="@Cancel" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private CotaAreaVolumeModel CotaAreaVolumeModel = new CotaAreaVolumeModel();
+
+    [Parameter]
+    public string Id { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+
+       await Edit(Id);
+    }
+
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+        
+
+    }
+
+    
+
+    public async Task Edit(string Id)
+    {
+        var cota = await CotaAreaVolumeService.GetCotaAreaVolumeId(int.Parse(Id));
+
+        var cotaAreaVolumeModel = new CotaAreaVolumeModel()
+            {
+                BarragemId = cota.BarragemId,
+                AreaSuperficial = cota.AreaSuperficial,
+                Cota = cota.Cota,
+                VolumeAcumulado = cota.VolumeAcumulado,
+                Id = cota.Id
+
+            };
+        CotaAreaVolumeModel = cotaAreaVolumeModel;
+    }
+
+    protected async Task EditarCotaAreaVolume()
+    {
+
+        await CotaAreaVolumeService.EditarCotaAreaVolume(CotaAreaVolumeModel);
+        NavigationManager.NavigateTo("CotaAreaVolume/index");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("CotaAreaVolume/index");
+    }
+
+
+}

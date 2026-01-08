@@ -1,0 +1,130 @@
+﻿@page "/PontoEncontro/Editar"
+@page "/PontoEncontro/Editar/{id}"
+
+@inject PontoEncontroService PontoEncontroService
+@inject BarragemService BarragemService
+@inject NavigationManager NavigationManager
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime;
+@using Model
+
+@using BlazorTable
+@using SGSB.Web.Data
+
+
+<h3>Editar</h3>
+
+
+<EditForm Model="@PontoEncontroModel" OnSubmit="EditarPontoEncontro" >
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+
+
+        @if (flagBarragem)
+        {
+            <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Default">
+                Atenção! Já existe para essa  barragem!
+            </RadzenAlert>
+        }
+
+
+        <RadzenCard class="mb-4">
+            <div class="form-group">
+                <label for="barragems" class="control-label">Barragem </label>
+                @*<RadzenDropDown @bind-Value="@BarragemModel.Tipo_Material_Id" Data=@lstPontoEncontroBarragem class="form-control" />*@
+                <RadzenDropDown @bind-Value="@idBarragemRota" Placeholder="Selecione a barragem" TextProperty="Nome" ValueProperty="Id" Data="@lstBarragem" Change=@(args => VerificaBarragem(args))></RadzenDropDown>
+
+            </div>
+        </RadzenCard>
+
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="nome" class="control-label">Nome </label>
+                <InputText @bind-Value="@PontoEncontroModel.Nome" type="Text" class="form-control" />
+                <ValidationMessage For="@(()=> PontoEncontroModel.Nome)" />
+            </div>
+
+
+
+
+        </div>
+
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="Latitude" class="control-label">Latitude </label>
+                <InputNumber @bind-Value="@PontoEncontroModel.Latitude" class="form-control" />
+                <ValidationMessage For="@(()=> PontoEncontroModel.Latitude)" />
+            </div>
+
+
+
+
+        </div>
+
+
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="Latitude" class="control-label">Longitude </label>
+                <InputNumber @bind-Value="@PontoEncontroModel.Longitude" class="form-control" />
+                <ValidationMessage For="@(()=> PontoEncontroModel.Longitude)" />
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="submit" class="btn btn-primary" value="Editar" />
+                <input type="button" class="btn" @onclick="@Cancel" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private PontoEncontro PontoEncontroModel = new PontoEncontro();
+    bool flagBarragem = false;
+    int idBarragemRota = 0;
+    private List<Barragem> lstBarragem;
+    [Parameter]
+    public string Id { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+        lstBarragem = new List<Barragem>();
+        lstBarragem = await BarragemService.GetBarragemAsync();
+       await Edit(Id);
+    }
+
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+        
+
+    }
+
+    public async Task VerificaBarragem(object args)
+    {
+
+
+        idBarragemRota = (int)args;
+    }
+
+    public async Task Edit(string Id)
+    {
+        PontoEncontroModel = await  PontoEncontroService.GetPontoEncontroId(int.Parse(Id));
+        
+    }
+
+    protected async Task EditarPontoEncontro()
+    {
+
+        await PontoEncontroService.EditarPontoEncontro(PontoEncontroModel);
+        NavigationManager.NavigateTo("PontoEncontro/index");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("PontoEncontro/index");
+    }
+
+
+}

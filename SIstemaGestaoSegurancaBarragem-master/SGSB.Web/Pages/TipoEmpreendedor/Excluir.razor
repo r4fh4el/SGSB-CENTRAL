@@ -1,0 +1,93 @@
+﻿@page "/TipoEmpreendedor/Excluir"
+@page "/TipoEmpreendedor/Excluir/{id}"
+
+@inject TipoEmpreendedorService TipoEmpreendedorService
+@inject NavigationManager NavigationManager
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime;
+@using Model
+
+@using BlazorTable
+@using SGSB.Web.Data
+
+
+<h3 class="alert-warning">Deseja excluir?</h3>
+
+
+<EditForm Model="@TipoEmpreendedorModel" OnSubmit="ExcluirTipoEmpreendedor">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="nome" class="control-label">Nome da Tipo Empreendedor</label>
+                <InputText @bind-Value="@TipoEmpreendedorModel.Nome" type="Text" class="form-control" />
+                <ValidationMessage For="@(()=> TipoEmpreendedorModel.Nome)" />
+            </div>
+
+
+
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="submit" class="btn btn-danger" value="Excluir" />
+                <input type="button" class="btn" @onclick="@Cancel" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private TipoEmpreendedor TipoEmpreendedorModel = new TipoEmpreendedor();
+
+    [Parameter]
+    public string Id { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+
+        await Delete(Id);
+    }
+
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+
+    }
+
+    public async Task Delete(string Id)
+    {
+
+        TipoEmpreendedorModel = await TipoEmpreendedorService.GetTipoEmpreendedorId(int.Parse(Id));
+
+    }
+
+    protected async Task ExcluirTipoEmpreendedor()
+    {
+        try
+        {
+            await TipoEmpreendedorService.DeletarTipoEmpreendedor(TipoEmpreendedorModel);
+            NavigationManager.NavigateTo("TipoEmpreendedor/index");
+        }
+        catch (Exception e)
+        {
+
+            throw e;
+        }
+
+    }
+
+    protected async Task CreateTipoEmpreendedor()
+    {
+
+        await TipoEmpreendedorService.CadastrarTipoEmpreendedor(TipoEmpreendedorModel);
+        NavigationManager.NavigateTo("TipoEmpreendedor/index");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("TipoEmpreendedor");
+    }
+
+
+}

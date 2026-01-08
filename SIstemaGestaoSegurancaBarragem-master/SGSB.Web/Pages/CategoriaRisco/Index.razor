@@ -1,0 +1,992 @@
+﻿@page "/CategoriaRisco/Index"
+
+@using Radzen.Blazor;
+@using Radzen;
+@using SGSB.Web.Data
+@inject CategoriaRiscoService CategoriaRiscoService
+@inject BarragemService BarragemService
+@using Model
+@inject NavigationManager NavigationManager
+@inject HttpClient http
+@using BlazorTable
+
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime
+
+@if (flagBarragem)
+{
+    <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Default">
+        Atenção! Selecionar barragem é obrigatório!
+    </RadzenAlert>
+}
+
+<RadzenCard class="mb-4">
+    <div class="form-group">
+        <label for="barragems" class="control-label">Barragem </label>
+        @*<RadzenDropDown @bind-Value="@BarragemModel.Tipo_Material_Id" Data=@lstTipoMaterialBarragem class="form-control" />*@
+        <RadzenDropDown @bind-Value="@idBarragemCategoriaRisco" Placeholder="Selecione a barragem" TextProperty="Nome" ValueProperty="Id" Data="@lstBarragem" ></RadzenDropDown>
+
+    </div>
+</RadzenCard>
+
+<div class="rz-shadow-8">
+    <span>
+        <div class="rz-p-12 ">
+
+            <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.P">Quadro para classificação quanto ao dano potencial associado - DPA (Acumulação de Água)</RadzenText>
+        </div>
+    </span>
+    <RadzenPanel id="ResultadoPanel" Visible="@showResultadoPanel">
+        <div class="rz-shadow-8">
+            <span>
+                <div class="rz-p-4 ">
+
+                    <RadzenText TextStyle="TextStyle.H5" TagName="TagName.P">Pontos: @valorTotal </RadzenText>
+                </div>
+                @if (valorTotal <= 35)
+                {
+                    resultado = "Baixo";
+                }
+                @if (valorTotal >= 60)
+                {
+                    resultado = "Alto";
+                }
+                @if ((35 < valorTotal) && (valorTotal < 60))
+                {
+                    resultado = "Médio";
+                }
+
+                @if (valorTotalEC >= 8)
+                {
+                    resultado = "Alto Risco por causa de Estado de Conservação";
+                }
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-12 col-lg-4 my-lg-5 order-lg-last text-center text-lg-start">
+                            @if (resultado == "Médio")
+                            {
+                                <RadzenAlert AlertStyle="Radzen.AlertStyle.Warning" ShowIcon="true" Variant="Radzen.Variant.Flat" Shade="Shade.Lighter">
+                                    <p>
+                                        <label style="font-size:18px; font-weight:bold;" class="mt-6"><RadzenCheckBox @bind-Value=@showValue /> CATEGORIA DE RISCO @resultado.ToString().ToUpper() </label>
+                                    </p>
+                                </RadzenAlert>
+                            }
+                             @if (resultado == "Alto")
+                            {
+                                  <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                                <p>
+                                    <label style="font-size:18px; font-weight:bold;" class="mt-6"><RadzenCheckBox @bind-Value=@showValue /> CATEGORIA DE RISCO @resultado.ToString().ToUpper() </label>
+                                </p>
+                            </RadzenAlert>
+                            }
+                            @if (resultado == "Baixo")
+                            {
+                            <RadzenAlert AlertStyle="AlertStyle.Success" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                                <p>
+                                    <label style="font-size:18px; font-weight:bold;" class="mt-6"><RadzenCheckBox @bind-Value=@showValue /> CATEGORIA DE RISCO @resultado.ToString().ToUpper() </label>
+                                </p>
+                            </RadzenAlert>  
+                            }
+
+                            @if (resultado == "Alto Risco por causa de Estado de Conservação")
+                            {
+  <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                                <p>
+                                        <label style="font-size:18px; font-weight:bold;" class="mt-6"><RadzenCheckBox @bind-Value=@showValue /> CATEGORIA DE RISCO @resultado.ToString().ToUpper() </label>
+                                </p>
+                            </RadzenAlert>
+                            }
+                            
+                          
+
+                            @*   <p>
+                            <label class="mt-3">Volume Total do Reservatório @valueVTR </label>
+                            </p>
+                            <p>
+                            <label class="mt-3">Potencial de perdas de vidas humanas(t) @valuePPV </label>
+                            </p>
+                            <p>
+                            <label class="mt-3">Impacto ambiental @valueIA </label>
+                            </p>
+                            <p>
+                            <label class="mt-3">Impacto sócio-econômico @valueISE </label>
+                            </p>*@
+                        </div>
+                        <div class="col-sm-12 col-lg-8 my-3 my-lg-5">
+                            <RadzenRadialGauge Style="width: 100%; height: 300px;">
+                                <RadzenRadialGaugeScale StartAngle="-150" EndAngle="150" Step="5" Min="0" Max="100">
+                                    <RadzenRadialGaugeScalePointer Value=@valorTotal Length="0.6" ShowValue=@showValue>
+                                        <Template Context="pointer">
+                                            <h4>
+                                                @valorTotal <sup>Pontos</sup>
+                                            </h4>
+                                        </Template>
+                                    </RadzenRadialGaugeScalePointer>
+                                    <RadzenRadialGaugeScaleRange From="0" To="35" Fill="green" />
+                                    <RadzenRadialGaugeScaleRange From="35" To="60" Fill="orange" />
+                                    <RadzenRadialGaugeScaleRange From="60" To="100" Fill="red" />
+                                </RadzenRadialGaugeScale>
+                            </RadzenRadialGauge>
+
+                        </div>
+                    </div>
+                </div>
+            </span>
+        </div>
+    </RadzenPanel>
+</div>
+<RadzenTabs @bind-SelectedIndex=@selectedIndex>
+    <Tabs>
+        <RadzenTabsItem Text="CT">
+            <RadzenLabel Text="CARACTERÍSTICAS TÉCNICAS">    </RadzenLabel>
+            <div class="rz-p-12 ">
+
+                <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.P">CARACTERÍSTICAS TÉCNICAS</RadzenText>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+
+                        <input type="button" class="btn btn-primary" @onclick="() => Proximo(1)" value="Próximo" />
+                    </div>
+                </div>
+            </div>
+
+        </RadzenTabsItem>
+
+        <RadzenTabsItem Text="CT-A">
+            <RadzenLabel Text="a) Altura">    </RadzenLabel>
+            <div class="row">
+                <div class="rz-p-12 rz-text-align-center">
+                    <RadzenRadioButtonList @bind-Value=@valueCT_A @onclick="() =>  ChangeValueCT_A(valueCT_A)" TValue="int" Orientation=Orientation.Vertical class="mb-5">
+                        <Items>
+                            <RadzenRadioButtonListItem Text="Altura ≤ 15m(0)" Value="0" />
+                            <RadzenRadioButtonListItem Text="15m < Altura < 30m (1)" Value="1" />
+                            <RadzenRadioButtonListItem Text="30m ≤ Altura ≤ 60m (2)" Value="2" />
+                            <RadzenRadioButtonListItem Text="Altura  > 60m  (3)" Value="3" />
+                        </Items>
+                    </RadzenRadioButtonList>
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+
+                        <input type="button" class="btn btn-primary" @onclick="() => Proximo(2)" value="Próximo" />
+                    </div>
+                </div>
+            </div>
+
+        </RadzenTabsItem>
+
+        <RadzenTabsItem Text="CT-B">
+            <RadzenLabel Text="b) Comprimento">    </RadzenLabel>
+            <div class="row">
+
+                <div class="rz-p-12 rz-text-align-center">
+                    <RadzenRadioButtonList @bind-Value=@valueCT_B @onclick="() =>  ChangeValueCT_B(valueCT_B)" TValue="int" Orientation=Orientation.Vertical class="mb-5">
+                        <Items>
+                            <RadzenRadioButtonListItem Text="comprimento ≤ 200m (2)" Value="2" />
+                            <RadzenRadioButtonListItem Text=" Comprimento > 200m (3)" Value="3" />
+
+                        </Items>
+                    </RadzenRadioButtonList>
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+
+                        <input type="button" class="btn btn-primary" @onclick="() => Proximo(3)" value="Próximo" />
+                    </div>
+                </div>
+            </div>
+        </RadzenTabsItem>
+
+
+        <RadzenTabsItem Text="CT-C">
+            <div class="rz-shadow-8">
+                <span>
+                    <div class="rz-p-12 ">
+                        <RadzenLabel Text="c) Tipo de Barragem quanto ao material de construção  ">    </RadzenLabel>
+
+
+
+                        <div class="rz-p-12 rz-text-align-center">
+                            <RadzenRadioButtonList id="idvalueCT_C" @onclick="() =>  ChangeValueCT_C(valueCT_C)" @bind-Value=@valueCT_C TValue="int" Orientation=Orientation.Vertical class="mb-5">
+                                <Items>
+                                    <RadzenRadioButtonListItem Text="Rocha sã (1)" Value="1" />
+
+                                    <RadzenRadioButtonListItem Text="Rocha alterada dura com tratamento  (2)" Value="2" />
+
+                                    <RadzenRadioButtonListItem Text="Rocha alterada sem tratamento/Rocha alterada fraturada com tratamento (3)" Value="3" />
+                                    <RadzenRadioButtonListItem Text="Rocha alterada mole / Saprolito / Solo compacto (4)" Value="4" />
+                                    <RadzenRadioButtonListItem Text="Solo residual / aluvião (5)" Value="5" />
+
+                                </Items>
+                            </RadzenRadioButtonList>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group">
+
+                                        <input type="button" class="btn btn-primary" @onclick="() => Proximo(4)" value="Proximo" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </span>
+            </div>
+
+
+
+
+
+
+        </RadzenTabsItem>
+        <RadzenTabsItem Text="CT-D">
+            <div class="rz-shadow-8">
+                <span>
+                    <div class="rz-p-12 ">
+                        <RadzenLabel Text="d) Tipo de fundação ">    </RadzenLabel>
+
+
+
+                        <div class="rz-p-12 rz-text-align-center">
+                            <RadzenRadioButtonList id="idvalueCT_D" @onclick="() =>  ChangeValueCT_D(valueCT_D)" @bind-Value=@valueCT_D TValue="int" Orientation=Orientation.Vertical class="mb-5">
+                                <Items>
+                                    <RadzenRadioButtonListItem Text="Rocha sã (1)" Value="1" />
+
+                                    <RadzenRadioButtonListItem Text="Rocha alterada dura com tratamento  (2)" Value="2" />
+
+                                    <RadzenRadioButtonListItem Text="Rocha alterada sem tratamento/Rocha alterada fraturada com tratamento (3)" Value="3" />
+                                    <RadzenRadioButtonListItem Text="Rocha alterada mole / Saprolito / Solo compacto (4)" Value="4" />
+                                    <RadzenRadioButtonListItem Text="Solo residual / aluvião (5)" Value="5" />
+
+                                </Items>
+                            </RadzenRadioButtonList>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group">
+
+                                        <input type="button" class="btn btn-primary" @onclick="() => Proximo(5)" value="Proximo" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </span>
+            </div>
+
+
+
+
+
+
+        </RadzenTabsItem>
+
+        <RadzenTabsItem Text="CT-E">
+            <div class="rz-shadow-8">
+                <span>
+                    <div class="rz-p-12 ">
+                        <RadzenLabel Text="e) Idade da Barragem">    </RadzenLabel>
+
+
+
+                        <div class="rz-p-12 rz-text-align-center">
+                            <RadzenRadioButtonList id="valueCT_E" @onclick="() =>  ChangeValueCT_E(valueCT_E)" @bind-Value=@valueCT_E TValue="int" Orientation=Orientation.Vertical class="mb-5">
+                                <Items>
+                                    <RadzenRadioButtonListItem Text="entre 30 e 50 anos(1)" Value="1" />
+
+                                    <RadzenRadioButtonListItem Text="entre 10 e 30 anos(2)" Value="2" />
+
+                                    <RadzenRadioButtonListItem Text="entre 5 e 10 anos (3)" Value="3" />
+                                    <RadzenRadioButtonListItem Text="< 5 anos ou > 50 anos   ou sem informação(4)" Value="4" />
+                                </Items>
+                            </RadzenRadioButtonList>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group">
+
+                                        <input type="button" class="btn btn-primary" @onclick="() => Proximo(6)" value="Próximo" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </span>
+            </div>
+        </RadzenTabsItem>
+
+        <RadzenTabsItem Text="CT-F">
+            <div class="rz-shadow-8">
+                <span>
+                    <div class="rz-p-12 ">
+                        <RadzenLabel Text="f) Vazão de Projeto">    </RadzenLabel>
+
+
+
+                        <div class="rz-p-12 rz-text-align-center">
+                            <RadzenRadioButtonList id="idCT_F" @onclick="() =>  ChangeValueCT_F(valueCT_F)" @bind-Value=@valueCT_F TValue="int" Orientation=Orientation.Vertical class="mb-5">
+                                <Items>
+                                    <RadzenRadioButtonListItem Text="Decamilenar ou CMP (Cheia Máxima Provável) - TR = 10.000 anos(1)" Value="3" />
+
+                                    <RadzenRadioButtonListItem Text="Milenar - TR = 1.000 anos(5)" Value="5" />
+
+                                    <RadzenRadioButtonListItem Text="TR = 500 anos(8)" Value="8" />
+                                    <RadzenRadioButtonListItem Text="TR <  500 anos ou Desconhecida / Estudo não confiavel (10)" Value="10" />
+                                </Items>
+                            </RadzenRadioButtonList>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group">
+
+                                        <input type="button" class="btn btn-primary" @onclick="() => Proximo(7)" value="Próximo" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </span>
+            </div>
+        </RadzenTabsItem>
+
+        <RadzenTabsItem Text="EC">
+            <RadzenLabel Text="ESTADO CONSERVAÇÃO">    </RadzenLabel>
+            <div class="rz-p-12 ">
+
+                <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.P">ESTADO CONSERVAÇÃO</RadzenText>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+
+                        <input type="button" class="btn btn-primary" @onclick="() => Proximo(8)" value="Próximo" />
+                    </div>
+                </div>
+            </div>
+
+        </RadzenTabsItem>
+
+        <RadzenTabsItem Text="EC-H">
+            <RadzenLabel Text="h Confiabilidade das Estruturas de Adução  ">    </RadzenLabel>
+            <div class="row">
+                <div class="rz-p-12 rz-text-align-center">
+                    <RadzenRadioButtonList @bind-Value=@valueEC_H @onclick="() =>  ChangeValueEC_H(valueEC_H)" TValue="int" Orientation=Orientation.Vertical class="mb-5">
+                        <Items>
+                            <RadzenRadioButtonListItem Text="Estruturas civis e disposiivos hidroeletromecanicos  em condicoes adequadas de manutencao e funcionamento (0)" Value="0" />
+                            <RadzenRadioButtonListItem Text="   Estruturas civis comprometidas ou Dispositivos hidroeletromecanicos com problemas identificados, com reducao de capacidade de vazão e com medidas corretivas em implantacao(4)" Value="4" />
+                            <RadzenRadioButtonListItem Text="Estruturas civis comprometidas ou Dispositivos hidroeletromecanicos com problemas identificados, com reducao de capacidade de vazão e sem medidas corretivas(6)" Value="6" />
+
+                        </Items>
+                    </RadzenRadioButtonList>
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+
+                        <input type="button" class="btn btn-primary" @onclick="() => Proximo(9)" value="Próximo" />
+                    </div>
+                </div>
+            </div>
+
+        </RadzenTabsItem>
+
+        <RadzenTabsItem Text="EC-I">
+            <RadzenLabel Text="i)Percolação">    </RadzenLabel>
+            <div class="row">
+                <div class="rz-p-12 rz-text-align-center">
+                    <RadzenRadioButtonList @bind-Value=@valueEC_I @onclick="() =>  ChangeValueEC_I(valueEC_I)" TValue="int" Orientation=Orientation.Vertical class="mb-5">
+                        <Items>
+                            <RadzenRadioButtonListItem Text="Percolação totalmente controlada pelo sistema de drenagem (0)" Value="0" />
+                            <RadzenRadioButtonListItem Text="Umidade ou surgência nas áreas de jusante, paramentos, taludes ou ombreiras estabilizada e/ou monitorada (3)" Value="3" />
+                            <RadzenRadioButtonListItem Text="Umidade ou surgência nas áreas de jusante, paramentos, taludes ou ombreiras sem tratamento ou em fase de diagnóstico
+(5)" Value="5" />
+                            <RadzenRadioButtonListItem Text="Estruturas civis comprometidas  ou Dispositivos hidroeletromecanicos com problemas identificados, com reducao de capacidade de vazão e sem medidas corretivas/ canais ou vertedouro (tipo soleira livre) obstruidos ou com estrutruras  danificadas (10)" Value="10" />
+                        </Items>
+                    </RadzenRadioButtonList>
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+
+                        <input type="button" class="btn btn-primary" @onclick="() => Proximo(10)" value="Próximo" />
+                    </div>
+                </div>
+            </div>
+
+        </RadzenTabsItem>
+
+        <RadzenTabsItem Text="EC-J">
+            <RadzenLabel Text="j)Deformações e Recalques">    </RadzenLabel>
+            <div class="row">
+                <div class="rz-p-12 rz-text-align-center">
+                    <RadzenRadioButtonList @bind-Value=@valueEC_J @onclick="() =>  ChangeValueEC_J(valueEC_J)" TValue="int" Orientation=Orientation.Vertical class="mb-5">
+                        <Items>
+                            <RadzenRadioButtonListItem Text="Inexistente (0)" Value="0" />
+                            <RadzenRadioButtonListItem Text="Existência de trincas e abatimentos  de pequena extensão e impacto nulo (1)" Value="1" />
+                            <RadzenRadioButtonListItem Text="Existência de trincas e abatimentos  de impacto considerável gerando necessidade de estudos adicionais ou monitoramento.
+(5)" Value="5" />
+                            <RadzenRadioButtonListItem Text="Existência de trincas, abatimentos ou escorregamentos expressivos, com potencial de comprometimento da segurança
+(8)" Value="8" />
+                        </Items>
+                    </RadzenRadioButtonList>
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+
+                        <input type="button" class="btn btn-primary" @onclick="() => Proximo(11)" value="Próximo" />
+                    </div>
+                </div>
+            </div>
+
+        </RadzenTabsItem>
+
+        <RadzenTabsItem Text="EC-L">
+            <RadzenLabel Text="l)Deterioração dos Taludes / Paramentos">    </RadzenLabel>
+            <div class="row">
+                <div class="rz-p-12 rz-text-align-center">
+                    <RadzenRadioButtonList @bind-Value=@valueEC_L @onclick="() =>  ChangeValueEC_L(valueEC_L)" TValue="int" Orientation=Orientation.Vertical class="mb-5">
+                        <Items>
+                            <RadzenRadioButtonListItem Text="Inexistente (0)" Value="0" />
+                            <RadzenRadioButtonListItem Text="Falhas na proteção dos taludes e paramentos, presença de arbustos de pequena extensão e impacto nulo.
+(1)" Value="1" />
+                            <RadzenRadioButtonListItem Text="Erosões superficiais, ferragem exposta, crescimento de vegetação generalizada,  gerando necessidade de monitoramento ou atuação corretiva.
+(5)" Value="5" />
+                            <RadzenRadioButtonListItem Text="Depressões acentuadas nos taludes, escorregamentos, sulcos profundos de erosão,  com potencial de comprometimento da segurança.
+(7)" Value="7" />
+                        </Items>
+                    </RadzenRadioButtonList>
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+
+                        <input type="button" class="btn btn-primary" @onclick="() => Proximo(12)" value="Próximo" />
+                    </div>
+                </div>
+            </div>
+
+        </RadzenTabsItem>
+
+
+        <RadzenTabsItem Text="EC-M">
+            <RadzenLabel Text="m)Eclusa (*)">    </RadzenLabel>
+            <div class="row">
+                <div class="rz-p-12 rz-text-align-center">
+                    <RadzenRadioButtonList @bind-Value=@valueEC_M @onclick="() =>  ChangeValueEC_M(valueEC_M)" TValue="int" Orientation=Orientation.Vertical class="mb-5">
+                        <Items>
+                            <RadzenRadioButtonListItem Text="Não possui eclusa (0)" Value="0" />
+                            <RadzenRadioButtonListItem Text="Estruturas civis e hidroeletromecânicas bem mantidas e funcionando
+(1)" Value="1" />
+                            <RadzenRadioButtonListItem Text="Estruturas civis comprometidas ou Dispositivos hidroeletromecanicos com problemas identificados  e com medidas corretivas em implantacao
+(2)" Value="2" />
+                            <RadzenRadioButtonListItem Text="Estruturas civis comprometidas ou Dispositivos hidroeletromecanicos com problemas identificados  e sem medidas corretivas
+(4)" Value="4" />
+                        </Items>
+                    </RadzenRadioButtonList>
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+
+                        <input type="button" class="btn btn-primary" @onclick="() => Proximo(13)" value="Próximo" />
+                    </div>
+                </div>
+            </div>
+
+        </RadzenTabsItem>
+
+        <RadzenTabsItem Text="PS">
+            <RadzenLabel Text="PLANO DE SEGURANÇA">    </RadzenLabel>
+            <div class="rz-p-12 ">
+
+                <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.P">PLANO DE SEGURANÇA</RadzenText>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+
+                        <input type="button" class="btn btn-primary" @onclick="() => Proximo(14)" value="Próximo" />
+                    </div>
+                </div>
+            </div>
+
+        </RadzenTabsItem>
+
+        <RadzenTabsItem Text="PS-N">
+            <RadzenLabel Text="n)Existência de documentação de projeto">    </RadzenLabel>
+            <div class="row">
+                <div class="rz-p-12 rz-text-align-center">
+                    <RadzenRadioButtonList @bind-Value=@valuePS_N @onclick="() =>  ChangeValuePS_N(valuePS_N)" TValue="int" Orientation=Orientation.Vertical class="mb-5">
+                        <Items>
+                            <RadzenRadioButtonListItem Text="Projeto executivo e ' como construído' (0)" Value="0" />
+                            <RadzenRadioButtonListItem Text="Projeto executivo ou 'como construído' (2)" Value="2" />
+                            <RadzenRadioButtonListItem Text="Projeto básico (4)" Value="4" />
+                            <RadzenRadioButtonListItem Text="Anteprojeto ou Projeto conceitual (6)" Value="6" />
+                            <RadzenRadioButtonListItem Text="Inexiste documentação de projeto
+(8)" Value="8" />
+                        </Items>
+                    </RadzenRadioButtonList>
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+
+                        <input type="button" class="btn btn-primary" @onclick="() => Proximo(15)" value="Próximo" />
+                    </div>
+                </div>
+            </div>
+
+        </RadzenTabsItem>
+
+        <RadzenTabsItem Text="PS-O">
+            <RadzenLabel Text="o) Estrutura organizacional  e qualificação técnica dos profissionais da equipe de Segurança da Barragem">    </RadzenLabel>
+            <div class="row">
+                <div class="rz-p-12 rz-text-align-center">
+                    <RadzenRadioButtonList @bind-Value=@valuePS_O @onclick="() =>  ChangeValuePS_O(valuePS_O)" TValue="int" Orientation=Orientation.Vertical class="mb-5">
+                        <Items>
+                            <RadzenRadioButtonListItem Text="Possui estrutura organizacional com  técnico responsável pela segurança da barragem
+(0)" Value="0" />
+                            <RadzenRadioButtonListItem Text="Possui  técnico   responsável pela segurança da barragem
+(4)" Value="4" />
+                            <RadzenRadioButtonListItem Text="Projeto básico (4)" Value="4" />
+                            <RadzenRadioButtonListItem Text="Não possui estrutura organizacional e responsável técnico  pela segurança da barragem
+(8)" Value="8" />
+
+                        </Items>
+                    </RadzenRadioButtonList>
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+
+                        <input type="button" class="btn btn-primary" @onclick="() => Proximo(16)" value="Próximo" />
+                    </div>
+                </div>
+            </div>
+
+        </RadzenTabsItem>
+
+        <RadzenTabsItem Text="PS-P">
+            <RadzenLabel Text="p)Procedimentos de roteiros de inspeções de segurança e de monitoramento">    </RadzenLabel>
+            <div class="row">
+                <div class="rz-p-12 rz-text-align-center">
+                    <RadzenRadioButtonList @bind-Value=@valuePS_P @onclick="() =>  ChangeValuePS_P(valuePS_P)" TValue="int" Orientation=Orientation.Vertical class="mb-5">
+                        <Items>
+                            <RadzenRadioButtonListItem Text="Possui e aplica procedimentos de inspeção e monitoramento
+(0)" Value="0" />
+                            <RadzenRadioButtonListItem Text="Possui e aplica apenas procedimentos  de inspeção
+(3)" Value="3" />
+                            <RadzenRadioButtonListItem Text="Possui e não aplica procedimentos  de inspeção e monitoramento
+(5)" Value="5" />
+                            <RadzenRadioButtonListItem Text="Não possui e não aplica procedimentos  para monitoramento e inspeções
+(6)" Value="6" />
+
+                        </Items>
+                    </RadzenRadioButtonList>
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+
+                        <input type="button" class="btn btn-primary" @onclick="() => Proximo(17)" value="Próximo" />
+                    </div>
+                </div>
+            </div>
+
+        </RadzenTabsItem>
+
+
+
+        <RadzenTabsItem Text="PS-Q">
+            <RadzenLabel Text="q) Regra operacional dos dispositivos de descarga da barragem ">    </RadzenLabel>
+            <div class="row">
+                <div class="rz-p-12 rz-text-align-center">
+                    <RadzenRadioButtonList @bind-Value=@valuePS_Q @onclick="() =>  ChangeValuePS_Q(valuePS_Q)" TValue="int" Orientation=Orientation.Vertical class="mb-5">
+                        <Items>
+                            <RadzenRadioButtonListItem Text="Sim ou Vertedouro tipo soleira livre (0)" Value="0" />
+                            <RadzenRadioButtonListItem Text="Não(6)" Value="6" />
+
+                        </Items>
+                    </RadzenRadioButtonList>
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+
+                        <input type="button" class="btn btn-primary" @onclick="() => Proximo(18)" value="Próximo" />
+                    </div>
+                </div>
+            </div>
+
+        </RadzenTabsItem>
+
+
+        <RadzenTabsItem Text="PS-R">
+            <RadzenLabel Text="r) Relatórios de inspeção de seguranca com analise e interpretacao ">    </RadzenLabel>
+            <div class="row">
+                <div class="rz-p-12 rz-text-align-center">
+                    <RadzenRadioButtonList @bind-Value=@valuePS_R @onclick="() =>  ChangeValuePS_R(valuePS_R)" TValue="int" Orientation=Orientation.Vertical class="mb-5">
+                        <Items>
+                            <RadzenRadioButtonListItem Text="Emite regularmente os relatórios
+(0)" Value="0" />
+                            <RadzenRadioButtonListItem Text="Emite os relatórios sem periodicidade
+(3)" Value="3" />
+                            <RadzenRadioButtonListItem Text="Não emite os relatórios
+(5)" Value="5" />
+
+                        </Items>
+                    </RadzenRadioButtonList>
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+
+                        <input type="button" class="btn btn-primary" @onclick="() => Salvar()" value="Salvar" />
+                    </div>
+                </div>
+            </div>
+
+        </RadzenTabsItem>
+    </Tabs>
+</RadzenTabs>
+<style>
+    .shadows div {
+        padding: 1rem;
+        width: 10rem;
+        text-align: center;
+    }
+</style>
+
+
+
+
+@code {
+    int valueCT_A = 0;
+    int valueCT_B = 0;
+    int valueCT_C = 0;
+    int valueCT_D = 0;
+    int valueCT_E = 0;
+    int valueCT_F = 0;
+
+    int valueEC_H = 0;
+    int valueEC_I = 0;
+    int valueEC_J = 0;
+    int valueEC_L = 0;
+    int valueEC_M = 0;
+
+    int valuePS_N = 0;
+    int valuePS_O = 0;
+    int valuePS_P = 0;
+    int valuePS_Q = 0;
+    int valuePS_R = 0;
+
+
+    int valorTotal = 0;
+    int valorTotalEC = 0;
+    string resultado = "Baixo";
+    private int selectedIndex = 0;
+    //private List<CategoriaRisco> CategoriaRisco;
+
+    bool showValue = true;
+    bool showResultadoPanel = false;
+    double value = 100;
+    IEnumerable<GaugeTickPosition> tickPositions = Enum.GetValues(typeof(GaugeTickPosition)).Cast<GaugeTickPosition>();
+    GaugeTickPosition tickPosition = GaugeTickPosition.Inside;
+
+    int idBarragemCategoriaRisco = 0;
+    bool flagBarragem = false;
+    private List<Barragem> lstBarragem;
+
+    protected override async Task OnInitializedAsync()
+    {
+        lstBarragem = new List<Barragem>();
+        lstBarragem = await BarragemService.GetBarragemAsync();
+
+
+    }
+
+    protected async Task Salvar()
+    {
+        if (idBarragemCategoriaRisco == 0)
+        {
+            flagBarragem = true;
+            StateHasChanged();
+
+            return;
+        }
+
+        valorTotal = 0;
+        valorTotal = valueCT_A +
+        valueCT_B +
+        valueCT_C +
+        valueCT_D +
+        valueCT_E +
+        valueCT_F +
+
+        valueEC_H +
+        valueEC_I +
+        valueEC_J +
+        valueEC_L +
+        valueEC_M +
+
+        valuePS_N +
+        valuePS_O +
+        valuePS_P +
+        valuePS_Q +
+        valuePS_R;
+
+        valorTotalEC = valueEC_H +
+        valueEC_I +
+        valueEC_J +
+        valueEC_L +
+        valueEC_M;
+
+
+
+
+        CategoriaRisco categoriaRisco = new CategoriaRisco();
+
+        categoriaRisco.CT_A = valueCT_A;
+        categoriaRisco.CT_B = valueCT_B;
+        categoriaRisco.CT_C = valueCT_C;
+        categoriaRisco.CT_D = valueCT_D;
+        categoriaRisco.CT_E = valueCT_E;
+        categoriaRisco.EC_H = valueEC_H;
+        categoriaRisco.EC_I = valueEC_I;
+        categoriaRisco.EC_J = valueEC_J;
+        categoriaRisco.EC_L = valueEC_L;
+        categoriaRisco.PS_N = valuePS_N;
+        categoriaRisco.PS_O = valuePS_O;
+        categoriaRisco.PS_P = valuePS_P;
+        categoriaRisco.PS_Q = valuePS_Q;
+        categoriaRisco.PS_R = valuePS_R;
+        categoriaRisco.BarragemId = idBarragemCategoriaRisco;
+        categoriaRisco.DataAlteracao = DateTime.Now;
+        categoriaRisco.DataCadastro = DateTime.Now;
+        categoriaRisco.ValorTotal = valorTotal;
+        categoriaRisco.ValorTotalEC = valorTotalEC;
+        var resultado = await CategoriaRiscoService.GetCategoriaRisco();
+        var resultadoFiltrado = resultado.Where(x => x.BarragemId == idBarragemCategoriaRisco).Count() > 0;
+        showResultadoPanel = true;
+
+        if (resultadoFiltrado && resultado.Count() > 0)
+        {
+            categoriaRisco.Id = resultado.Find(x => x.BarragemId == idBarragemCategoriaRisco).Id;
+            await CategoriaRiscoService.EditarCategoriaRisco(categoriaRisco);
+        }
+        else
+        {
+            categoriaRisco.DataCadastro = DateTime.Now;
+            await CategoriaRiscoService.CadastrarCategoriaRisco(categoriaRisco);
+        }
+
+    }
+
+    public async Task ChangeValueCT_A(int pontos)
+    {
+        valueCT_A = pontos;
+        StateHasChanged();
+    }
+
+    public async Task ChangeValueCT_B(int pontos)
+    {
+        valueCT_B = pontos;
+        StateHasChanged();
+    }
+
+    public async Task ChangeValueCT_C(int pontos)
+    {
+        valueCT_C = pontos;
+        StateHasChanged();
+    }
+
+    public async Task ChangeValueCT_D(int pontos)
+    {
+        valueCT_D = pontos;
+        StateHasChanged();
+    }
+
+    public async Task ChangeValueCT_E(int pontos)
+    {
+        valueCT_E = pontos;
+        StateHasChanged();
+    }
+
+    public async Task ChangeValueCT_F(int pontos)
+    {
+        valueCT_F = pontos;
+        StateHasChanged();
+    }
+
+    public async Task ChangeValueEC_H(int pontos)
+    {
+        valueEC_H = pontos;
+        StateHasChanged();
+    }
+
+    public async Task ChangeValueEC_I(int pontos)
+    {
+        valueEC_I = pontos;
+        StateHasChanged();
+    }
+
+    public async Task ChangeValueEC_J(int pontos)
+    {
+        valueEC_J = pontos;
+        StateHasChanged();
+    }
+
+    public async Task ChangeValueEC_L(int pontos)
+    {
+        valueEC_L = pontos;
+        StateHasChanged();
+    }
+
+    public async Task ChangeValueEC_M(int pontos)
+    {
+        valueEC_M = pontos;
+        StateHasChanged();
+    }
+
+    public async Task ChangeValuePS_N(int pontos)
+    {
+        valuePS_N = pontos;
+        StateHasChanged();
+    }
+
+    public async Task ChangeValuePS_O(int pontos)
+    {
+        valuePS_O = pontos;
+        StateHasChanged();
+    }
+
+    public async Task ChangeValuePS_P(int pontos)
+    {
+        valuePS_P = pontos;
+        StateHasChanged();
+    }
+
+    public async Task ChangeValuePS_Q(int pontos)
+    {
+        valuePS_Q = pontos;
+        StateHasChanged();
+    }
+
+    public async Task ChangeValuePS_R(int pontos)
+    {
+        valuePS_R = pontos;
+        StateHasChanged();
+    }
+
+    public async Task VerificaBarragem(object args)
+    {
+        //var resultado = await DanoPotencialAssociadoService.GetDanoPotencialAssociado();
+        //var resultadoFiltrado = resultado.Find(x => x.BarragemId == (int)args);
+
+
+
+        //DanoPotencialAssociado danoPotencialAssociado = new DanoPotencialAssociado();
+
+        //if (resultadoFiltrado != null)
+        //{
+        //    danoPotencialAssociado.VTR_Resposta = resultadoFiltrado.VTR_Resposta;
+        //    danoPotencialAssociado.PPV_Resposta = resultadoFiltrado.PPV_Resposta;
+        //    danoPotencialAssociado.IA_Resposta = resultadoFiltrado.IA_Resposta;
+        //    danoPotencialAssociado.ISE_Resposta = resultadoFiltrado.ISE_Resposta;
+        //    danoPotencialAssociado.DpaTotal = resultadoFiltrado.DpaTotal;
+        //    danoPotencialAssociado.BarragemId = resultadoFiltrado.BarragemId;
+
+        //    valueVTR = resultadoFiltrado.VTR_Resposta;
+        //    valuePPV = resultadoFiltrado.PPV_Resposta;
+        //    valueIA = resultadoFiltrado.IA_Resposta;
+        //    valueISE = resultadoFiltrado.ISE_Resposta;
+        //    valorTotal = resultadoFiltrado.DpaTotal;
+        //    idBarragemDano = resultadoFiltrado.BarragemId;
+
+        //    valorTotal = 0;
+        //    valorTotal = valueVTR + valuePPV + valueIA + valueISE;
+
+
+        //}
+        //else
+        //{
+
+        //    await EditSkill();
+        //}
+
+        }
+
+
+    protected async Task Proximo(int intSelectedIndex)
+    {
+
+
+        this.selectedIndex = intSelectedIndex;
+
+        //switch (selectedIndex)
+        //{
+
+        //    case 1:
+        //        // Barragem
+        //        //this.SalvarBarragem();
+        //        break;
+        //    default:
+        //        // code block
+        //        break;
+        //}
+
+        StateHasChanged();
+    }
+}
+

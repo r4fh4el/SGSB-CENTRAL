@@ -1,0 +1,262 @@
+﻿@page "/TempoConcentracao/Index"
+
+@using SGSB.Web.Data
+@inject TempoConcentracaoService TempoConcentracaoService
+@using Model ;
+@inject NavigationManager NavigationManager
+@inject HttpClient http
+@using BlazorTable
+@inject BarragemService BarragemService
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime
+
+
+@if (flagBarragem)
+{
+    <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Default">
+        Atenção! Selecionar barragem é obrigatório!
+    </RadzenAlert>
+}
+<RadzenCard class="mb-4">
+    <div class="form-group">
+        <label for="barragems" class="control-label">Barragem </label>
+        @*<RadzenDropDown @bind-Value="@BarragemModel.Tipo_Material_Id" Data=@lstTipoMaterialBarragem class="form-control" />*@
+        <RadzenDropDown @bind-Value="@idBarragemTempoConcentracao" Placeholder="Selecione a barragem" TextProperty="Nome" ValueProperty="Id" Data="@lstBarragem"></RadzenDropDown>
+
+    </div>
+</RadzenCard>
+<RadzenCard>
+    <div Class="rz-p-0 rz-p-md-12">
+        <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+            <RadzenColumn Size="12" SizeMD="6">
+                <RadzenFieldset Text="Dados de entrada para as Fórmulas">
+                    <RadzenStack Gap="1rem">
+                        <RadzenRow Gap="1rem">
+                            <RadzenColumn Size="12" SizeSM="6">
+                                <RadzenStack>
+                                    <RadzenLabel Text="Comprimento do rio principal (L)"></RadzenLabel>
+                                    <RadzenFormField Text="Comprimento do rio principal (L)">
+
+                                        <RadzenNumeric TValue="double" @bind-Value=@objTempoConcentracao.ComprimentoRioPrincipal_L />
+                                    </RadzenFormField>
+
+                                </RadzenStack>
+                            </RadzenColumn>
+
+                        </RadzenRow>
+                        <RadzenRow Gap="1rem">
+                            <RadzenColumn Size="12" SizeSM="6">
+                                <RadzenStack>
+                                    <RadzenLabel Text="Declividade da bacia (S)"></RadzenLabel>
+                                    <RadzenFormField Text="Declividade da bacia (S)">
+
+                                        <RadzenNumeric TValue="double" @bind-Value=@objTempoConcentracao.DeclividadeBacia_S />
+
+                                    </RadzenFormField>
+
+                                </RadzenStack>
+                            </RadzenColumn>
+
+                        </RadzenRow>
+
+                        <RadzenRow Gap="1rem">
+                            <RadzenColumn Size="12" SizeSM="6">
+                                <RadzenStack>
+                                    <RadzenLabel Text="Área de drenagem (A)"></RadzenLabel>
+                                    <RadzenFormField Text="Área de drenagem (A)">
+
+                                        <RadzenNumeric TValue="double" @bind-Value=@objTempoConcentracao.AreaDrenagem_A />
+
+                                    </RadzenFormField>
+
+                                </RadzenStack>
+                            </RadzenColumn>
+
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeMD="6">
+
+                <RadzenFieldset Text="Tempo de Concentração ">
+                    <RadzenStack Gap="1rem">
+                        <RadzenRow class="rz-text-align-center rz-border-success-light" Gap="0.5rem">
+                            <RadzenColumn class="rz-background-color-success-lighter rz-color-on-info-lighter rz-p-5" Style="font-size:10px;">
+                                EQUAÇÕES
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-success-lighter rz-color-on-info-lighter rz-p-5" Style="font-size:10px;">
+                                RESULTADO
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-success-lighter rz-color-on-info-lighter rz-p-5" Style="font-size:10px;">
+                                UNIDADE DE MEDIDA
+                            </RadzenColumn>
+
+                        </RadzenRow>
+                        <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Kirpich (1940)
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                @resultadoKirpch
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Horas
+                            </RadzenColumn>
+
+                        </RadzenRow>
+                        <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Corps Engineers (1946)
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                @resultadoCorpsEngineers
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Horas
+                            </RadzenColumn>
+
+                        </RadzenRow>
+                        <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Carter (1961)
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                @resultadoCarter
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Horas
+                            </RadzenColumn>
+                        </RadzenRow>
+                        <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Dooge (1956)
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                @resultadoDooge
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Horas
+                            </RadzenColumn>
+
+                        </RadzenRow>
+
+                        <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Ven te Chow (1962)
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                @resultadoVenteChow
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Horas
+                            </RadzenColumn>
+
+                        </RadzenRow>
+
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="form-group">
+
+                    <input type="button" class="btn btn-primary" @onclick="() => Salvar()" value="Salvar" />
+                </div>
+            </div>
+        </div>
+    </div>
+</RadzenCard>
+<style>
+    .shadows div {
+        padding: 1rem;
+        width: 10rem;
+        text-align: center;
+    }
+</style>
+
+
+
+
+@code {
+    Variant variant = Variant.Outlined;
+
+    private List<TempoConcentracao> lstTempoConcentracao;
+    public TempoConcentracao objTempoConcentracao = new TempoConcentracao();
+    private double resultadoKirpch;
+    private double resultadoCorpsEngineers;
+    private double resultadoCarter;
+    private double resultadoDooge;
+    private double resultadoVenteChow;
+    int idBarragemTempoConcentracao = 0;
+    bool flagBarragem = false;
+    private List<Model.Barragem> lstBarragem;
+
+    protected async Task Salvar()
+    {
+        ////=0,0663*(C3^0,77)*(C4^-0,385)
+        resultadoKirpch = 0.0663 * Math.Pow(objTempoConcentracao.ComprimentoRioPrincipal_L, 0.77) * Math.Pow(objTempoConcentracao.DeclividadeBacia_S, -0.385);
+        ////=0,191*(C3^0,76)*(C4^-0,19)
+        resultadoCorpsEngineers = 0.191 * Math.Pow(objTempoConcentracao.ComprimentoRioPrincipal_L, 0.76) * Math.Pow(objTempoConcentracao.DeclividadeBacia_S, -0.19);
+        ////=0,0977*(C3^0,6)*(C4^-0,3)
+        resultadoCarter = 0.0977 * Math.Pow(objTempoConcentracao.ComprimentoRioPrincipal_L, 0.6) * Math.Pow(objTempoConcentracao.DeclividadeBacia_S, -0.3);
+        ////=0,365*(C5^0,41)*(C4^-0,17)
+        resultadoDooge = 0.365 * Math.Pow(objTempoConcentracao.AreaDrenagem_A, 0.41) * Math.Pow(objTempoConcentracao.DeclividadeBacia_S, -0.17);
+
+        ////=0,16*(C3^0,64)*(C4^-0,32)
+        resultadoVenteChow = 0.160 * Math.Pow(double.Parse(objTempoConcentracao.ComprimentoRioPrincipal_L.ToString().Replace(",", ".")), 0.64) * Math.Pow(double.Parse(objTempoConcentracao.DeclividadeBacia_S.ToString().Replace(",", ".")), -0.32);
+
+
+        var tempoConcentracao = new TempoConcentracao()
+            {
+
+                ResultadoKirpich = resultadoKirpch,
+                ResultadoCorpsEngineers = resultadoCorpsEngineers,
+                ResultadoCarter = resultadoCarter,
+                ResultadoDooge = resultadoDooge,
+                ResultadoVenTeChow = resultadoVenteChow,
+                BarragemId = idBarragemTempoConcentracao,
+                AreaDrenagem_A = objTempoConcentracao.AreaDrenagem_A,
+                ComprimentoRioPrincipal_L = objTempoConcentracao.ComprimentoRioPrincipal_L,
+                DeclividadeBacia_S = objTempoConcentracao.DeclividadeBacia_S
+
+
+
+            };
+
+        if (idBarragemTempoConcentracao == 0)
+        {
+            flagBarragem = true;
+            StateHasChanged();
+
+            return;
+        }
+
+
+        var resultado = await TempoConcentracaoService.GetTempoConcentracao();
+        var resultadoFiltrado = resultado.Where(x => x.BarragemId == idBarragemTempoConcentracao).Count() > 0;
+
+        if (resultadoFiltrado && resultado.Count() > 0)
+        {
+            tempoConcentracao.Id = resultado.Find(x => x.BarragemId == idBarragemTempoConcentracao).Id;
+            await TempoConcentracaoService.EditarTempoConcentracao(tempoConcentracao);
+        }
+        else
+        {
+            tempoConcentracao.DataCadastro = DateTime.Now;
+            await TempoConcentracaoService.CadastrarTempoConcentracao(tempoConcentracao);
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        lstBarragem = new List<Model.Barragem>();
+        lstBarragem = await BarragemService.GetBarragemAsync();
+
+
+    }
+
+    protected void Submit(TempoConcentracao arg)
+    {
+        //
+    }
+}
+

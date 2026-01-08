@@ -1,0 +1,116 @@
+﻿@page "/Barragem/Index"
+
+@using SGSB.Web.Data
+@inject BarragemService BarragemService
+@inject NavigationManager NavigationManager
+@using Model
+@using BlazorTable
+@using SGSB.Web.Models;
+
+
+@*<h1>Serviços</h1>*@
+
+@*<EditForm Model="@objBarragemModel" OnValIdSubmit="CreateBarragem">
+        <DataAnnotationsValIdator />
+        <ValIdationSummary />
+        <div class="row">
+            <div class="col-md-8">
+                <div class="form-group">
+                    <label for="NOME" class="control-label">Nome do Serviço</label>
+                    <InputText @bind-Value="@objBarragemModel.nome" type="Text" class="form-control" />
+                    <ValIdationMessage For="@(()=> objBarragemModel.nome)" />
+                </div>
+
+
+
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <input type="submit" class="btn btn-primary" value="Salvar" />
+                    <input type="button" class="btn" @onclick="@Cancel" value="Cancelar" />
+                </div>
+            </div>
+        </div>
+    </EditForm>*@
+
+@if (Barragems == null)
+{
+    <p><em>Carregando...</em></p>
+}
+else
+{
+    <div class="col-md-3">
+        <a href="Barragem/cadastro" class="btn btn-success h2"> Nova Barragem </a>
+    </div>
+
+    <Table style="font-size:14px;" TableItem="Barragem" Items="Barragems" PageSize="10">
+        <Column TableItem="Barragem" Title="ID" Field="@(x => x.Id)" Sortable="true" Filterable="true" WIdth="10%" />
+        <Column TableItem="Barragem" Title="Nome da Barragem" Field="@(x => x.Nome)" Sortable="true" Filterable="true" WIdth="30%" />
+        <Column TableItem="Barragem" Title="Bacia HIdrografica Abrangencia" Field="@(x => x.BaciaHidrograficaAbrangencia)" Sortable="true" Filterable="true" WIdth="30%" />
+
+
+
+        <Column TableItem="Barragem" Title="Visualizar" Field="@(x => x.Id)" Sortable="true" Filterable="true" WIdth="10%">
+            <Template>
+
+                <a href="Barragem/Visualizar/@context.Id" class="btn btn-info h4"> Visualizar</a>
+            </Template>
+        </Column>
+        <Column TableItem="Barragem" Title="Editar" Field="@(x => x.Id)" Sortable="true" Filterable="true" WIdth="10%">
+            <Template>
+
+                <a TableItem="Barragem" href="Barragem/Editar/@context.Id" class="btn btn-warning h4"> Editar</a>
+            </Template>
+        </Column>
+        <Column TableItem="Barragem" Title="Excluir" Field="@(x => x.Id)" Sortable="true" Filterable="true" WIdth="10%">
+            <Template>
+
+                <a href="../Barragem/Excluir/@context.Id" class="btn btn-danger h4"> Excluir</a>
+            </Template>
+        </Column>
+
+        <Pager ShowPageNumber="true" ShowTotalCount="true" />
+    </Table>
+
+}
+
+@code {
+
+    private List<Barragem> Barragems = new List<Barragem>();
+    //private Barragem BarragemModel = new Barragem();
+    protected override async Task OnInitializedAsync()
+    {
+        Barragems = await BarragemService.GetBarragemAsync();
+    }
+
+
+    private Barragem objBarragemModel = new Barragem();
+
+
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+
+    }
+
+    protected async Task Editar(int Id)
+    {
+        BarragemService.EditarBarragem(objBarragemModel);
+
+    }
+    protected async Task Visualizar(int Id)
+    {
+
+        BarragemService.CadastrarBarragem(objBarragemModel);
+        Barragems.Add(objBarragemModel);
+
+        StateHasChanged();
+
+
+    }
+
+   
+
+}

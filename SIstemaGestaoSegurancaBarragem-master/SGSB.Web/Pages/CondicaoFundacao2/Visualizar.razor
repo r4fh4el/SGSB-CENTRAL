@@ -1,0 +1,69 @@
+﻿@page "/CondicaoFundacao/Visualizar"
+@page "/CondicaoFundacao/Visualizar/{id}"
+
+@inject CondicaoFundacaoService CondicaoFundacaoService
+@inject NavigationManager NavigationManager
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime;
+@using Model
+
+@using BlazorTable
+@using SGSB.Web.Data
+
+
+<h3>Visualizar</h3>
+
+
+<EditForm Model="@CondicaoFundacaoModel">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="nome" class="control-label">Nome da CondicaoFundacao</label>
+                <InputText @bind-Value="@CondicaoFundacaoModel.Nome" type="Text" class="form-control" />
+                <ValidationMessage For="@(()=> CondicaoFundacaoModel.Nome)" />
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+
+                <input type="button" class="btn" @onclick="@Cancel" value="Voltar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private CondicaoFundacao CondicaoFundacaoModel = new CondicaoFundacao();
+
+    [Parameter]
+    public string Id { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+
+       await Ver(Id);
+    }
+
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+
+    }
+
+    public async Task Ver(string Id)
+    {
+        CondicaoFundacaoModel =  await CondicaoFundacaoService.GetCondicaoFundacaoId(int.Parse(Id));
+    }
+
+
+
+
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("CondicaoFundacao/index");
+    }
+
+
+}

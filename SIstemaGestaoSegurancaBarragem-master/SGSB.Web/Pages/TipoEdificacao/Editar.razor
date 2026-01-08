@@ -1,0 +1,91 @@
+﻿@page "/TipoEdificacao/Editar"
+@page "/TipoEdificacao/Editar/{id}"
+
+@inject TipoEdificacaoService TipoEdificacaoService
+@inject NavigationManager NavigationManager
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime;
+@using Model
+
+@using BlazorTable
+@using SGSB.Web.Data
+@using SGSB.Web.Models;
+
+
+<h3>Editar</h3>
+
+
+<EditForm Model="@TipoEdificacaoModel" OnSubmit="EditarTipoMaterial">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="nome" class="control-label">Nome da Tipo de Material de Barragem</label>
+                <InputText @bind-Value="@TipoEdificacaoModel.Nome" type="Text" class="form-control" />
+                <ValidationMessage For="@(()=> TipoEdificacaoModel.Nome)" />
+            </div>
+
+
+
+
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="submit" class="btn btn-primary" value="Editar" />
+                <input type="button" class="btn" @onclick="@Cancel" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private TipoEdificacaoModel TipoEdificacaoModel = new TipoEdificacaoModel();
+
+    [Parameter]
+    public string Id { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+
+        await Edit(Id);
+    }
+
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+
+
+    }
+
+
+
+    public async Task Edit(string Id)
+    {
+        var tipo = await TipoEdificacaoService.GetTipoEdificacaoId(int.Parse(Id));
+
+        var tipos = new TipoEdificacaoModel()
+            {
+                BarragemId = tipo.BarragemId,
+                Id = tipo.Id,
+                Nome = tipo.Nome
+            };
+
+        TipoEdificacaoModel = tipos;
+    }
+
+    protected async Task EditarTipoMaterial()
+    {
+
+        await TipoEdificacaoService.EditarTipoEdificacao(TipoEdificacaoModel);
+        NavigationManager.NavigateTo("TipoEdificacao/index");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("TipoEdificacao/index");
+    }
+
+
+}

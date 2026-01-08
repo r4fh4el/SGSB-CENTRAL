@@ -1,0 +1,97 @@
+﻿@page "/SistemaDrenagem/Excluir"
+@page "/SistemaDrenagem/Excluir/{id}"
+
+@inject SistemaDrenagemService SistemaDrenagemService
+@inject NavigationManager NavigationManager
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime;
+@using Model
+
+@using BlazorTable
+@using SGSB.Web.Data
+
+
+<h3 class="alert-warning">Deseja excluir?</h3>
+
+
+<EditForm Model="@SistemaDrenagemModel" OnSubmit="ExcluirSistemaDrenagem">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="nome" class="control-label">Nome da Sistema Drenagem </label>
+                <InputText @bind-Value="@SistemaDrenagemModel.Nome" type="Text" class="form-control" />
+                <ValidationMessage For="@(()=> SistemaDrenagemModel.Nome)" />
+            </div>
+
+
+
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="submit" class="btn btn-danger" value="Excluir" />
+                <input type="button" class="btn" @onclick="@Cancel" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private SistemaDrenagem SistemaDrenagemModel = new SistemaDrenagem();
+
+    [Parameter]
+    public string Id { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+
+        await Delete(Id);
+    }
+
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+
+    }
+
+    public async Task Delete(string Id)
+    {
+
+        SistemaDrenagemModel = await SistemaDrenagemService.GetSistemaDrenagemId(int.Parse(Id));
+
+    }
+
+    protected async Task ExcluirSistemaDrenagem()
+    {
+        try
+        {
+            await SistemaDrenagemService.DeletarSistemaDrenagem(SistemaDrenagemModel);
+            NavigationManager.NavigateTo("SistemaDrenagem/index");
+        }
+        catch (Exception e)
+        {
+
+            throw e;
+        }
+
+    }
+
+    protected async Task CreateSistemaDrenagem()
+    {
+        var tipoMaterialBarragem = new Entidades.Entidades.SistemaDrenagem()
+            {
+                Nome = SistemaDrenagemModel.Nome
+
+
+            };
+        NavigationManager.NavigateTo("SistemaDrenagem/index");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("SistemaDrenagem/index");
+    }
+
+
+}

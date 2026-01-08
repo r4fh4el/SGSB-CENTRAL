@@ -1,0 +1,97 @@
+﻿@page "/CondicaoFundacao/Index"
+
+@using SGSB.Web.Data
+@inject CondicaoFundacaoService CondicaoFundacaoService
+@using Model 
+@inject NavigationManager NavigationManager
+@inject HttpClient http
+@using BlazorTable
+
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime
+
+@if (CondicaoFundacao == null)
+{
+    <p><em>Carregando...</em></p>
+}
+else
+{
+    <div class="col-md-3">
+        <a href="CondicaoFundacao/cadastro" class="btn btn-success h2">Adicionar Novo </a>
+    </div>
+
+    <Table style="font-size:14px;" TableItem="CondicaoFundacao" Items="CondicaoFundacao" PageSize="10">
+        <Column TableItem="CondicaoFundacao" Title="ID" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%" />
+        <Column TableItem="CondicaoFundacao" Title="Nome" Field="@(x => x.Nome)" Sortable="true" Filterable="true" Width="30%" />
+    
+
+        <Column TableItem="CondicaoFundacao" Title="Visualizar" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%">
+            <Template>
+
+                <a href="CondicaoFundacao/Visualizar/@context.Id" class="btn btn-info h4"> Visualizar</a>
+            </Template>
+        </Column>
+        <Column TableItem="CondicaoFundacao" Title="Editar" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%">
+            <Template>
+
+                <a TableItem="CondicaoFundacao" href="CondicaoFundacao/Editar/@context.Id" class="btn btn-warning h4"> Editar</a>
+            </Template>
+        </Column>
+        <Column TableItem="CondicaoFundacao" Title="Excluir" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%">
+            <Template>
+
+                <a href="../CondicaoFundacao/Excluir/@context.Id" class="btn btn-danger h4"> Excluir</a>
+            </Template>
+        </Column>
+
+        <Pager ShowPageNumber="true" ShowTotalCount="true" />
+    </Table>
+
+}
+
+@code {
+
+    private List<CondicaoFundacao> CondicaoFundacao;
+    //private CondicaoFundacao CondicaoFundacaoModel = new CondicaoFundacao();
+    protected override async Task OnInitializedAsync()
+    {
+        CondicaoFundacao = await CondicaoFundacaoService.GetCondicaoFundacao();
+ 
+    }
+
+
+    private CondicaoFundacao objCondicaoFundacaoModel = new CondicaoFundacao();
+
+
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+
+    }
+
+    protected async Task Editar(int id)
+    {
+       await CondicaoFundacaoService.EditarCondicaoFundacao(objCondicaoFundacaoModel);
+
+    }
+    protected async Task Visualizar(int id)
+    {
+
+        await CondicaoFundacaoService.CadastrarCondicaoFundacao(objCondicaoFundacaoModel);
+      
+    }
+
+    protected async Task CreateCondicaoFundacao()
+    {
+
+        await CondicaoFundacaoService.CadastrarCondicaoFundacao(objCondicaoFundacaoModel);
+        CondicaoFundacao.Add(objCondicaoFundacaoModel);
+
+        StateHasChanged();
+
+
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("CondicaoFundacao/index");
+    }
+
+}

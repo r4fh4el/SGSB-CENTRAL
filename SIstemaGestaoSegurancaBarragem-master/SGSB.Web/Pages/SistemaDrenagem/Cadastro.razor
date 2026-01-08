@@ -1,0 +1,78 @@
+﻿@page "/SistemaDrenagem/Cadastro"
+
+
+@inject SistemaDrenagemService SistemaDrenagemService
+@inject NavigationManager NavigationManager
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime;
+@using Model
+
+@using BlazorTable
+@using SGSB.Web.Data
+@using SGSB.Web.Models;
+
+
+<h3>Cadastro</h3>
+
+
+<EditForm Model="@SistemaDrenagemModel" OnSubmit="CreateSistemaDrenagem">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="nome" class="control-label">Nome da Sistema Drenagem </label>
+                <InputText @bind-Value="@SistemaDrenagemModel.Nome" type="Text" class="form-control" />
+                <ValidationMessage For="@(()=> SistemaDrenagemModel.Nome)" />
+            </div>
+
+
+
+
+        </div>
+       
+
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="submit" class="btn btn-primary" value="Salvar" />
+                <input type="button" class="btn" @onclick="@Cancel" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private SistemaDrenagem SistemaDrenagemModel = new SistemaDrenagem();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+
+    }
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+
+    }
+
+
+
+    protected async Task CreateSistemaDrenagem()
+    {
+        var sistemaDrenagemModel = new SistemaDrenagemModel()
+            {
+                Nome = SistemaDrenagemModel.Nome
+
+
+            };
+        await SistemaDrenagemService.CadastrarSistemaDrenagem(sistemaDrenagemModel);
+        NavigationManager.NavigateTo("SistemaDrenagem/index");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("SistemaDrenagem/index");
+    }
+
+
+}

@@ -1,0 +1,129 @@
+﻿@page "/CondicaoFundacao/Index"
+
+@using SGSB.Web.Data
+@inject CondicaoFundacaoService CondicaoFundacaoService
+@inject NavigationManager NavigationManager
+@using Model
+@using BlazorTable
+
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime
+@*<h1>Serviços</h1>*@
+
+@*<EditForm Model="@objCondicaoFundacaoModel" OnValidSubmit="CreateCondicaoFundacao">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="row">
+            <div class="col-md-8">
+                <div class="form-group">
+                    <label for="NOME" class="control-label">Nome do Serviço</label>
+                    <InputText @bind-Value="@objCondicaoFundacaoModel.nome" type="Text" class="form-control" />
+                    <ValidationMessage For="@(()=> objCondicaoFundacaoModel.nome)" />
+                </div>
+
+
+
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <input type="submit" class="btn btn-primary" value="Salvar" />
+                    <input type="button" class="btn" @onclick="@Cancel" value="Cancelar" />
+                </div>
+            </div>
+        </div>
+    </EditForm>*@
+
+@if (CondicaoFundacaos == null)
+{
+    <p><em>Carregando...</em></p>
+}
+else
+{
+    <div class="col-md-3">
+        <a href="CondicaoFundacao/cadastro" class="btn btn-success h2"> Novo Cadastro </a>
+    </div>
+
+    <Table style="font-size:14px;" TableItem="CondicaoFundacao" Items="CondicaoFundacaos" PageSize="10">
+        <Column TableItem="CondicaoFundacao" Title="ID" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%" />
+        <Column TableItem="CondicaoFundacao" Title="Nome" Field="@(x => x.Nome)" Sortable="true" Filterable="true" Width="30%" />
+
+
+        <Column TableItem="CondicaoFundacao" Title="Visualizar" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%">
+            <Template>
+
+                <a href="CondicaoFundacao/Visualizar/@context.Id" class="btn btn-info h4"> Visualizar</a>
+            </Template>
+        </Column>
+        <Column TableItem="CondicaoFundacao" Title="Editar" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%">
+            <Template>
+
+                <a TableItem="CondicaoFundacao" href="CondicaoFundacao/Editar/@context.Id" class="btn btn-warning h4"> Editar</a>
+            </Template>
+        </Column>
+        <Column TableItem="CondicaoFundacao" Title="Excluir" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%">
+            <Template>
+
+                <a href="../CondicaoFundacao/Excluir/@context.Id" class="btn btn-danger h4"> Excluir</a>
+            </Template>
+        </Column>
+
+        <Pager ShowPageNumber="true" ShowTotalCount="true" />
+    </Table>
+
+}
+
+@code {
+
+    private List<CondicaoFundacao> CondicaoFundacaos;
+    //private CondicaoFundacao CondicaoFundacaoModel = new CondicaoFundacao();
+    protected override async Task OnInitializedAsync()
+    {
+        CondicaoFundacaos = await CondicaoFundacaoService.GetCondicaoFundacao();
+    }
+
+
+    private CondicaoFundacao objCondicaoFundacaoModel = new CondicaoFundacao();
+
+
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+
+    }
+
+    protected async Task Editar(int id)
+    {
+        objCondicaoFundacaoModel.Id = id;
+        await CondicaoFundacaoService.EditarCondicaoFundacao(objCondicaoFundacaoModel);
+        StateHasChanged();
+
+
+    }
+    protected async Task Visualizar(int id)
+    {
+
+        await CondicaoFundacaoService.CadastrarCondicaoFundacao(objCondicaoFundacaoModel);
+        CondicaoFundacaos.Add(objCondicaoFundacaoModel);
+
+        StateHasChanged();
+
+
+    }
+
+    protected async Task CreateCondicaoFundacao()
+    {
+
+        await CondicaoFundacaoService.CadastrarCondicaoFundacao(objCondicaoFundacaoModel);
+        CondicaoFundacaos.Add(objCondicaoFundacaoModel);
+
+        StateHasChanged();
+
+
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("CondicaoFundacao/index");
+    }
+
+}

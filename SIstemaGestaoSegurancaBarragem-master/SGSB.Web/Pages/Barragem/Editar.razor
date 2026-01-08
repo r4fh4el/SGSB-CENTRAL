@@ -1,0 +1,2465 @@
+﻿@page "/Barragem/Editar"
+@page "/Barragem/Editar/{id}"
+
+@inject BarragemService BarragemService
+@inject DadosGeraisService DadosGeraisService
+@inject TaludeService TaludeService
+@inject InstrumentosService InstrumentosService
+@inject NavigationManager NavigationManager
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime;
+
+@using Entidades.Entidades
+@using Entidades.Enums
+@using BlazorTable
+@using SGSB.Web.Data
+@using SGSB.Web.Models
+@using Radzen
+
+<style>
+
+
+    .rz-tabview-title {
+        font-size: 8px !important;
+    }
+
+</style>
+
+<EditForm Model="@BarragemModel">
+
+    <RadzenTabs @bind-SelectedIndex=@selectedIndex>
+        <Tabs>
+
+            <RadzenTabsItem Text="BARRAGEM">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="Nome" class="control-label">Nome da Barragem</label>
+                            <InputText @bind-Value="@BarragemModel.Nome" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.Nome)" />
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="BaciaHidrograficaAbrangencia" class="control-label">Bacia Hidrográfica de Abrangência</label>
+                            <InputText @bind-Value="@BarragemModel.BaciaHidrograficaAbrangencia" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.BaciaHidrograficaAbrangencia)" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="Latitude" class="control-label">Latitude</label>
+                            <InputText @bind-Value="@BarragemModel.Latitude" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.Latitude)" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="Longitude" class="control-label">Longitude</label>
+                            <InputText @bind-Value="@BarragemModel.Longitude" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.Longitude)" />
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="CursoDaguaBarrado" class="control-label">Curso D’água Barrado</label>
+                            <InputText @bind-Value="@BarragemModel.CursoDaguaBarrado" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.CursoDaguaBarrado)" />
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="AnoConclusaoObra" class="control-label">Ano de conclusão da obra</label>
+                            <InputText @bind-Value="@BarragemModel.AnoConclusaoObra" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.AnoConclusaoObra)" />
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="IdadeBarragem" class="control-label">Idade da Barragem</label>
+                            <InputText @bind-Value="@BarragemModel.IdadeBarragem" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.IdadeBarragem)" />
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="lstTipoMaterialBarragem" class="control-label">Tipo de Material da Barragem </label>
+                            @*<RadzenDropDown @bind-Value="@BarragemModel.Tipo_Material_Id" Data=@lstTipoMaterialBarragem class="form-control" />*@
+                            <RadzenDropDown @bind-Value="@BarragemModel.Tipo_Material_Id" TextProperty="Nome" ValueProperty="Id" Data="@lstTipoMaterialBarragem"></RadzenDropDown>
+
+                            <ValidationMessage For="@(()=> lstTipoMaterialBarragem)" />
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="lstTipoEstruturaBarragem" class="control-label">Tipo da Estrutura Barragem </label>
+                            @*<RadzenDropDown @bind-Value="@BarragemModel.TipoEstruturaBarragemModel.Nome" @bind-Value="@BarragemModel.TipoEstruturaBarragemModel.Nome" Data=@lstTipoEstruturaBarragemModel class="form-control" />*@
+                            <RadzenDropDown @bind-Value="@BarragemModel.Tipo_Estrutura_Id" TextProperty="Nome" ValueProperty="Id" Data="@lstTipoEstruturaBarragem"></RadzenDropDown>
+                            <ValidationMessage For="@(()=> lstTipoEstruturaBarragem)" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="lstTipoCondicaoFundacao" class="control-label">Tipo da Condição Fundação    </label>
+                            @*<RadzenDropDown @bind-Value="@BarragemModel.CondicaoFundacao.Nome" Data=@lstTipoCondicaoFundacaoModel class="form-control" />*@
+                            <RadzenDropDown @bind-Value="@BarragemModel.CondicaoFundacaoId" TextProperty="Nome" ValueProperty="Id" Data="@lstTipoCondicaoFundacao"></RadzenDropDown>
+
+                            <ValidationMessage For="@(()=> lstTipoCondicaoFundacao)" />
+                        </div>
+                    </div>
+
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="AlturaMAxima" class="control-label">Altura máxima acima da fundação</label>
+                            <InputNumber @bind-Value="@BarragemModel.AlturaMAxima" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.AlturaMAxima)" />
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="ComprimentoCoroamento" class="control-label">Comprimento do coroamento</label>
+                            <InputNumber @bind-Value="@BarragemModel.ComprimentoCoroamento" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.ComprimentoCoroamento)" />
+                        </div>
+                    </div>
+
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="LarguraCoroamentoBarragem" class="control-label">
+                                Largura do coroamento da barragem principal (m)
+                            </label>
+                            <InputNumber @bind-Value="@BarragemModel.LarguraCoroamentoBarragem" type="Number" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.LarguraCoroamentoBarragem)" />
+
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="CotaCoroamentoBarragem" class="control-label">
+                                Cota do coroamento da barragem principal (m)
+                            </label>
+                            <InputNumber @bind-Value="@BarragemModel.CotaCoroamentoBarragem" type="Number" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.CotaCoroamentoBarragem)" />
+
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <input type="button" class="btn btn-primary" @onclick="() => Proximo(1)" value="Próximo" />
+                        </div>
+                    </div>
+
+                </div>
+            </RadzenTabsItem>
+
+            <RadzenTabsItem Text="DADOS GERAIS">
+                <div class="row">
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="NomeEmpreendedor" class="control-label">Nome Empreendedor</label>
+                            <InputText @bind-Value="@BarragemModel.DadosGerais.NomeEmpreendedor" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.DadosGerais.NomeEmpreendedor)" />
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="TipoEmpreendedor" class="control-label">Figura Jurídica</label>
+                            @*<RadzenDropDown @bind-Value=@BarragemModel.TipoEmpreendedorModel.Nome Data=@lstTipoEmpreendedor class="form-control" />*@
+                            <RadzenDropDown @bind-Value="@BarragemModel.Tipo_Empreendedor_Id" TextProperty="Nome" ValueProperty="Id" Data="@lstTipoEmpreendedor"></RadzenDropDown>
+
+                            <ValidationMessage For="@(()=> BarragemModel.DadosGerais.TipoEmpreendedor)" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="EnderecoEmpreendedor" class="control-label">Endereço da barragem</label>
+                            <InputText @bind-Value="@BarragemModel.DadosGerais.EnderecoEmpreendedor" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.DadosGerais.EnderecoEmpreendedor)" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="ResponsavelEmpreendedor" class="control-label">Contato do responsável pela barragem</label>
+                            <InputText @bind-Value="@BarragemModel.DadosGerais.ResponsavelEmpreendedor" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.DadosGerais.ResponsavelEmpreendedor)" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="QuantidadeBarragem" class="control-label">Quantidade total de barragens de propriedade do empreendedor</label>
+                            <InputNumber @bind-Value="@BarragemModel.DadosGerais.QuantidadeBarragem" type="Number" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.DadosGerais.QuantidadeBarragem)" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <input type="button" class="btn btn-primary" @onclick="() => Proximo(2)" value="Próximo" />
+                        </div>
+                    </div>
+
+
+                </div>
+            </RadzenTabsItem>
+            <RadzenTabsItem Text="TALUDE">
+                <div class="row">
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="InclinacaoTaludeMontante" class="control-label">Inclinação talude de montante</label>
+                            <InputNumber @bind-Value="@BarragemModel.Talude.InclinacaoTaludeMontante" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.Talude.InclinacaoTaludeMontante)" />
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="InclinacaoTaludeJusante" class="control-label">Inclinação talude de jusante</label>
+                            <InputNumber @bind-Value="@BarragemModel.Talude.InclinacaoTaludeJusante" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.Talude.InclinacaoTaludeJusante)" />
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="TipoProtecaoSuperficieMontante" class="control-label">
+                                Tipo de Proteção superfície do talude de montante
+                            </label>
+                            <InputText @bind-Value="@BarragemModel.Talude.TipoProtecaoSuperficieMontante" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.Talude.TipoProtecaoSuperficieMontante)" />
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="TipoProtecaoSuperficieJusante" class="control-label">
+                                Tipo de Proteção talude de jusante
+                            </label>
+                            <InputText @bind-Value="@BarragemModel.Talude.TipoProtecaoSuperficieJusante" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.Talude.TipoProtecaoSuperficieJusante)" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <input type="button" class="btn btn-primary" @onclick="() => Proximo(3)" value="Próximo" />
+                        </div>
+                    </div>
+
+                </div>
+            </RadzenTabsItem>
+
+            <RadzenTabsItem Text="RESERVATÓRIO">
+                <div class="row">
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="CapacidadeTotalReservatorio" class="control-label">Capacidade total do reservatório (hm3)</label>
+                            <InputNumber @bind-Value="@BarragemModel.Reservatorio.CapacidadeTotalReservatorio" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.Reservatorio.CapacidadeTotalReservatorio)" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="VolumeUtilReservatorio" class="control-label">Capacidade útil do reservatório (hm3)</label>
+                            <InputNumber @bind-Value="@BarragemModel.Reservatorio.VolumeUtilReservatorio" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.Reservatorio.VolumeUtilReservatorio)" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="BordaLivre" class="control-label">Borda Livre (m)</label>
+                            <InputNumber @bind-Value="@BarragemModel.Reservatorio.BordaLivre" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.Reservatorio.BordaLivre)" />
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="MaximoMaximorum" class="control-label">NA Máximo Maximorum(m)</label>
+                            <InputNumber @bind-Value="@BarragemModel.Reservatorio.MaximoMaximorum" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.Reservatorio.MaximoMaximorum)" />
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="MaximoNormal" class="control-label">NA Máximo Normal(m)</label>
+                            <InputNumber @bind-Value="@BarragemModel.Reservatorio.MaximoNormal" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.Reservatorio.MaximoNormal)" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="MinimoOperacional" class="control-label">NA Mínimo Operacional(m)</label>
+                            <InputNumber @bind-Value="@BarragemModel.Reservatorio.MinimoOperacional" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.Reservatorio.MinimoOperacional)" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="VolumeMorto" class="control-label">Volume morto do reservatório  (hm³)</label>
+                            <InputNumber @bind-Value="@BarragemModel.Reservatorio.VolumeMorto" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.Reservatorio.VolumeMorto)" />
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <input type="button" class="btn btn-primary" @onclick="() => Proximo(4)" value="Próximo" />
+                        </div>
+                    </div>
+
+                </div>
+            </RadzenTabsItem>
+
+
+            <RadzenTabsItem Text="VERTEDOURO">
+                <div class="row">
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="TipoEstruturaExtravasoraPrincipal" class="control-label">
+                                Tipo Estrutura Extravasora Principal
+                            </label>
+                            <InputText @bind-Value="@BarragemModel.Vertedouro.TipoEstruturaExtravasoraPrincipal" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.Vertedouro.TipoEstruturaExtravasoraPrincipal)" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <RadzenCheckBox @bind-Value=@BarragemModel.Vertedouro.VertedouroControle Name="CheckBox4" />
+                            <RadzenLabel Text="Vertedouro (Sangradouro) com controle" Component="CheckBox4" Style="margin-left: 8px; vertical-align: middle;" />
+                        </div>
+                    </div>
+
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="QuantidadeComportas" class="control-label">
+                                Quantidade de comportas se houver
+
+                            </label>
+                            <InputNumber @bind-Value="@BarragemModel.Vertedouro.QuantidadeComportas" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.Vertedouro.QuantidadeComportas)" />
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <RadzenCheckBox @bind-Value=@BarragemModel.Vertedouro.TipoAcionamentoComportas Name="CheckBox5" />
+                            <RadzenLabel Text=" Tipo de Acionamento das comportas" Component="CheckBox5" Style="margin-left: 8px; vertical-align: middle;" />
+
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="LocalizacaoVertedouro" class="control-label">
+                                Localização
+
+
+                            </label>
+                            <InputText @bind-Value="@BarragemModel.Vertedouro.LocalizacaoVertedouro" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.Vertedouro.LocalizacaoVertedouro)" />
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="ComprimentoTotalVertedouro" class="control-label">
+                                Comprimento total vertedouro (sangradouro) – (m)
+
+
+                            </label>
+                            <InputNumber @bind-Value="@BarragemModel.Vertedouro.ComprimentoTotalVertedouro" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.Vertedouro.ComprimentoTotalVertedouro)" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="LarguraTotalVertedouro" class="control-label">
+                                Largura total vertedouro (sangradouro) – (m)
+
+                            </label>
+                            <InputNumber @bind-Value="@BarragemModel.Vertedouro.LarguraTotalVertedouro" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.Vertedouro.LarguraTotalVertedouro)" />
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="db_altura" class="control-label">
+                                Altura
+
+                            </label>
+                            <InputNumber @bind-Value="@BarragemModel.Vertedouro.Altura" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.Vertedouro.Altura)" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="CotaSoleiraVetedouro" class="control-label">
+                                Cota da soleira do vertedouro
+
+                            </label>
+                            <InputNumber @bind-Value="@BarragemModel.Vertedouro.CotaSoleiraVetedouro" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.Vertedouro.CotaSoleiraVetedouro)" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="ModalidadeDissipacaoEnergia" class="control-label">
+                                Modalidade de dissipação de energia
+
+                            </label>
+                            <InputText @bind-Value="@BarragemModel.Vertedouro.ModalidadeDissipacaoEnergia" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.Vertedouro.ModalidadeDissipacaoEnergia)" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <RadzenCheckBox @bind-Value=@BarragemModel.Vertedouro.VetedouroAuxiliar Name="CheckBox6" />
+                            <RadzenLabel Text="Vertedouro auxiliar" Component="CheckBox6" Style="margin-left: 8px; vertical-align: middle;" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="TempoRetornoVazaoMaximaProjetoAnos" class="control-label">
+                                Tempo de retorno da vazão máxima de projeto do vertedor principal (anos)
+
+                            </label>
+                            <InputNumber @bind-Value="@BarragemModel.Vertedouro.TempoRetornoVazaoMaximaProjetoAnos" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.Vertedouro.TempoRetornoVazaoMaximaProjetoAnos)" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="VazaoMaximaProjetoVertedor" class="control-label">
+                                Vazão máxima de projeto do vertedor principal (m³/s)
+
+                            </label>
+                            <InputNumber @bind-Value="@BarragemModel.Vertedouro.VazaoMaximaProjetoVertedor" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.Vertedouro.VazaoMaximaProjetoVertedor)" />
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <input type="button" class="btn btn-primary" @onclick="() => Proximo(5)" value="Próximo" />
+                        </div>
+                    </div>
+
+                </div>
+            </RadzenTabsItem>
+
+
+            <RadzenTabsItem Text="DESCARREGADOR DE FUNDO">
+                <div class="row">
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="Tipo" class="control-label">Tipo</label>
+                            <InputText @bind-Value="@BarragemModel.DescarregadorFundo.Tipo" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.DescarregadorFundo.Tipo)" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="Localizacao" class="control-label">Localização</label>
+                            <InputText @bind-Value="@BarragemModel.DescarregadorFundo.Localizacao" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.DescarregadorFundo.Localizacao)" />
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="CotaSoleiraEntrada" class="control-label">Cota da soleira à entrada(m)</label>
+                            <InputNumber @bind-Value="@BarragemModel.DescarregadorFundo.CotaSoleiraEntrada" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.DescarregadorFundo.CotaSoleiraEntrada)" />
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="Comprimento" class="control-label">Comprimento(m)</label>
+                            <InputNumber @bind-Value="@BarragemModel.DescarregadorFundo.Comprimento" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.DescarregadorFundo.Comprimento)" />
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="Dimensao" class="control-label">Dimensões (m)</label>
+                            <InputNumber @bind-Value="@BarragemModel.DescarregadorFundo.Dimensao" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.DescarregadorFundo.Dimensao)" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="TipoComporta" class="control-label">Tipo de comportas</label>
+                            <InputText @bind-Value="@BarragemModel.DescarregadorFundo.TipoComporta" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.DescarregadorFundo.TipoComporta)" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <RadzenCheckBox @bind-Value=@BarragemModel.DescarregadorFundo.TipoAcionamentoComporta Name="CheckBox7" />
+                            <RadzenLabel Text="Tipo de Acionamento das comportas" Component="CheckBox7" Style="margin-left: 8px; vertical-align: middle;" />
+                        </div>
+                    </div>
+
+
+
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+
+                            <RadzenCheckBox @bind-Value=@BarragemModel.DescarregadorFundo.FonteAlternativaEnergia Name="CheckBox8" />
+                            <RadzenLabel Text="Fonte alternativa de energia" Component="CheckBox8" Style="margin-left: 8px; vertical-align: middle;" />
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+
+                            <RadzenCheckBox @bind-Value=@BarragemModel.DescarregadorFundo.ComandoDistancia Name="CheckBox19" />
+                            <RadzenLabel Text="Comando à distância" Component="CheckBox19" Style="margin-left: 8px; vertical-align: middle;" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <input type="button" class="btn btn-primary" @onclick="() => Proximo(6)" value="Próximo" />
+                        </div>
+                    </div>
+
+                </div>
+            </RadzenTabsItem>
+
+            <RadzenTabsItem Text="TOMADA D'AGUÁ">
+                <div class="row">
+                    <label for="Localizacao" class="control-label">Existe Tomada d'água na barragem?</label>
+                    @*<RadzenCheckBox id="CheckTalude1" TriState="true" Name="CheckTalude" Change="VerificaCheckTalude" />*@
+
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+
+                                <input type="button" class="btn btn-success" @onclick="@TomadaSim" value="Sim" />
+                                <input type="button" class="btn btn-danger" @onclick="@TomadaNao" value="Não" />
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (CheckTomadaDagua)
+                    {
+
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label for="Localizacao" class="control-label">Localização</label>
+                                <InputText @bind-Value="@BarragemModel.TomadaDagua.Localizacao" type="Text" class="form-control" />
+                                <ValidationMessage For="@(()=> BarragemModel.TomadaDagua.Localizacao)" />
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label for="Comprimento" class="control-label">Comprimento</label>
+                                <InputNumber @bind-Value="@BarragemModel.TomadaDagua.Comprimento" type="Text" class="form-control" />
+                                <ValidationMessage For="@(()=> BarragemModel.TomadaDagua.Comprimento)" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label for="ControleEntrada" class="control-label">Controle à entrada</label>
+                                <InputText @bind-Value="@BarragemModel.TomadaDagua.ControleEntrada" type="Text" class="form-control" />
+                                <ValidationMessage For="@(()=> BarragemModel.TomadaDagua.ControleEntrada)" />
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label for="ControleSaida" class="control-label">Controle à saída</label>
+                                <InputText @bind-Value="@BarragemModel.TomadaDagua.ControleSaida" type="Text" class="form-control" />
+                                <ValidationMessage For="@(()=> BarragemModel.TomadaDagua.ControleSaida)" />
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label for="CotasTomadasDaguaEntrada" class="control-label">Cotas das tomadas d’água à entrada</label>
+                                <InputNumber @bind-Value="@BarragemModel.TomadaDagua.CotasTomadasDaguaEntrada" type="Text" class="form-control" />
+                                <ValidationMessage For="@(()=> BarragemModel.TomadaDagua.CotasTomadasDaguaEntrada)" />
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="form-group">
+
+
+                                <RadzenCheckBox @bind-Value=@BarragemModel.TomadaDagua.FonteAlternativaEnergia Name="CheckBox10" />
+                                <RadzenLabel Text="Fonte alternativa de energia" Component="CheckBox10" Style="margin-left: 8px; vertical-align: middle;" />
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="form-group">
+
+                                <RadzenCheckBox @bind-Value=@BarragemModel.TomadaDagua.PossibilidadeManobraManual Name="CheckBox11" />
+                                <RadzenLabel Text="Possibilidade de manobra manual" Component="CheckBox11" Style="margin-left: 8px; vertical-align: middle;" />
+
+                                <ValidationMessage For="@(()=> BarragemModel.TomadaDagua.PossibilidadeManobraManual)" />
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="form-group">
+
+                                <RadzenCheckBox @bind-Value=@BarragemModel.TomadaDagua.ComandoDistancia Name="CheckBox12" />
+                                <RadzenLabel Text="Comando à distância" Component="CheckBox12" Style="margin-left: 8px; vertical-align: middle;" />
+
+                            </div>
+                        </div>
+
+                    }
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <input type="button" class="btn btn-primary" @onclick="() => Proximo(7)" value="Próximo" />
+                        </div>
+                    </div>
+
+                </div>
+            </RadzenTabsItem>
+            <RadzenTabsItem Text="INSTRUMENTOS">
+                <div class="row">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+
+                                <input type="button" class="btn btn-success" @onclick="@InstrumentoSim" value="Sim" />
+                                <input type="button" class="btn btn-danger" @onclick="@InstrumentoNao" value="Não" />
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (CheckInstrumento)
+
+                    {
+
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label class="control-label">Tipos de Instrumentação presente na barragem</label>
+                                <RadzenCheckBoxList @bind-Value="values" TValue="int">
+                                    <Items>
+                                        @foreach (var item in lstInstrumentos)
+                                        {
+                                            <RadzenCheckBoxListItem Text="@item.Nome" Value="@item.Id" />
+                                        }
+
+                                    </Items>
+                                </RadzenCheckBoxList>
+
+                            </div>
+                        </div>
+                    }
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <input type="button" class="btn btn-primary" @onclick="() => Proximo(8)" value="Próximo" />
+                        </div>
+                    </div>
+
+                </div>
+            </RadzenTabsItem>
+
+            <RadzenTabsItem Text="SISTEMA DE DRENAGEM">
+                <div class="row">
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label class="control-label">Tipos de Sistemas de Drenagem</label>
+                            <RadzenCheckBoxList @bind-Value="valuesSD" TValue="int">
+                                <Items>
+                                    @foreach (var item in lstSistemaDrenagem)
+                                    {
+                                        <RadzenCheckBoxListItem Text="@item.Nome" Value="@item.Id" />
+                                    }
+
+                                </Items>
+                            </RadzenCheckBoxList>
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <input type="button" class="btn btn-primary" @onclick="() => Proximo(9)" value="Próximo" />
+                        </div>
+                    </div>
+
+
+                </div>
+            </RadzenTabsItem>
+
+            <RadzenTabsItem Text="COTA-ÁREA-VOLUME">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="Cota" class="control-label">Cota</label>
+                            <InputText @bind-Value="@BarragemModel.CotaAreaVolume.Cota" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.CotaAreaVolume.Cota)" />
+                        </div>
+                    </div>
+                     <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="VolumeAcumulado" class="control-label">Volume Acumulado</label>
+                            <InputText @bind-Value="@BarragemModel.CotaAreaVolume.VolumeAcumulado" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.CotaAreaVolume.VolumeAcumulado)" />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="AreaSuperficial" class="control-label">Área Superficial</label>
+                            <InputText @bind-Value="@BarragemModel.CotaAreaVolume.AreaSuperficial" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.CotaAreaVolume.AreaSuperficial)" />
+                        </div>
+                    </div>
+              
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <input type="button" class="btn btn-success" @onclick="() => AdicionarCota()" value="Adicionar" />
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label class="control-label">Cota Area Volume </label>
+
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Cota (m)</th>
+                                        <th>Volume acumulado (m³)</th>
+                                        <th>Área superficial (m²)</th>
+                                        <th>Excluir</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (Model.CotaAreaVolume item in lstCotaAreaVolume)
+                                    {
+                                        <tr>
+                                            <td>@item.Cota</td>
+                                            <td>@item.VolumeAcumulado</td>
+                                            <td>@item.AreaSuperficial</td>
+                                            <td>
+                                                <input type="button" class="btn btn-danger" @onclick="() => Excluir(item.Id)" value="Excluir" />
+                                            </td>
+                                        </tr>
+                                    }
+
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <input type="button" class="btn btn-primary" @onclick="() => Proximo(10)" value="Próximo" />
+                        </div>
+                    </div>
+
+                </div>
+            </RadzenTabsItem>
+
+            <RadzenTabsItem Text="DOCUMENTAÇÃO DE PROJETO, CONSTRUÇÃO E OPERAÇÃO">
+                <div class="row">
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label class="control-label">Questionário</label>
+                            <RadzenCheckBoxList @bind-Value="valuesDOC" TValue="int">
+                                <Items>
+                                    @foreach (var item in lstDocumentacaoPerguntas)
+                                    {
+                                        <RadzenCheckBoxListItem Text="@item.Pergunta" Value="@item.Id" Width="100%" />
+
+                                    }
+
+                                </Items>
+                            </RadzenCheckBoxList>
+
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <input type="button" class="btn btn-primary" @onclick="() => Proximo(11)" value="Próximo" />
+                        </div>
+                    </div>
+
+                </div>
+            </RadzenTabsItem>
+
+
+            <RadzenTabsItem Text="CARACTERIZAÇÃO DA ÁREA DE JUSANTE DA BARRAGEM">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="DistantciaKm" class="control-label">Distantcia Km</label>
+                            <InputNumber @bind-Value="@BarragemModel.CaracterizacaoAreaJusanteBarragem.DistantciaKm" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.CaracterizacaoAreaJusanteBarragem.DistantciaKm)" />
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label class="control-label">Tipos de Edificação</label>
+                            <RadzenCheckBoxList @bind-Value="valuesTiEd" TValue="int">
+                                <Items>
+                                    @foreach (var item in lstTipoEdificacao)
+                                    {
+                                        <RadzenCheckBoxListItem Text="@item.Nome" Value="@item.Id" Width="auto" />
+                                    }
+
+                                </Items>
+                            </RadzenCheckBoxList>
+
+                        </div>
+                    </div>
+
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <RadzenCheckBox @bind-Value=@BarragemModel.DocumentacaoProjetoConstrucaoOperacao.Resposta Name="CheckBoxDoc" />
+                            <RadzenLabel Text="Descrição/Resposta" Component="CheckBoxDoc" Style="margin-left: 8px; vertical-align: middle;" />
+
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <input type="button" class="btn btn-primary" @onclick="() => Proximo(12)" value="Próximo" />
+                        </div>
+
+                    </div>
+
+                </div>
+            </RadzenTabsItem>
+            <RadzenTabsItem Text="USOS DA BARRAGEM">
+                <div class="row">
+
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label class="control-label">USOS DA BARRAGEM</label>
+                            <RadzenCheckBoxList @bind-Value="valuesUsBa" TValue="int">
+                                <Items>
+                                    @foreach (var item in lstUsoBarragem)
+                                    {
+                                        <RadzenCheckBoxListItem Text="@item.Nome" Value="@item.Id" Width="auto" />
+                                    }
+
+                                </Items>
+                            </RadzenCheckBoxList>
+
+                        </div>
+
+
+                        <div class="col-md-8">
+                            <div class="form-group">
+
+                                <RadzenCheckBox @bind-Value=@BarragemModel.UsoBarragem.GeracaoEnergia Name="CheckBoxGeracaoEnergia" />
+                                <RadzenLabel Text="Tem geração de energia?" Component="CheckBoxGeracaoEnergia" Style="margin-left: 8px; vertical-align: middle;" />
+
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <input type="button" class="btn btn-primary" @onclick="() => Proximo(13)" value="Próximo" />
+                        </div>
+
+                    </div>
+
+                </div>
+            </RadzenTabsItem>
+            <RadzenTabsItem Text="INSPEÇÕES">
+                <div class="row">
+
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="BarragemModel.Inspecoes.EnumFrequencia" class="control-label">Tipo de Material da Barragem </label>
+                            <RadzenDropDown @bind-Value="@BarragemModel.Inspecoes.EnumFrequencia" Data=@SGSB.Web.Infra.Constantes.TipoFrequenciaRegulares class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.Inspecoes.EnumFrequencia)" />
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="BarragemModel.Inspecoes.DataUltimaInspecaoEspecial" class="control-label">Data Última Inspeção Especial</label>
+                            <input type="date" @bind-value="@BarragemModel.Inspecoes.DataUltimaInspecaoEspecial" class="form-control" />
+                            @*<InputDate @bind-Value="@BarragemModel.Inspecoes.DataUltimaInspecaoEspecial" type="date" class="form-control" />*@
+                            <ValidationMessage For="@(()=> BarragemModel.Inspecoes.DataUltimaInspecaoEspecial)" />
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="BarragemModel.Inspecoes.DataRevisaoPeriodicaRecente" class="control-label">Data Revisão Periodica Recente</label>
+                            <input type="date" @bind-value="@BarragemModel.Inspecoes.DataRevisaoPeriodicaRecente" class="form-control" />
+                            @*<InputDate @bind-Value="@BarragemModel.Inspecoes.DataRevisaoPeriodicaRecente" type="date" class="form-control" />*@
+                            <ValidationMessage For="@(()=> BarragemModel.Inspecoes.DataRevisaoPeriodicaRecente)" />
+                        </div>
+                    </div>
+
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="BarragemModel.Inspecoes.DataPlanoAcaoEmergencia" class="control-label">Tem plano de Ação de Emergência (PAE)? </label>
+                            <div class="col-md-8">
+                                <div class="form-group">
+
+                                    <RadzenCheckBox @bind-Value=@BarragemModel.Inspecoes.PossuiPae Name="CheckBoxPossuiPae" />
+                                    <RadzenLabel Text="Possui Pae?" Component="CheckBoxPossuiPae" Style="margin-left: 8px; vertical-align: middle;" />
+
+                                </div>
+                            </div>
+                            <label for="BarragemModel.Inspecoes.DataPlanoAcaoEmergencia" class="control-label">Informe data da última atualização </label>
+                            <input type="date" @bind-value="@BarragemModel.Inspecoes.DataPlanoAcaoEmergencia" class="form-control" />
+
+                            @*<InputDate @bind-Value="@BarragemModel.Inspecoes.DataPlanoAcaoEmergencia" type="date" class="form-control" />*@
+                            <ValidationMessage For="@(()=> BarragemModel.Inspecoes.DataPlanoAcaoEmergencia)" />
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <RadzenCheckBox @bind-Value=@BarragemModel.Inspecoes.PossuiEstudoRompimento Name="CheckBoxPossuiEstudoRompimento" />
+                            <RadzenLabel Text="Possui Estudo Rompimento?" Component="CheckBoxPossuiEstudoRompimento" Style="margin-left: 8px; vertical-align: middle;" />
+
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="BarragemModel.Inspecoes.DataEstudoRompimento" class="control-label">Tem estudo de rompimento e de propagação da cheia associada? </label>
+                            @*<InputDate @bind-Value="@BarragemModel.Inspecoes.DataEstudoRompimento" type="Text" class="form-control" />*@
+                            <input type="date" @bind-value="@BarragemModel.Inspecoes.DataEstudoRompimento" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.Inspecoes.DataEstudoRompimento)" />
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <input type="button" class="btn btn-primary" @onclick="() => Proximo(14)" value="Próximo" />
+                        </div>
+                    </div>
+
+
+                </div>
+            </RadzenTabsItem>
+            <RadzenTabsItem Text="INFORMAÇÕES COMPLEMENTARES">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <RadzenCheckBox @bind-Value=@BarragemModel.InformacoesComplementares.TemOutorgaConstrucao Name="CheckBoxTemOutorgaConstrucao" />
+                            <RadzenLabel Text="Tem outorga de construção?" Component="CheckBoxTemOutorgaConstrucao" Style="margin-left: 8px; vertical-align: middle;" />
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="NumeroPortariaOutorga" class="control-label">Qual o número da portaria?</label>
+                            <InputText @bind-Value="@BarragemModel.InformacoesComplementares.NumeroPortariaOutorga" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.InformacoesComplementares.NumeroPortariaOutorga)" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <RadzenCheckBox @bind-Value=@BarragemModel.InformacoesComplementares.TemLicencaOperacao Name="CheckBoxTemLicencaOperacao" />
+                            <RadzenLabel Text="Tem licença de operação?" Component="CheckBoxTemLicencaOperacao" Style="margin-left: 8px; vertical-align: middle;" />
+
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="NumeroPortariaLicencaOperacao" class="control-label">Qual o número da portaria?</label>
+                            <InputText @bind-Value="@BarragemModel.InformacoesComplementares.NumeroPortariaLicencaOperacao" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.InformacoesComplementares.NumeroPortariaLicencaOperacao)" />
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label class="control-label">USOS DA BARRAGEM</label>
+                            <RadzenCheckBoxList @bind-Value="lstTipoEdificacao" TValue="Model.TipoEdificacao">
+                                <Items>
+                                    @foreach (Model.TipoEdificacao item in lstTipoEdificacao)
+                                    {
+                                        <RadzenCheckBoxListItem Text="@item.Nome" Value="@item.Id" />
+                                    }
+
+                                </Items>
+                            </RadzenCheckBoxList>
+
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="NumeroPortariaLicencaOperacao" class="control-label">Qual a Vazão mínima restituição ao rio?</label>
+                            <InputText @bind-Value="@BarragemModel.InformacoesComplementares.VazaoMinimaRestituicaoAno" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.InformacoesComplementares.VazaoMinimaRestituicaoAno)" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <RadzenCheckBox @bind-Value=@BarragemModel.InformacoesComplementares.TemVigia Name="CheckBoxTemVigia" />
+                            <RadzenLabel Text="Tem vigia?" Component="CheckBoxTemVigia" Style="margin-left: 8px; vertical-align: middle;" />
+
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <RadzenCheckBox @bind-Value=@BarragemModel.InformacoesComplementares.TemOperador24 Name="CheckBoxTemOperador24" />
+                            <RadzenLabel Text="Tem Operador 24 horas?" Component="CheckBoxTemOperador24" Style="margin-left: 8px; vertical-align: middle;" />
+
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <RadzenCheckBox @bind-Value=@BarragemModel.InformacoesComplementares.TemEquipeOperacaoBarragem Name="CheckBoxTemEquipeOperacaoBarragem" />
+                            <RadzenLabel Text="Tem Equipe Operacao da Barragem ou equipe volante?" Component="CheckBoxTemEquipeOperacaoBarragem" Style="margin-left: 8px; vertical-align: middle;" />
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <RadzenCheckBox @bind-Value=@BarragemModel.InformacoesComplementares.TemEquipeOperacaoBarragem Name="CheckBoxTemEquipeOperacaoBarragem" />
+                            <RadzenLabel Text="Tem Equipe Operacao da Barragem ou equipe volante?" Component="CheckBoxTemEquipeOperacaoBarragem" Style="margin-left: 8px; vertical-align: middle;" />
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <RadzenCheckBox @bind-Value=@BarragemModel.InformacoesComplementares.PossuiEscritorioLocalBarragem Name="CheckBoxPossuiEscritorioLocalBarragem" />
+                            <RadzenLabel Text="Possui escritório no local da barragem?" Component="CheckBoxPossuiEscritorioLocalBarragem" Style="margin-left: 8px; vertical-align: middle;" />
+
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <RadzenCheckBox @bind-Value=@BarragemModel.InformacoesComplementares.PossuiEdificacaoLocalBarragem Name="CheckBoxPossuiEdificacaoLocalBarragem" />
+                            <RadzenLabel Text="Possui edidicação de apoio no local da barragem (área construida)?" Component="CheckBoxPossuiEdificacaoLocalBarragem" Style="margin-left: 8px; vertical-align: middle;" />
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <RadzenCheckBox @bind-Value=@BarragemModel.InformacoesComplementares.TemHistoricoIndicidenteAcidente Name="CheckBoxTemHistoricoIndicidenteAcidente" />
+                            <RadzenLabel Text="Há histórico de incidente/acidente anterior?" Component="CheckBoxTemHistoricoIndicidenteAcidente" Style="margin-left: 8px; vertical-align: middle;" />
+
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="nome" class="control-label">Quando?</label>
+                            <InputText @bind-Value="@BarragemModel.InformacoesComplementares.HistoricoIndicidenteAcidente" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.InformacoesComplementares.HistoricoIndicidenteAcidente)" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="AnoUltimaReforma" class="control-label">Ano da Ultima Reforma / reconstrução (no caso se há historico de incidente/acidente)?</label>
+                            <InputNumber @bind-Value="@BarragemModel.InformacoesComplementares.AnoUltimaReforma" type="Text" class="form-control" />
+                            <ValidationMessage For="@(()=> BarragemModel.InformacoesComplementares.AnoUltimaReforma)" />
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+
+                            <input type="button" class="btn btn-primary" @onclick="() => Proximo(15)" value="Salvar" />
+                        </div>
+                    </div>
+
+                </div>
+            </RadzenTabsItem>
+
+        </Tabs>
+    </RadzenTabs>
+</EditForm>
+
+
+
+@code {
+    private int BarragemId;
+    private int DadosGeraisId;
+    private string AlertWarning { get; set; }
+    private string AlertSucess { get; set; }
+    private string AlertError { get; set; }
+    private string AlertInfo { get; set; }
+
+    private bool boolAlertWarning { get; set; }
+    private bool boolAlertSucess { get; set; }
+    private bool boolAlertError { get; set; }
+    private bool boolAlertInfo { get; set; }
+
+
+    private bool idTabDadosGerais { get; set; }
+    private bool idTabTALUDE { get; set; }
+    private bool idTabRESERVATORIO { get; set; }
+    private bool idTabVERTEDOURO { get; set; }
+    private bool idTabDESCARREGADOR { get; set; }
+    private bool idTabINSTRUMENTOS { get; set; }
+    private bool idTabTOMADA { get; set; }
+    private bool idTabSISTEMADRENAGEM { get; set; }
+    private bool idTabCOTA { get; set; }
+    private bool idTabDOCUMENTACAO { get; set; }
+    private bool idTabCARACTERIZACAO { get; set; }
+    private bool idTabUsosBarragem { get; set; }
+    private bool idTabInspecoes { get; set; }
+    private bool idTabInformacaoComplementares { get; set; }
+
+
+    private int TaludeId;
+    private int ReservatorioId;
+    private int DescarregadorFundoId;
+    private int InformacoesComplementaresId;
+    private int InspecoesId;
+    private int UsoBarragemId;
+    private int CaracterizacaoAreaJusanteBarragemId;
+    private int DocumentacaoProjetoConstrucaoOperacaoId;
+    private int CotaAreaVolumeId;
+    private int SistemaDrenagemId;
+    private int InstrumentosId;
+    private int TomadaAguaId;
+    private int VertedouroId;
+    private int selectedIndex = 0;
+
+    private BarragemModel BarragemModel = new BarragemModel();
+
+
+    private IEnumerable<Model.TipoMaterialBarragem> lstTipoMaterialBarragem = new List<Model.TipoMaterialBarragem>();
+    private IEnumerable<Model.CondicaoFundacao> lstTipoCondicaoFundacao = new List<Model.CondicaoFundacao>();
+    private IEnumerable<Model.Instrumentos> lstInstrumentos = new List<Model.Instrumentos>();
+    private IList<Model.Instrumentos> lstInstrumentosMarcado = new List<Model.Instrumentos>();
+    private IEnumerable<Model.TipoEmpreendedor> lstTipoEmpreendedor = new List<Model.TipoEmpreendedor>();
+    private IEnumerable<Model.DocumentacaoPerguntas> lstDocumentacaoPerguntas = new List<Model.DocumentacaoPerguntas>();
+
+    private IEnumerable<Model.SistemaDrenagem> lstSistemaDrenagem = new List<Model.SistemaDrenagem>();
+    private IEnumerable<Model.CotaAreaVolume> lstCotaAreaVolume = new List<Model.CotaAreaVolume>();
+    private IEnumerable<Model.TipoEstruturaBarragem> lstTipoEstruturaBarragem = new List<Model.TipoEstruturaBarragem>();
+    private IEnumerable<Model.DocumentacaoProjetoConstrucaoOperacao> lstDocumentacaoProjetoConstrucaoOperacao = new List<Model.DocumentacaoProjetoConstrucaoOperacao>();
+    private IEnumerable<Model.TipoEdificacao> lstTipoEdificacao = new List<Model.TipoEdificacao>();
+    private IEnumerable<Model.UsoBarragem> lstUsoBarragem = new List<Model.UsoBarragem>();
+    //private IEnumerable<TipoEmpreendedor> lstTipoEmpreendedor =  Enum.GetValues(typeof(TipoEmpreendedor)).Cast<TipoEmpreendedor>();
+    public bool CheckTomadaDagua { get; set; }
+    public bool CheckInstrumento { get; set; }
+
+    private IEnumerable<int> values;
+    private IEnumerable<int> valuesSD;
+    private IEnumerable<int> valuesDOC;
+    private IEnumerable<int> valuesTiEd;
+    private IEnumerable<int> valuesUsBa;
+    private string resultString;
+
+    [Parameter]
+    public string Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        resultString = "<br />";
+        CheckTomadaDagua = false;
+        CheckInstrumento = false;
+        BarragemModel = new BarragemModel();
+        BarragemModel.DadosGerais = new DadosGeraisViewModel();
+        BarragemModel.DescarregadorFundo = new DescarregadorFundoModel();
+        BarragemModel.Talude = new TaludeModel();
+        BarragemModel.Vertedouro = new VertedouroModel();
+        BarragemModel.TomadaDagua = new TomadaDaguaModel();
+        BarragemModel.Instrumentos = new Instrumentos();
+        BarragemModel.SistemaDrenagem = new SistemaDrenagemModel();
+        BarragemModel.CotaAreaVolume = new CotaAreaVolumeModel();
+        BarragemModel.DocumentacaoProjetoConstrucaoOperacao = new DocumentacaoProjetoConstrucaoOperacaoModel();
+        BarragemModel.CaracterizacaoAreaJusanteBarragem = new CaracterizacaoAreaJusanteBarragemModel();
+        BarragemModel.UsoBarragem = new UsoBarragemModel();
+        BarragemModel.Inspecoes = new InspecoesModel();
+        BarragemModel.InformacoesComplementares = new InformacoesComplementaresModel();
+        BarragemModel.Reservatorio = new ReservatorioModel();
+        BarragemModel.TipoMaterialBarragemModel = new TipoMaterialBarragemModel();
+        BarragemModel.TipoEstruturaBarragemModel = new TipoEstruturaBarragemModel();
+        BarragemModel.TipoEstruturaBarragemModel = new TipoEstruturaBarragemModel();
+        BarragemModel.DocumentacaoPerguntasModel = new DocumentacaoPerguntasModel();
+        BarragemModel.TipoEdificacao = new TipoEdificacao();
+        BarragemModel.CondicaoFundacao = new CondicaoFundacao();
+        BarragemModel.TomadaDagua = new TomadaDaguaModel();
+        BarragemModel.TipoEmpreendedorModel = new TipoEmpreendedorModel();
+
+        lstTipoMaterialBarragem = await BarragemService.GetTipoMaterialBarragemAsync();
+        lstTipoEstruturaBarragem = await BarragemService.GetTipoEstruturaBarragemAsync();
+        lstInstrumentos = await BarragemService.GetInstrumentosAsync();
+        lstSistemaDrenagem = await BarragemService.GetSistemaDrenagemAsync();
+        lstCotaAreaVolume = await BarragemService.GetCotaAreaVolumeBarragemIdAsync(int.Parse(Id));
+        lstDocumentacaoProjetoConstrucaoOperacao = await BarragemService.GetDocumentacaoProjetoConstrucaoOperacaoAsync();
+        lstTipoEdificacao = await BarragemService.GetTipoEdificacao();
+        lstUsoBarragem = await BarragemService.GetUsoBarragem();
+
+
+        lstTipoCondicaoFundacao = await BarragemService.GetCondicaoFundacaoAsync();
+        lstTipoEmpreendedor = await BarragemService.GetTipoEmpreendedorAsync();
+        lstDocumentacaoPerguntas = await BarragemService.GetDocumentacaoPerguntasAsync();
+        var resultadoInstrumentosBarragem = await InstrumentosBarragemService.ListarInstrumentosBarragemBarragemId(int.Parse(Id)) != null ? await InstrumentosBarragemService.ListarInstrumentosBarragemBarragemId(int.Parse(Id)) : new List<InstrumentosBarragemModel>();
+        var resultadoSistemaDrenagemBarragem = await SistemaDrenagemBarragemService.ListarSistemaDrenagemBarragemBarragemId(int.Parse(Id)) != null ? await SistemaDrenagemBarragemService.ListarSistemaDrenagemBarragemBarragemId(int.Parse(Id)) : new List<SistemaDrenagemBarragemModel>();
+        var resultadoDOC = await DocumentacaoProjetoConstrucaoOperacaoService.ListarDocumentacaoProjetoConstrucaoOperacaoBarragemId(int.Parse(Id)) != null ? await DocumentacaoProjetoConstrucaoOperacaoService.ListarDocumentacaoProjetoConstrucaoOperacaoBarragemId(int.Parse(Id)) : new List<DocumentacaoProjetoConstrucaoOperacaoModel>();
+        var resultadoTiEd = await TipoEdificacaoBarragemService.ListarTipoEdificacaoBarragemBarragemId(int.Parse(Id)) != null ? await TipoEdificacaoBarragemService.ListarTipoEdificacaoBarragemBarragemId(int.Parse(Id)) : new List<TipoEdificacaoBarragemModel>();
+        var resultadoUsBa = await UsoBarragemBarragemService.ListarUsoBarragemBarragemBarragemId(int.Parse(Id)) != null ? await UsoBarragemBarragemService.ListarUsoBarragemBarragemBarragemId(int.Parse(Id)) : new List<UsoBarragemBarragemModel>();
+
+        valuesUsBa = resultadoUsBa.Select(x => x.UsoBarragemId);
+        valuesTiEd = resultadoTiEd.Select(x => x.TipoEdificacaoId);
+        valuesDOC = resultadoDOC.Select(x => x.Id);
+        valuesSD = resultadoSistemaDrenagemBarragem.Select(x => x.SistemaDrenagemId);
+        values = resultadoInstrumentosBarragem.Select(x => x.InstrumentosId);
+
+        await Edit(Id);
+
+        StateHasChanged();
+    }
+
+    private void TomadaSim()
+    {
+
+        CheckTomadaDagua = true;
+
+        StateHasChanged();
+    }
+    private void TomadaNao()
+    {
+        CheckTomadaDagua = false;
+
+        StateHasChanged();
+    }
+
+    private void InstrumentoSim()
+    {
+
+        CheckInstrumento = true;
+
+        StateHasChanged();
+    }
+    private void InstrumentoNao()
+    {
+        CheckInstrumento = false;
+
+        StateHasChanged();
+    }
+    private async Task VerificaCheckInstrumento(ChangeEventArgs args)
+    {
+        if (CheckInstrumento)
+        {
+            CheckInstrumento = false;
+        }
+        else
+        {
+            CheckInstrumento = true;
+        }
+    }
+
+
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("Barragem");
+    }
+
+    protected async Task AdicionarCota()
+    {
+        if (BarragemId == null || BarragemId == 0)
+        {
+            this.boolAlertWarning = true;
+            this.AlertWarning = "Cadastro da barragem tem que esta";
+        }
+
+
+        var cotaAreaVolumeModel = new CotaAreaVolumeModel()
+
+            {
+                AreaSuperficial = BarragemModel.CotaAreaVolume.AreaSuperficial,
+                Cota = BarragemModel.CotaAreaVolume.Cota,
+                VolumeAcumulado = BarragemModel.CotaAreaVolume.VolumeAcumulado,
+                BarragemId = BarragemId
+
+
+            };
+
+
+
+        if (await CotaAreaVolumeService.CadastrarCotaAreaVolume(cotaAreaVolumeModel))
+        {
+            this.boolAlertSucess = true;
+            this.boolAlertError = false;
+            this.AlertSucess = "Cadastro da Cota Area Volume ok";
+            this.idTabTALUDE = true;
+        }
+        else
+        {
+            this.boolAlertSucess = false;
+            this.boolAlertError = true;
+            this.AlertSucess = "Cadastro da Cota Area Volume ocorreu algum problema";
+        }
+        lstCotaAreaVolume = await BarragemService.GetCotaAreaVolumeBarragemIdAsync(BarragemId);
+
+        this.StateHasChanged();
+
+
+    }
+    protected async Task Excluir(int id)
+    {
+        var cota = new Model.CotaAreaVolume() { Id = id };
+        if (await CotaAreaVolumeService.DeletarCotaAreaVolume(cota))
+        {
+            this.boolAlertSucess = true;
+            this.boolAlertError = false;
+            this.AlertSucess = "Cadastro da Cota Area Volume ok";
+            this.idTabTALUDE = true;
+        }
+        else
+        {
+            this.boolAlertSucess = false;
+            this.boolAlertError = true;
+            this.AlertSucess = "Cadastro da Cota Area Volume ocorreu algum problema";
+        }   
+        lstCotaAreaVolume = await BarragemService.GetCotaAreaVolumeBarragemIdAsync(BarragemId);
+        this.StateHasChanged();
+    }
+
+    protected async Task Proximo(int intSelectedIndex)
+    {
+        this.selectedIndex = intSelectedIndex;
+
+        switch (selectedIndex)
+        {
+
+            case 1:
+                // Barragem
+                await this.SalvarBarragem();
+                break;
+
+            case 2:
+                // DadoGerais
+                await this.SalvarDadoGerais();
+                break;
+            case 3:
+                // Talude
+                await this.SalvarTalude();
+                break;
+            case 4:
+                // Reservatorio
+                await this.SalvarReservatorio();
+                break;
+
+            case 5:
+                // Vertedouro
+                await this.SalvarVertedouro();
+                break;
+
+            case 6:
+                // DescarregadorFundo
+                await this.SalvarDescarregadorFundo();
+                break;
+
+            case 7:
+                // TomadaAgua
+                await this.SalvarTomadaAgua();
+                break;
+
+            case 8:
+                // Instrumento
+                await this.SalvarInstrumentos();
+                break;
+
+            case 9:
+                // SistemaDrenagem
+                await this.SalvarSistemaDrenagem();
+                break;
+
+            case 10:
+                // CotaAreaVolume
+                await this.SalvarCotaAreaVolume();
+                break;
+
+
+
+            case 11:
+                // DocumentacaoProjetoConstrucaoOperacao
+                await this.SalvarDocumentacaoProjetoConstrucaoOperacao();
+                break;
+
+            case 12:
+                // SalvarCaracterizacaoAreaJusanteBarragem
+                await this.SalvarCaracterizacaoAreaJusanteBarragem();
+                break;
+            case 13:
+                // SalvarUsoBarragem
+                await this.SalvarUsoBarragem();
+                break;
+            case 14:
+                // SalvarInspecoes
+                await this.SalvarInspecoes();
+                break;
+            case 15:
+                // SalvarInspecoes
+                await this.SalvarInformacoesComplementares();
+                break;
+            default:
+                // code block
+                break;
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task SalvarBarragem()
+    {
+        BarragemId = await BarragemService.GetProximoBarragemIdAsync();
+        var resultadoBarragem = new Model.Barragem()
+            {
+                AlturaMAxima = BarragemModel.AlturaMAxima,
+                AnoConclusaoObra = BarragemModel.AnoConclusaoObra,
+                BaciaHidrograficaAbrangencia = BarragemModel.BaciaHidrograficaAbrangencia,
+                Nome = BarragemModel.Nome,
+                ComprimentoCoroamento = BarragemModel.ComprimentoCoroamento,
+
+                CondicaoFundacaoId = BarragemModel.CondicaoFundacaoId,
+                CotaCoroamentoBarragem = BarragemModel.CotaCoroamentoBarragem,
+                CursoDaguaBarrado = BarragemModel.CursoDaguaBarrado,
+                DataAlteracao = DateTime.Now,
+                Id = BarragemId,
+                IdadeBarragem = BarragemModel.IdadeBarragem,
+                LarguraCoroamentoBarragem = BarragemModel.LarguraCoroamentoBarragem,
+                TipoFundacao = BarragemModel.TipoFundacao,
+                Tipo_Estrutura_Id = BarragemModel.Tipo_Estrutura_Id,
+                Tipo_Material_Id = BarragemModel.Tipo_Material_Id,
+                Latitude = BarragemModel.Latitude,
+                Longitude = BarragemModel.Longitude
+
+
+            };
+
+
+        await BarragemService.EditarBarragem(resultadoBarragem);
+    }
+    private async Task SalvarDadoGerais()
+    {
+        if (BarragemId == null || BarragemId == 0)
+        {
+            this.boolAlertWarning = true;
+            this.AlertWarning = "Cadastro da barragem tem que esta";
+        }
+
+        var resultadoDadosDadosGerais = new DadosGeraisViewModel()
+
+            {
+                DataAlteracao = BarragemModel.DadosGerais.DataAlteracao,
+                DataCadastro = BarragemModel.DadosGerais.DataCadastro,
+                EmailEmpreendedor = BarragemModel.DadosGerais.EmailEmpreendedor,
+                EnderecoEmpreendedor = BarragemModel.DadosGerais.EnderecoEmpreendedor,
+                Latitude = BarragemModel.DadosGerais.Latitude,
+                Longitude = BarragemModel.DadosGerais.Longitude,
+                NomeEmpreendedor = BarragemModel.DadosGerais.NomeEmpreendedor,
+                QuantidadeBarragem = BarragemModel.DadosGerais.QuantidadeBarragem,
+                ResponsavelEmpreendedor = BarragemModel.DadosGerais.ResponsavelEmpreendedor,
+                TelefoneEmpreendedor = BarragemModel.DadosGerais.TelefoneEmpreendedor,
+                TipoEmpreendedor = BarragemModel.DadosGerais.TipoEmpreendedor,
+                Id = BarragemModel.DadosGerais.Id,
+                BarragemId = BarragemId
+
+            };
+
+        BarragemModel.DadosGeraisId = DadosGeraisId;
+        BarragemModel.DadosGerais.Id = DadosGeraisId;
+        BarragemModel.DadosGerais.BarragemId = BarragemId;
+        //BarragemModel.DadosGerais = resultadoDadosDadosGerais;
+        var resultado = await DadosGeraisService.ListarDadosGeraisBarragemId(BarragemId);
+        if (resultado == null)
+        {
+            if (await DadosGeraisService.CadastrarDadosGerais(resultadoDadosDadosGerais))
+            {
+                this.boolAlertSucess = true;
+                this.boolAlertError = false;
+                this.AlertSucess = "Cadastro da Talude ok";
+                this.idTabTALUDE = true;
+            }
+            else
+            {
+                this.boolAlertSucess = false;
+                this.boolAlertError = true;
+                this.AlertSucess = "Cadastro da talude ocorreu algum problema";
+            }
+        }
+        else
+        {
+            if (await DadosGeraisService.EditarDadosGerais(resultadoDadosDadosGerais))
+            {
+                this.boolAlertSucess = true;
+                this.boolAlertError = false;
+                this.AlertSucess = "Cadastro da Talude ok";
+                this.idTabTALUDE = true;
+            }
+            else
+            {
+                this.boolAlertSucess = false;
+                this.boolAlertError = true;
+                this.AlertSucess = "Cadastro da talude ocorreu algum problema";
+            }
+        }
+        this.StateHasChanged();
+    }
+    private async Task SalvarInformacoesComplementares()
+    {
+        if (BarragemId == null || BarragemId == 0)
+        {
+            this.boolAlertWarning = true;
+            this.AlertWarning = "Cadastro da barragem tem que esta";
+        }
+
+
+        var informacoesComplementaresModel = new InformacoesComplementaresModel()
+
+            {
+                DataAlteracao = BarragemModel.InformacoesComplementares.DataAlteracao,
+                DataCadastro = BarragemModel.InformacoesComplementares.DataCadastro,
+                AnoUltimaReforma = BarragemModel.InformacoesComplementares.AnoUltimaReforma,
+                HistoricoIndicidenteAcidente = BarragemModel.InformacoesComplementares.HistoricoIndicidenteAcidente,
+                NomeSetor = BarragemModel.InformacoesComplementares.NomeSetor,
+                NumeroPortariaLicencaOperacao = BarragemModel.InformacoesComplementares.NumeroPortariaLicencaOperacao,
+                PossuiEscritorioLocalBarragem = BarragemModel.InformacoesComplementares.PossuiEscritorioLocalBarragem,
+                NumeroPortariaOutorga = BarragemModel.InformacoesComplementares.NumeroPortariaOutorga,
+                PossuiEdificacaoLocalBarragem = BarragemModel.InformacoesComplementares.PossuiEdificacaoLocalBarragem,
+                TemEquipeOperacaoBarragem = BarragemModel.InformacoesComplementares.TemEquipeOperacaoBarragem,
+                TemHistoricoIndicidenteAcidente = BarragemModel.InformacoesComplementares.TemHistoricoIndicidenteAcidente,
+                TemLicencaOperacao = BarragemModel.InformacoesComplementares.TemLicencaOperacao,
+                TemOperador24 = BarragemModel.InformacoesComplementares.TemOperador24,
+                TemOutorgaConstrucao = BarragemModel.InformacoesComplementares.TemOutorgaConstrucao,
+                TemVigia = BarragemModel.InformacoesComplementares.TemVigia,
+                VazaoMinimaRestituicaoAno = BarragemModel.InformacoesComplementares.VazaoMinimaRestituicaoAno,
+                Id = BarragemModel.InformacoesComplementares.Id,
+                BarragemId = BarragemId
+
+
+            };
+
+
+        var resultado = await InformacoesComplementaresService.ListarInformacoesComplementaresBarragemId(BarragemId);
+        if (resultado == null)
+        {
+            if (await InformacoesComplementaresService.CadastrarInformacoesComplementares(informacoesComplementaresModel))
+            {
+                this.boolAlertSucess = true;
+                this.boolAlertError = false;
+                this.AlertSucess = "Cadastro da Talude ok";
+                this.idTabTALUDE = true;
+            }
+            else
+            {
+                this.boolAlertSucess = false;
+                this.boolAlertError = true;
+                this.AlertSucess = "Cadastro da talude ocorreu algum problema";
+            }
+        }
+        else
+        {
+
+            if (await InformacoesComplementaresService.EditarInformacoesComplementares(informacoesComplementaresModel))
+            {
+                this.boolAlertSucess = true;
+                this.boolAlertError = false;
+                this.AlertSucess = "Cadastro da Barrage completo!";
+
+                NavigationManager.NavigateTo("Barragem/Index");
+
+            }
+            else
+            {
+                this.boolAlertSucess = false;
+                this.boolAlertError = true;
+                this.AlertSucess = "Cadastro da  Informacoes Complementares ocorreu algum problema";
+            }
+        }
+        this.StateHasChanged();
+
+
+    }
+
+
+    private async Task SalvarInspecoes()
+    {
+
+        if (BarragemId == null || BarragemId == 0)
+        {
+            this.boolAlertWarning = true;
+            this.AlertWarning = "Cadastro da barragem tem que esta";
+        }
+
+        BarragemModel.InspecoesId = InspecoesId;
+        BarragemModel.Inspecoes.Id = InspecoesId;
+        BarragemModel.Inspecoes.BarragemId = BarragemId;
+
+        var resultado = await InspecoesService.ListarInspecoesBarragemId(BarragemId);
+        if (resultado == null)
+        {
+            if (await InspecoesService.CadastrarInspecoes(BarragemModel.Inspecoes))
+            {
+                this.boolAlertSucess = true;
+                this.boolAlertError = false;
+                this.AlertSucess = "Cadastro da Talude ok";
+                this.idTabTALUDE = true;
+            }
+            else
+            {
+                this.boolAlertSucess = false;
+                this.boolAlertError = true;
+                this.AlertSucess = "Cadastro da talude ocorreu algum problema";
+            }
+        }
+        else
+        {
+            BarragemModel.Inspecoes.Id = resultado.Id;
+            if (await InspecoesService.EditarInspecoes(BarragemModel.Inspecoes))
+            {
+                this.boolAlertSucess = true;
+                this.boolAlertError = false;
+                this.AlertSucess = "Cadastro da  Inspecoes ok";
+                this.idTabInformacaoComplementares = true;
+            }
+            else
+            {
+                this.boolAlertSucess = false;
+                this.boolAlertError = true;
+                this.AlertSucess = "Cadastro da Inspecoes ocorreu algum problema";
+            }
+        }
+        this.StateHasChanged();
+
+
+    }
+
+    private async Task SalvarReservatorio()
+    {
+        if (BarragemId == null || BarragemId == 0)
+        {
+            this.boolAlertWarning = true;
+            this.AlertWarning = "Cadastro da barragem tem que esta";
+        }
+
+
+        BarragemModel.Reservatorio.BarragemId = BarragemId;
+        var resultado = await ReservatorioService.ListarReservatorioBarragemId(BarragemId);
+        if (resultado == null)
+        {
+            if (await ReservatorioService.CadastrarReservatorio(BarragemModel.Reservatorio))
+            {
+                this.boolAlertSucess = true;
+                this.boolAlertError = false;
+                this.AlertSucess = "Cadastro da Talude ok";
+                this.idTabTALUDE = true;
+            }
+            else
+            {
+                this.boolAlertSucess = false;
+                this.boolAlertError = true;
+                this.AlertSucess = "Cadastro da talude ocorreu algum problema";
+            }
+        }
+        else
+        {
+            if (await ReservatorioService.EditarReservatorio(BarragemModel.Reservatorio))
+            {
+                this.boolAlertSucess = true;
+                this.boolAlertError = false;
+                this.AlertSucess = "Cadastro da  Reservatorio ok";
+                this.idTabVERTEDOURO = true;
+            }
+            else
+            {
+                this.boolAlertSucess = false;
+                this.boolAlertError = true;
+                this.AlertSucess = "Cadastro da Reservatorio ocorreu algum problema";
+            }
+        }
+
+        this.StateHasChanged();
+
+    }
+    private async Task SalvarVertedouro()
+    {
+        if (BarragemId == null || BarragemId == 0)
+        {
+            this.boolAlertWarning = true;
+            this.AlertWarning = "Cadastro da barragem tem que esta";
+        }
+
+        var vertedouroModel = new VertedouroModel()
+            {
+                Altura = BarragemModel.Vertedouro.Altura,
+                BarragemId = BarragemId,
+                ComprimentoTotalVertedouro = BarragemModel.Vertedouro.ComprimentoTotalVertedouro,
+                CotaSoleiraVetedouro = BarragemModel.Vertedouro.CotaSoleiraVetedouro,
+                LarguraTotalVertedouro = BarragemModel.Vertedouro.LarguraTotalVertedouro,
+                LocalizacaoVertedouro = BarragemModel.Vertedouro.LocalizacaoVertedouro,
+                ModalidadeDissipacaoEnergia = BarragemModel.Vertedouro.ModalidadeDissipacaoEnergia,
+                QuantidadeComportas = BarragemModel.Vertedouro.QuantidadeComportas,
+                TempoRetornoVazaoMaximaProjetoAnos = BarragemModel.Vertedouro.TempoRetornoVazaoMaximaProjetoAnos,
+                TipoAcionamentoComportas = BarragemModel.Vertedouro.TipoAcionamentoComportas,
+                TipoEstruturaExtravasoraPrincipal = BarragemModel.Vertedouro.TipoEstruturaExtravasoraPrincipal,
+                VazaoMaximaProjetoVertedor = BarragemModel.Vertedouro.VazaoMaximaProjetoVertedor,
+                VertedouroControle = BarragemModel.Vertedouro.VertedouroControle,
+                VetedouroAuxiliar = BarragemModel.Vertedouro.VetedouroAuxiliar,
+                Id = BarragemModel.Vertedouro.Id
+
+
+
+            };
+
+
+
+        var resultado = await VertedouroService.ListarVertedouroBarragemId(BarragemId);
+        if (resultado == null)
+        {
+            if (await VertedouroService.CadastrarVertedouro(vertedouroModel))
+            {
+                this.boolAlertSucess = true;
+                this.boolAlertError = false;
+                this.AlertSucess = "Cadastro da Talude ok";
+                this.idTabTALUDE = true;
+            }
+            else
+            {
+                this.boolAlertSucess = false;
+                this.boolAlertError = true;
+                this.AlertSucess = "Cadastro da talude ocorreu algum problema";
+            }
+        }
+        else
+        {
+            if (await VertedouroService.EditarVertedouro(vertedouroModel))
+            {
+                this.boolAlertSucess = true;
+                this.boolAlertError = false;
+                this.AlertSucess = "Cadastro da  Vertedouro ok";
+                this.idTabDESCARREGADOR = true;
+            }
+            else
+            {
+                this.boolAlertSucess = false;
+                this.boolAlertError = true;
+                this.AlertSucess = "Cadastro da Vertedouro ocorreu algum problema";
+            }
+        }
+        this.StateHasChanged();
+    }
+    private async Task SalvarDescarregadorFundo()
+    {
+        if (BarragemId == null || BarragemId == 0)
+        {
+            this.boolAlertWarning = true;
+            this.AlertWarning = "Cadastro da barragem tem que esta";
+        }
+
+        BarragemModel.DescarregadorFundoId = DescarregadorFundoId;
+        BarragemModel.DescarregadorFundo.Id = DescarregadorFundoId;
+        BarragemModel.DescarregadorFundo.BarragemId = BarragemId;
+
+
+        var resultado = await DescarregadorFundoService.ListarDescarregadorFundoBarragemId(BarragemId);
+        if (resultado == null)
+        {
+            if (await DescarregadorFundoService.CadastrarDescarregadorFundo(BarragemModel.DescarregadorFundo))
+            {
+                this.boolAlertSucess = true;
+                this.boolAlertError = false;
+                this.AlertSucess = "Cadastro da Talude ok";
+                this.idTabTALUDE = true;
+            }
+            else
+            {
+                this.boolAlertSucess = false;
+                this.boolAlertError = true;
+                this.AlertSucess = "Cadastro da talude ocorreu algum problema";
+            }
+        }
+        else
+        {
+            if (await DescarregadorFundoService.EditarDescarregadorFundo(BarragemModel.DescarregadorFundo))
+            {
+                this.boolAlertSucess = true;
+                this.boolAlertError = false;
+                this.AlertSucess = "Cadastro da  Descarregador Fundo ok";
+                this.idTabTOMADA = true;
+            }
+            else
+            {
+                this.boolAlertSucess = false;
+                this.boolAlertError = true;
+                this.AlertSucess = "Cadastro da Descarregador Fundo ocorreu algum problema";
+            }
+        }
+        this.StateHasChanged();
+    }
+
+    private async Task SalvarSistemaDrenagem()
+    {
+        if (BarragemId == null || BarragemId == 0)
+        {
+            this.boolAlertWarning = true;
+            this.AlertWarning = "Cadastro da barragem tem que esta";
+        }
+
+        SistemaDrenagemBarragemModel sistemaDrenagemBarragemModel;
+        foreach (var item in valuesSD)
+        {
+            sistemaDrenagemBarragemModel = new SistemaDrenagemBarragemModel()
+                {
+
+                    SistemaDrenagemId = item,
+
+                    BarragemId = BarragemId,
+                    DataAlteracao = DateTime.Now,
+                    DataCadastro = DateTime.Now
+
+
+                };
+
+            var resultado = await SistemaDrenagemBarragemService.ListarSistemaDrenagemBarragemBarragemId(BarragemId);
+            if (resultado.Count() > 0)
+            {
+
+                var validaResultado = resultado.Where(i => i.SistemaDrenagemId == item).FirstOrDefault();
+                if (validaResultado == null)
+                {
+                    await SistemaDrenagemBarragemService.CadastrarSistemaDrenagemBarragem(sistemaDrenagemBarragemModel);
+                }
+                else
+                {
+                    await SistemaDrenagemBarragemService.EditarSistemaDrenagemBarragem(validaResultado);
+                }
+
+            }
+            else
+            {
+                await SistemaDrenagemBarragemService.CadastrarSistemaDrenagemBarragem(sistemaDrenagemBarragemModel);
+
+
+            }
+
+        }
+        this.boolAlertSucess = true;
+        this.boolAlertError = false;
+        this.AlertSucess = "Cadastro da  Sistema Drenagem Fundo ok";
+        this.idTabCOTA = true;
+
+        this.StateHasChanged();
+
+    }
+    private async Task SalvarTomadaAgua()
+    {
+        if (BarragemId == null || BarragemId == 0)
+        {
+            this.boolAlertWarning = true;
+            this.AlertWarning = "Cadastro da barragem tem que esta";
+        }
+
+        BarragemModel.TomadaDaguaId = TomadaAguaId;
+        BarragemModel.TomadaDagua.Id = TomadaAguaId;
+        BarragemModel.TomadaDagua.BarragemId = BarragemId;
+
+        var resultado = await TomadaDaguaService.ListarTomadaDaguaBarragemId(BarragemId);
+        if (resultado == null)
+        {
+
+            await TomadaDaguaService.CadastrarTomadaDagua(BarragemModel.TomadaDagua);
+
+        }
+        else
+        {
+            BarragemModel.TomadaDagua.Id = resultado.Id;
+            BarragemModel.TomadaDaguaId = resultado.Id;
+            if (await TomadaDaguaService.EditarTomadaDagua(BarragemModel.TomadaDagua))
+            {
+                this.boolAlertSucess = true;
+                this.boolAlertError = false;
+                this.AlertSucess = "Cadastro da  Tomada DaguaFundo ok";
+                this.idTabINSTRUMENTOS = true;
+            }
+            else
+            {
+                this.boolAlertSucess = false;
+                this.boolAlertError = true;
+                this.AlertSucess = "Cadastro da Tomada Daguaocorreu algum problema";
+            }
+        }
+        this.StateHasChanged();
+    }
+
+    private async Task SalvarInstrumentos()
+    {
+        if (BarragemId == null || BarragemId == 0)
+        {
+            this.boolAlertWarning = true;
+            this.AlertWarning = "Cadastro da barragem tem que esta";
+        }
+
+        InstrumentosBarragemModel instrumentosBarragemModel;
+        foreach (var item in values)
+        {
+            instrumentosBarragemModel = new InstrumentosBarragemModel()
+                {
+
+                    InstrumentosId = item,
+                    BarragemId = BarragemId,
+                    DataAlteracao = DateTime.Now,
+                    DataCadastro = DateTime.Now
+
+
+                };
+            var resultado = await InstrumentosBarragemService.ListarInstrumentosBarragemBarragemId(BarragemId);
+            if (resultado.Count() >  0)
+            {
+
+                var validaResultado = resultado.Where(i => i.InstrumentosId == item).FirstOrDefault();
+                if (validaResultado == null)
+                {
+                    await InstrumentosBarragemService.CadastrarInstrumentosBarragem(instrumentosBarragemModel);
+                }
+                else
+                {
+                    await InstrumentosBarragemService.EditarInstrumentosBarragem(validaResultado);
+                }
+
+
+            }
+            else
+            {
+                await InstrumentosBarragemService.CadastrarInstrumentosBarragem(instrumentosBarragemModel);
+            }
+
+        }
+
+        this.boolAlertSucess = true;
+        this.boolAlertError = false;
+        this.AlertSucess = "Cadastro da  Instrumentos ok";
+        this.idTabSISTEMADRENAGEM = true;
+
+
+        this.StateHasChanged();
+    }
+
+
+    private async Task SalvarCotaAreaVolume()
+    {
+        if (BarragemId == null || BarragemId == 0)
+        {
+            this.boolAlertWarning = true;
+            this.AlertWarning = "Cadastro da barragem tem que esta";
+        }
+
+        BarragemModel.CotaAreaVolumeId = CotaAreaVolumeId;
+        BarragemModel.CotaAreaVolume.Id = CotaAreaVolumeId;
+        BarragemModel.CotaAreaVolume.BarragemId = BarragemId;
+
+        var resultado = await CotaAreaVolumeService.ListarCotaAreaVolumeBarragemId(BarragemId);
+        if (resultado == null)
+        {
+            await CotaAreaVolumeService.CadastrarCotaAreaVolume(BarragemModel.CotaAreaVolume);
+
+        }
+        else
+        {
+            if (await CotaAreaVolumeService.EditarCotaAreaVolume(BarragemModel.CotaAreaVolume))
+            {
+                this.boolAlertSucess = true;
+                this.boolAlertError = false;
+                this.AlertSucess = "Cadastro da  Cota Area Volume ok";
+                this.idTabDOCUMENTACAO = true;
+            }
+            else
+            {
+                this.boolAlertSucess = false;
+                this.boolAlertError = true;
+                this.AlertSucess = "Cadastro da Cota Area Volume correu algum problema";
+            }
+        }
+        this.StateHasChanged();
+    }
+
+
+    private async Task SalvarDocumentacaoProjetoConstrucaoOperacao()
+    {
+        if (BarragemId == null || BarragemId == 0)
+        {
+            this.boolAlertWarning = true;
+            this.AlertWarning = "Cadastro da barragem tem que esta";
+        }
+
+        DocumentacaoProjetoConstrucaoOperacaoModel documentacaoProjetoConstrucaoOperacao;
+        foreach (var item in valuesDOC)
+        {
+            documentacaoProjetoConstrucaoOperacao = new DocumentacaoProjetoConstrucaoOperacaoModel()
+                {
+
+                    Id = item,
+                    BarragemId = BarragemId
+
+
+                };
+            var resultado = await DocumentacaoProjetoConstrucaoOperacaoService.ListarDocumentacaoProjetoConstrucaoOperacaoBarragemId(BarragemId);
+            if (resultado.Count() > 0)
+            {
+
+                var validaResultado = resultado.Where(i => i.Id == item).FirstOrDefault();
+                if (validaResultado == null)
+                {
+                    await DocumentacaoProjetoConstrucaoOperacaoService.CadastrarDocumentacaoProjetoConstrucaoOperacao(documentacaoProjetoConstrucaoOperacao);
+                }
+                else
+                {
+                    await DocumentacaoProjetoConstrucaoOperacaoService.EditarDocumentacaoProjetoConstrucaoOperacao(validaResultado);
+                }
+
+
+            }
+            else
+            {
+                await DocumentacaoProjetoConstrucaoOperacaoService.CadastrarDocumentacaoProjetoConstrucaoOperacao(documentacaoProjetoConstrucaoOperacao);
+
+
+            }
+
+        }
+        // foreach (var item in lstDocumentacaoProjetoConstrucaoOperacao)
+        // {
+
+        //     BarragemModel.DocumentacaoProjetoConstrucaoOperacaoId = DocumentacaoProjetoConstrucaoOperacaoId;
+        //     BarragemModel.DocumentacaoProjetoConstrucaoOperacao.Id = DocumentacaoProjetoConstrucaoOperacaoId;
+        //     BarragemModel.DocumentacaoProjetoConstrucaoOperacao.BarragemId = BarragemId;
+
+        //     BarragemModel.DocumentacaoProjetoConstrucaoOperacao.Pergunta = item.Pergunta;
+        //     BarragemModel.DocumentacaoProjetoConstrucaoOperacao.Resposta = item.Resposta;
+
+
+
+        //     var resultado = await DocumentacaoProjetoConstrucaoOperacaoService.ListarDocumentacaoProjetoConstrucaoOperacaoBarragemId(BarragemId);
+        //     if (resultado == null)
+        //     {
+        //         await DocumentacaoProjetoConstrucaoOperacaoService.CadastrarDocumentacaoProjetoConstrucaoOperacao(BarragemModel.DocumentacaoProjetoConstrucaoOperacao);
+
+        //     }
+        //     else
+        //     {
+        //         await DocumentacaoProjetoConstrucaoOperacaoService.EditarDocumentacaoProjetoConstrucaoOperacao(BarragemModel.DocumentacaoProjetoConstrucaoOperacao);
+        //     }
+
+
+        // }
+
+
+        this.idTabCARACTERIZACAO = true;
+        this.boolAlertSucess = true;
+        this.boolAlertError = false;
+        this.AlertSucess = "Cadastro da DocumentacaoProjetoConstrucaoOperacao ok";
+
+
+        this.StateHasChanged();
+    }
+
+
+    private async Task SalvarCaracterizacaoAreaJusanteBarragem()
+    {
+        try
+        {
+
+
+            if (BarragemId == null || BarragemId == 0)
+            {
+                this.boolAlertWarning = true;
+                this.AlertWarning = "Cadastro da barragem tem que esta";
+            }
+
+
+            BarragemModel.CaracterizacaoAreaJusanteBarragemId = CaracterizacaoAreaJusanteBarragemId;
+            BarragemModel.CaracterizacaoAreaJusanteBarragem.Id = CaracterizacaoAreaJusanteBarragemId;
+            BarragemModel.CaracterizacaoAreaJusanteBarragem.BarragemId = BarragemId;
+            BarragemModel.CaracterizacaoAreaJusanteBarragem.TipoEdificacao = new TipoEdificacaoModel();
+
+
+            TipoEdificacaoBarragemModel tipoEdificacaoBarragemModel;
+            foreach (var item in valuesTiEd)
+            {
+                tipoEdificacaoBarragemModel = new TipoEdificacaoBarragemModel()
+                    {
+
+                        TipoEdificacaoId = item,
+
+                        BarragemId = BarragemId,
+                        DataAlteracao = DateTime.Now,
+                        DataCadastro = DateTime.Now
+
+
+                    };
+                BarragemModel.CaracterizacaoAreaJusanteBarragem.TipoEdificacaoId = tipoEdificacaoBarragemModel.Id;
+
+                var resultado = await TipoEdificacaoBarragemService.ListarTipoEdificacaoBarragemBarragemId(BarragemId);
+                if (resultado.Count() > 0)
+                {
+
+                    var validaResultado = resultado.Where(i => i.TipoEdificacaoId == item).FirstOrDefault();
+                    if (validaResultado == null)
+                    {
+                        await TipoEdificacaoBarragemService.CadastrarTipoEdificacaoBarragem(tipoEdificacaoBarragemModel);
+                    }
+                    else
+                    {
+                        await TipoEdificacaoBarragemService.EditarTipoEdificacaoBarragem(validaResultado);
+                    }
+
+
+                }
+                else
+                {
+                    await TipoEdificacaoBarragemService.CadastrarTipoEdificacaoBarragem(tipoEdificacaoBarragemModel);
+                }
+
+            }
+            var resultado2 = await CaracterizacaoAreaJusanteBarragemService.ListarCaracterizacaoAreaJusanteBarragemBarragemId(BarragemId);
+            if (resultado2 == null)
+            {
+                var tipo = await TipoEdificacaoBarragemService.ListarTipoEdificacaoBarragemBarragemId(BarragemId);
+                BarragemModel.CaracterizacaoAreaJusanteBarragem.TipoEdificacaoId = tipo.FirstOrDefault().TipoEdificacaoId;
+                await CaracterizacaoAreaJusanteBarragemService.CadastrarCaracterizacaoAreaJusanteBarragem(BarragemModel.CaracterizacaoAreaJusanteBarragem);
+                this.boolAlertSucess = true;
+                this.boolAlertError = false;
+                this.AlertSucess = "Cadastro da Caracterizacao Area Jusante Barragem ok";
+                this.idTabUsosBarragem = true;
+
+            }
+            else
+            {
+                if (await CaracterizacaoAreaJusanteBarragemService.EditarCaracterizacaoAreaJusanteBarragem(BarragemModel.CaracterizacaoAreaJusanteBarragem))
+                {
+                    this.boolAlertSucess = true;
+                    this.boolAlertError = false;
+                    this.AlertSucess = "Cadastro da Caracterizacao Area Jusante Barragem ok";
+                    this.idTabUsosBarragem = true;
+                }
+                else
+                {
+                    this.boolAlertSucess = false;
+                    this.boolAlertError = true;
+                    this.AlertSucess = "Cadastro da Caracterizacao Area Jusante Barragem correu algum problema";
+                }
+            }
+
+        }
+        catch (Exception ex)
+        {
+            this.boolAlertError = true;
+            this.AlertSucess = ex.Message.ToString();
+            throw;
+        }
+        this.StateHasChanged();
+    }
+
+    private async Task SalvarUsoBarragem()
+    {
+        if (BarragemId == null || BarragemId == 0)
+        {
+            this.boolAlertWarning = true;
+            this.AlertWarning = "Cadastro da barragem tem que esta";
+        }
+
+        UsoBarragemBarragemModel usoBarragemBarragemModel;
+        foreach (var item in valuesUsBa)
+        {
+            usoBarragemBarragemModel = new UsoBarragemBarragemModel()
+                {
+
+                    UsoBarragemId = item,
+
+                    BarragemId = BarragemId,
+                    DataAlteracao = DateTime.Now,
+                    DataCadastro = DateTime.Now
+
+
+                };
+            var resultado = await UsoBarragemBarragemService.ListarUsoBarragemBarragemBarragemId(BarragemId);
+            if (resultado.Count() > 0)
+            {
+
+                var validaResultado = resultado.Where(i => i.UsoBarragemId == item).FirstOrDefault();
+                if (validaResultado == null)
+                {
+                    await UsoBarragemBarragemService.CadastrarUsoBarragemBarragem(usoBarragemBarragemModel);
+                }
+                else
+                {
+                    await UsoBarragemBarragemService.EditarUsoBarragemBarragem(validaResultado);
+                }
+
+
+            }
+            else
+            {
+                await UsoBarragemBarragemService.CadastrarUsoBarragemBarragem(usoBarragemBarragemModel);
+
+            }
+           
+        }
+
+        this.boolAlertSucess = true;
+        this.boolAlertError = false;
+        this.AlertSucess = "Cadastro da Uso Barragem ok";
+        this.idTabInspecoes = true;
+        this.StateHasChanged();
+    }
+
+    private async Task SalvarTalude()
+    {
+        if (BarragemId == null || BarragemId == 0)
+        {
+            this.boolAlertWarning = true;
+            this.AlertWarning = "Cadastro da barragem tem que esta";
+        }
+        TaludeId = await TaludeService.GetProximoTaludeIdAsync();
+        var resultadoTalude = new TaludeModel()
+
+            {
+                Id = BarragemModel.Talude.Id,
+                InclinacaoTaludeJusante = BarragemModel.Talude.InclinacaoTaludeJusante,
+                InclinacaoTaludeMontante = BarragemModel.Talude.InclinacaoTaludeMontante,
+                TipoProtecaoSuperficieJusante = BarragemModel.Talude.TipoProtecaoSuperficieJusante,
+                TipoProtecaoSuperficieMontante = BarragemModel.Talude.TipoProtecaoSuperficieMontante,
+                BarragemId = BarragemId,
+                DataCadastro = DateTime.Now,
+                DataAlteracao = DateTime.Now
+            };
+
+        var resultado = await TaludeService.ListarTaludeBarragemId(BarragemId);
+        if (resultado == null)
+        {
+            if (await TaludeService.CadastrarTalude(resultadoTalude))
+            {
+                this.boolAlertSucess = true;
+                this.boolAlertError = false;
+                this.AlertSucess = "Cadastro da Talude ok";
+                this.idTabTALUDE = true;
+            }
+            else
+            {
+                this.boolAlertSucess = false;
+                this.boolAlertError = true;
+                this.AlertSucess = "Cadastro da talude ocorreu algum problema";
+            }
+        }
+        else
+        {
+
+            if (await TaludeService.EditarTalude(resultadoTalude))
+            {
+                this.boolAlertSucess = true;
+                this.boolAlertError = false;
+                this.AlertSucess = "Cadastro da Talude ok";
+                this.idTabRESERVATORIO = true;
+            }
+            else
+            {
+                this.boolAlertSucess = false;
+                this.boolAlertError = true;
+                this.AlertSucess = "Cadastro da Talude Ocorreu algum problema";
+            }
+        }
+        this.StateHasChanged();
+    }
+
+
+
+    // public async Task CarregaInstrumentos()
+    // {
+
+    // };
+    public async Task Edit(string Id)
+    {
+        BarragemId = int.Parse(Id);
+        var resultadoBarragem = await BarragemService.GetBarragemId(int.Parse(Id)) != null ? await BarragemService.GetBarragemId(int.Parse(Id)) : new Model.Barragem();
+        var resultadoDadosGerais = await DadosGeraisService.ListarDadosGeraisBarragemId(int.Parse(Id)) != null ? await DadosGeraisService.ListarDadosGeraisBarragemId(int.Parse(Id)) : new DadosGeraisViewModel();
+        var resultadoTalude = await TaludeService.ListarTaludeBarragemId(int.Parse(Id)) != null ? await TaludeService.ListarTaludeBarragemId(int.Parse(Id)) : new TaludeModel();
+        var resultadoReservatorio = await ReservatorioService.ListarReservatorioBarragemId(int.Parse(Id)) != null ? await ReservatorioService.ListarReservatorioBarragemId(int.Parse(Id)) : new ReservatorioModel();
+        var resultadoVertedouro = await VertedouroService.ListarVertedouroBarragemId(int.Parse(Id)) != null ? await VertedouroService.ListarVertedouroBarragemId(int.Parse(Id)) : new VertedouroModel();
+        var resultadoDescarregadorFundo = await DescarregadorFundoService.ListarDescarregadorFundoBarragemId(int.Parse(Id)) != null ? await DescarregadorFundoService.ListarDescarregadorFundoBarragemId(int.Parse(Id)) : new DescarregadorFundoModel();
+        var resultadoTomadaDagua = await TomadaDaguaService.ListarTomadaDaguaBarragemId(int.Parse(Id)) != null ? await TomadaDaguaService.ListarTomadaDaguaBarragemId(int.Parse(Id)) : new TomadaDaguaModel();
+        var resultadoInspecoes = await InspecoesService.ListarInspecoesBarragemId(int.Parse(Id)) != null ? await InspecoesService.ListarInspecoesBarragemId(int.Parse(Id)) : new InspecoesModel();
+        var resultadoInformacoesComplementares= await InformacoesComplementaresService.ListarInformacoesComplementaresBarragemId(int.Parse(Id)) != null ? await InformacoesComplementaresService.ListarInformacoesComplementaresBarragemId(int.Parse(Id)) : new InformacoesComplementaresModel();
+        var resultadoCaracterizacaoAreaJusanteBarragem= await CaracterizacaoAreaJusanteBarragemService.ListarCaracterizacaoAreaJusanteBarragemBarragemId(int.Parse(Id)) != null ? await CaracterizacaoAreaJusanteBarragemService.ListarCaracterizacaoAreaJusanteBarragemBarragemId(int.Parse(Id)) : new CaracterizacaoAreaJusanteBarragemModel();
+        // var resultadoInstrumentosBarragem = await InstrumentosBarragemService.ListarInstrumentosBarragemBarragemId(int.Parse(Id)) != null ? await InstrumentosBarragemService.ListarInstrumentosBarragemBarragemId(int.Parse(Id)) : new List<InstrumentosBarragemModel>();
+        // var resultadoSistemaDrenagemBarragem = await SistemaDrenagemBarragemService.ListarSistemaDrenagemBarragemBarragemId(int.Parse(Id)) != null ? await SistemaDrenagemBarragemService.ListarSistemaDrenagemBarragemBarragemId(int.Parse(Id)) : new List<SistemaDrenagemBarragemModel>();
+        // var resultadoDOC = await DocumentacaoProjetoConstrucaoOperacaoService.ListarDocumentacaoProjetoConstrucaoOperacaoBarragemId(int.Parse(Id)) != null ? await DocumentacaoProjetoConstrucaoOperacaoService.ListarDocumentacaoProjetoConstrucaoOperacaoBarragemId(int.Parse(Id)) : new List<DocumentacaoProjetoConstrucaoOperacaoModel>();
+        // var resultadoTiEd = await TipoEdificacaoBarragemService.ListarTipoEdificacaoBarragemBarragemId(int.Parse(Id)) != null ? await TipoEdificacaoBarragemService.ListarTipoEdificacaoBarragemBarragemId(int.Parse(Id)) : new List<TipoEdificacaoBarragemModel>();
+        // var resultadoUsBa = await UsoBarragemBarragemService.ListarUsoBarragemBarragemBarragemId(int.Parse(Id)) != null ? await UsoBarragemBarragemService.ListarUsoBarragemBarragemBarragemId(int.Parse(Id)) : new List<UsoBarragemBarragemModel>();
+
+
+
+        // IEnumerable<int> values = resultadoInstrumentosBarragem.Select(x => x.InstrumentosId);
+        // IEnumerable<int> valuesSD = resultadoSistemaDrenagemBarragem.Select(x => x.SistemaDrenagemId);
+        
+        
+        // IEnumerable<int> valuesDOC = resultadoDOC.Select(x => x.Id);
+
+        // IEnumerable<int> valuesTiEd = resultadoTiEd.Select(x => x.TipoEdificacaoId);
+
+        // IEnumerable<int> valuesUsBa = resultadoUsBa.Select(x => x.UsoBarragemId);
+
+
+
+        var barragemModel = new BarragemModel()
+            {
+                AlturaMAxima = resultadoBarragem.AlturaMAxima,
+                AnoConclusaoObra = resultadoBarragem.AnoConclusaoObra,
+                BaciaHidrograficaAbrangencia = resultadoBarragem.BaciaHidrograficaAbrangencia,
+                Nome = resultadoBarragem.Nome,
+                ComprimentoCoroamento = resultadoBarragem.ComprimentoCoroamento,
+                Latitude = resultadoBarragem.Latitude,
+                Longitude = resultadoBarragem.Longitude,
+                CondicaoFundacaoId = resultadoBarragem.CondicaoFundacaoId,
+                CotaCoroamentoBarragem = resultadoBarragem.CotaCoroamentoBarragem,
+                CursoDaguaBarrado = resultadoBarragem.CursoDaguaBarrado,
+                Id = BarragemId,
+                IdadeBarragem = resultadoBarragem.IdadeBarragem,
+                LarguraCoroamentoBarragem = resultadoBarragem.LarguraCoroamentoBarragem,
+                TipoFundacao = resultadoBarragem.TipoFundacao,
+                Tipo_Estrutura_Id = resultadoBarragem.Tipo_Estrutura_Id,
+                Tipo_Material_Id = resultadoBarragem.Tipo_Material_Id,
+                DadosGerais = resultadoDadosGerais,
+                Talude = resultadoTalude,
+                Reservatorio = resultadoReservatorio,
+                Vertedouro = resultadoVertedouro,
+                TomadaDagua = resultadoTomadaDagua,
+                DescarregadorFundo = resultadoDescarregadorFundo,
+                Inspecoes = resultadoInspecoes,
+               InformacoesComplementares =resultadoInformacoesComplementares,
+               CaracterizacaoAreaJusanteBarragem =resultadoCaracterizacaoAreaJusanteBarragem
+
+
+                /////////////////////////////////////////////////////
+
+            };
+
+
+
+        // await TaludeService.DeletarTalude(BarragemModel);
+        // await ReservatorioService.DeletarReservatorio(BarragemModel);
+        // await VertedouroService.DeletarVertedouro(BarragemModel);
+        // await DescarregadorFundoService.DeletarDescarregadorFundo(BarragemModel);
+        // await InformacoesComplementaresService.DeletarInformacoesComplementares(BarragemModel);
+        // await InspecoesService.DeletarInspecoes(BarragemModel);
+        // await UsoBarragemService.DeletarUsoBarragem(BarragemModel);
+        // await CaracterizacaoAreaJusanteBarragemService.DeletarCaracterizacaoAreaJusanteBarragem(BarragemModel);
+        // await CotaAreaVolumeService.DeletarCotaAreaVolume(BarragemModel);
+        // await TomadaDaguaService.DeletarTomadaDagua(BarragemModel);
+        // await SistemaDrenagemService.DeletarSistemaDrenagem(BarragemModel);
+        // await InstrumentosService.DeletarInstrumentos(BarragemModel);
+
+        if (barragemModel != null)
+        {
+            BarragemModel = barragemModel;
+        }
+
+        StateHasChanged();
+    }
+
+
+}

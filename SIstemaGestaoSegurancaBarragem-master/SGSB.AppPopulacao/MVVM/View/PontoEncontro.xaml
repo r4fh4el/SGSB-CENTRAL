@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SGSB.AppPopulacao.PontoEncontro"
+               xmlns:maps="clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls.Maps"
+              xmlns:loc="clr-namespace:Microsoft.Maui.Devices.Sensors;assembly=Microsoft.Maui.Essentials"
+             Title="Ponto de Encontro">
+    <Grid>
+        <maps:Map x:Name="mappy"  IsShowingUser="True" IsTrafficEnabled="True" MapType="Hybrid">
+           
+        </maps:Map>
+    </Grid>
+</ContentPage>

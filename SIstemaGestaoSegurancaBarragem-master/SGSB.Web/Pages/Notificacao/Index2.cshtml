@@ -1,0 +1,19 @@
+﻿@page
+SGSB.Web.Pages.Notificacao.Index2Model
+@{
+    Layout = "/Pages/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Index";
+}
+
+<h1>Enviar Notificação Push</h1>
+
+<form method="post">
+    <button type="submit">Enviar Notificação</button>
+</form>
+
+@if (ViewData["Message"] != null)
+{
+    <div>@ViewData["Message"]</div>
+}
+
+

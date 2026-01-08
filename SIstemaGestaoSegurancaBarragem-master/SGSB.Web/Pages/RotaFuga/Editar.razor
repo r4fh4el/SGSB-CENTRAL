@@ -1,0 +1,130 @@
+﻿@page "/RotaFuga/Editar"
+@page "/RotaFuga/Editar/{id}"
+
+@inject RotaFugaService RotaFugaService
+@inject BarragemService BarragemService
+@inject NavigationManager NavigationManager
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime;
+@using Model
+
+@using BlazorTable
+@using SGSB.Web.Data
+
+
+<h3>Editar</h3>
+
+
+<EditForm Model="@RotaFugaModel" OnSubmit="EditarTipoMaterial" >
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+
+
+        @if (flagBarragem)
+        {
+            <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Default">
+                Atenção! Já existe para essa  barragem!
+            </RadzenAlert>
+        }
+
+
+        <RadzenCard class="mb-4">
+            <div class="form-group">
+                <label for="barragems" class="control-label">Barragem </label>
+                @*<RadzenDropDown @bind-Value="@BarragemModel.Tipo_Material_Id" Data=@lstTipoMaterialBarragem class="form-control" />*@
+                <RadzenDropDown @bind-Value="@idBarragemRota" Placeholder="Selecione a barragem" TextProperty="Nome" ValueProperty="Id" Data="@lstBarragem" Change=@(args => VerificaBarragem(args))></RadzenDropDown>
+
+            </div>
+        </RadzenCard>
+
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="nome" class="control-label">Nome </label>
+                <InputText @bind-Value="@RotaFugaModel.Nome" type="Text" class="form-control" />
+                <ValidationMessage For="@(()=> RotaFugaModel.Nome)" />
+            </div>
+
+
+
+
+        </div>
+
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="Latitude" class="control-label">Latitude </label>
+                <InputText @bind-Value="@RotaFugaModel.Latitude" type="Text" class="form-control" />
+                <ValidationMessage For="@(()=> RotaFugaModel.Latitude)" />
+            </div>
+
+
+
+
+        </div>
+
+
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="Latitude" class="control-label">Longitude </label>
+                <InputText @bind-Value="@RotaFugaModel.Longitude" type="Text" class="form-control" />
+                <ValidationMessage For="@(()=> RotaFugaModel.Longitude)" />
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="submit" class="btn btn-primary" value="Editar" />
+                <input type="button" class="btn" @onclick="@Cancel" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private RotaFuga RotaFugaModel = new RotaFuga();
+    bool flagBarragem = false;
+    int idBarragemRota = 0;
+    private List<Barragem> lstBarragem;
+    [Parameter]
+    public string Id { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        lstBarragem = new List<Barragem>();
+        lstBarragem = await BarragemService.GetBarragemAsync();
+
+       await Edit(Id);
+    }
+
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+        
+
+    }
+
+    public async Task VerificaBarragem(object args)
+    {
+
+
+        idBarragemRota = (int)args;
+    }
+
+    public async Task Edit(string Id)
+    {
+        RotaFugaModel = await  RotaFugaService.GetRotaFugaId(int.Parse(Id));
+        
+    }
+
+    protected async Task EditarTipoMaterial()
+    {
+
+        await RotaFugaService.EditarRotaFuga(RotaFugaModel);
+        NavigationManager.NavigateTo("RotaFuga/index");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("RotaFuga/index");
+    }
+
+
+}

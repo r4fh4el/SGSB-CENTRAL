@@ -1,0 +1,82 @@
+﻿@page "/TipoMaterialBarragem/Editar"
+@page "/TipoMaterialBarragem/Editar/{id}"
+
+@inject TipoMaterialBarragemService TipoMaterialBarragemService
+@inject NavigationManager NavigationManager
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime;
+@using Model
+
+@using BlazorTable
+@using SGSB.Web.Data
+
+
+<h3>Editar</h3>
+
+
+<EditForm Model="@TipoMaterialBarragemModel" OnSubmit="EditarTipoMaterial" >
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="nome" class="control-label">Nome da Tipo de Material de Barragem</label>
+                <InputText @bind-Value="@TipoMaterialBarragemModel.Nome" type="Text" class="form-control" />
+                <ValidationMessage For="@(()=> TipoMaterialBarragemModel.Nome)" />
+            </div>
+
+
+
+
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="submit" class="btn btn-primary" value="Editar" />
+                <input type="button" class="btn" @onclick="@Cancel" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private TipoMaterialBarragem TipoMaterialBarragemModel = new TipoMaterialBarragem();
+
+    [Parameter]
+    public string Id { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+
+       await Edit(Id);
+    }
+
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+        
+
+    }
+
+    
+
+    public async Task Edit(string Id)
+    {
+        TipoMaterialBarragemModel = await  TipoMaterialBarragemService.GetTipoMaterialBarragemId(int.Parse(Id));
+        
+    }
+
+    protected async Task EditarTipoMaterial()
+    {
+
+        await TipoMaterialBarragemService.EditarTipoMaterialBarragem(TipoMaterialBarragemModel);
+        NavigationManager.NavigateTo("TipoMaterialBarragem/index");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("TipoMaterialBarragem/index");
+    }
+
+
+}

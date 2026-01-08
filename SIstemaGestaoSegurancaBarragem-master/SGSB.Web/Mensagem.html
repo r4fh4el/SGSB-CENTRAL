@@ -1,0 +1,25 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OneSignal Push Notifications</title>
+    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async></script>
+</head>
+<body>
+    <h1>Push Notifications Example</h1>
+    <button id="subscribeButton">Subscribe to Push Notifications</button>
+
+    <script>
+        // Initialize OneSignal with your App ID
+        OneSignal.initialize({
+            appId: 'b00d5a16-6c5d-4a2d-b9d0-43c37518565e',
+        });
+
+        // Request notification permission when the button is clicked
+        document.getElementById('subscribeButton').addEventListener('click', function () {
+            OneSignal.registerForPushNotifications();
+        });
+    </script>
+</body>
+</html>

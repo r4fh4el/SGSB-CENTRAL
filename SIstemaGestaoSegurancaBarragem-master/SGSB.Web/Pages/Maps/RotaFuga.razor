@@ -1,0 +1,150 @@
+﻿@page "/Maps/RotaFuga"
+@page "/Maps/RotaFuga/{id}"
+
+@inherits LayoutComponentBase
+
+
+@layout MainLayoutVazio
+
+
+
+
+@using Microsoft.AspNet.Identity;
+@using Microsoft.AspNet.Identity.EntityFramework;
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+@using System.Globalization
+@using System.Security.Claims;
+@using SGSB.Web.Models;
+@inject SGSB.Web.Data.BarragemService BarragemService
+@inject SGSB.Web.Data.RotaFugaService RotaFugaService
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<div class="row p-3">
+    <div class="col">
+        <RadzenCard class="mb-4">
+            @*        <RadzenCheckBox @bind-Value=@showMadridMarker Name="showMarker" />
+            <RadzenLabel Text="Show marker for Madrid" Component="showMarker" Style="margin-left: 8px; vertical-align: middle;" />
+            *@
+
+            Rota Fuga
+        </RadzenCard>
+
+        <RadzenGoogleMap @ref=map style="height: 400px"
+                         Options=@(new Dictionary<string, object> { { "disableDoubleClickZoom", true } })
+                         Zoom=@zoom
+                         
+                         Center=@(new GoogleMapPosition() { Lat = -12.798326, Lng = -38.326739 })
+                         MapClick=@OnMapClick
+                         ApiKey=@ApiKey
+                         MarkerClick=@OnMarkerClick>
+                        
+
+            <Markers>
+
+                @foreach (var item in lstRotaFuga)
+                {
+                    if (item.Latitude != null)
+                    {
+                        @*string url = "<a href='Barragem/Editar/" + @item.Id + "'> " + @item.Nome + "</a>";*@
+                        <RadzenGoogleMapMarker Title="@item.Id.ToString()" Label="@item.Nome" Position=@(new GoogleMapPosition() { Lat = Double.Parse(item.Latitude.Replace(".",",").ToString() ), Lng = Double.Parse(item.Longitude.Replace(".",",").ToString() )}) />
+                    }
+                }
+
+
+                @if (showMadridMarker)
+                {
+                    <RadzenGoogleMapMarker Title="Madrid " Label="Madrid" Position=@(new GoogleMapPosition() { Lat = 40.4168, Lng = -3.7038 }) />
+                }
+            </Markers>
+
+         
+        </RadzenGoogleMap>
+    </div>
+</div>
+@code {
+    private BarragemModel BarragemModel = new BarragemModel();
+    [Parameter]
+    public string Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Edit(Id);
+
+        StateHasChanged();
+
+    }   
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    //string ADMINISTRATION_ROLE = "Administrators";
+    string ADMINISTRATION_ROLE = "Admin";
+    bool showValue = true;
+    int valorTotal = 0;
+    int zoom = 10;
+    bool showMadridMarker;
+    private List<Model.Barragem> Barragems = new List<Model.Barragem>();
+    private List<Model.RotaFuga> lstRotaFuga = new List<Model.RotaFuga>();
+    private string ApiKey = "AIzaSyCT89o7saeSx0MFUCUqNMIM1eNUE0IO6-s";
+    RadzenGoogleMap map;
+    int idBarragem = 2;
+
+
+    void OnMapClick(GoogleMapClickEventArgs args)
+    {
+        //console.Log($"Map clicked at Lat: {args.Position.Lat}, Lng: {args.Position.Lng}");
+    }
+    public async Task Edit(string Id)
+    {
+        var resultadoBarragem = await BarragemService.GetBarragemId(int.Parse(Id));
+
+        lstRotaFuga = await RotaFugaService.GetBuscarListPorIdRotaFuga(int.Parse(Id));
+      
+
+        var barragemModel = new BarragemModel()
+            {
+                AlturaMAxima = resultadoBarragem.AlturaMAxima,
+                AnoConclusaoObra = resultadoBarragem.AnoConclusaoObra,
+                BaciaHidrograficaAbrangencia = resultadoBarragem.BaciaHidrograficaAbrangencia,
+                Nome = resultadoBarragem.Nome,
+                ComprimentoCoroamento = resultadoBarragem.ComprimentoCoroamento,
+
+                CondicaoFundacaoId = resultadoBarragem.CondicaoFundacaoId,
+                CotaCoroamentoBarragem = resultadoBarragem.CotaCoroamentoBarragem,
+                CursoDaguaBarrado = resultadoBarragem.CursoDaguaBarrado,
+                Id = Int32.Parse(Id),
+                IdadeBarragem = resultadoBarragem.IdadeBarragem,
+                LarguraCoroamentoBarragem = resultadoBarragem.LarguraCoroamentoBarragem,
+                TipoFundacao = resultadoBarragem.TipoFundacao,
+                Tipo_Estrutura_Id = resultadoBarragem.Tipo_Estrutura_Id,
+                Tipo_Material_Id = resultadoBarragem.Tipo_Material_Id,
+                //DadosGeraisId = await DadosGeraisService.GetDadosGeraisId(int.Parse(resultadoBarragem.))
+
+            };
+
+        if (barragemModel != null)
+        {
+            BarragemModel = barragemModel;
+        }
+
+        StateHasChanged();
+    }
+    async Task OnMarkerClick(RadzenGoogleMapMarker marker)
+    {
+        var message = $"Bacia Hidrográfica: <b>{marker.Title}</b>";
+
+        var code = $@"
+var map = Radzen['{map.UniqueID}'].instance;
+var marker = map.markers.find(m => m.title == '{marker.Title}');
+if(window.infoWindow) {{window.infoWindow.close();}}
+window.infoWindow = new google.maps.InfoWindow({{content: '{message}'}});
+setTimeout(() => window.infoWindow.open(map, marker), 200);
+";
+        await JSRuntime.InvokeAsync<object>("open", "Barragem/Editar/" + marker.Title + "", "_self");
+        await JSRuntime.InvokeVoidAsync("eval", code);
+    }
+
+    
+}
+

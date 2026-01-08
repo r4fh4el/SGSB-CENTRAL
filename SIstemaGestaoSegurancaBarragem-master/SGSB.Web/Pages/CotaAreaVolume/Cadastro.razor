@@ -1,0 +1,98 @@
+﻿@page "/CotaAreaVolume/Cadastro"
+
+
+@inject CotaAreaVolumeService CotaAreaVolumeService
+@inject NavigationManager NavigationManager
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime;
+@using Model Endidades
+
+@using BlazorTable
+@using SGSB.Web.Data
+@using SGSB.Web.Models;
+
+
+<h3>Cadastro</h3>
+<RadzenCard Class="shadows rz-my-12 rz-mx-auto" >
+  
+
+<EditForm Model="@CotaAreaVolumeModel" OnSubmit="CreateCotaAreaVolume">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+       
+            <div class="form-group">
+                <label for="Cota" class="control-label">Cota </label>
+                <InputText @bind-Value="@CotaAreaVolumeModel.Cota" type="Text" class="form-control" />
+                <ValidationMessage For="@(()=> CotaAreaVolumeModel.Cota)" />
+                  
+                 
+    
+                <label for="VolumeAcumulado" class="control-label">Volume Acumulado </label>
+                <InputText @bind-Value="@CotaAreaVolumeModel.VolumeAcumulado" type="Text" class="form-control" />
+                <ValidationMessage For="@(()=> CotaAreaVolumeModel.VolumeAcumulado)" />
+         
+           
+
+                  
+           
+                <label for="AreaSuperficial" class="control-label">Área Superficial </label>
+                <InputText @bind-Value="@CotaAreaVolumeModel.AreaSuperficial" type="Text" class="form-control" />
+                <ValidationMessage For="@(()=> CotaAreaVolumeModel.AreaSuperficial)" />
+        
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="submit" class="btn btn-primary" value="Salvar" />
+                <input type="button" class="btn" @onclick="@Cancel" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+ 
+    <style>
+        .shadows div {
+            padding: 1rem;
+     
+     
+        }
+    </style>
+    </RadzenCard>
+@code {
+    private CotaAreaVolume CotaAreaVolumeModel = new CotaAreaVolume();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+
+    }
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+
+    }
+
+    protected async Task CreateCotaAreaVolume()
+    {
+        CotaAreaVolumeModel cotaAreaVolume = new CotaAreaVolumeModel()
+            {
+                AreaSuperficial = CotaAreaVolumeModel.AreaSuperficial,
+                Cota = CotaAreaVolumeModel.Cota,
+                 BarragemId = CotaAreaVolumeModel.BarragemId,
+                Id = CotaAreaVolumeModel.Id,
+                VolumeAcumulado = CotaAreaVolumeModel.VolumeAcumulado,
+
+
+            };
+        await CotaAreaVolumeService.CadastrarCotaAreaVolume(cotaAreaVolume);
+        NavigationManager.NavigateTo("CotaAreaVolume/index");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("CotaAreaVolume/index");
+    }
+
+
+}

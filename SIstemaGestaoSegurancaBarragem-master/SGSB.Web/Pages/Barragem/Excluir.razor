@@ -1,0 +1,129 @@
+﻿@page "/Barragem/Excluir"
+@page "/Barragem/Excluir/{id}"
+
+@inject BarragemService BarragemService
+@inject DadosGeraisService DadosGeraisService;
+@inject TaludeService TaludeService;
+@inject ReservatorioService ReservatorioService;
+@inject VertedouroService VertedouroService;
+@inject InstrumentosService InstrumentosService;
+@inject DescarregadorFundoService DescarregadorFundoService;
+@inject InformacoesComplementaresService InformacoesComplementaresService;
+@inject InspecoesService InspecoesService;
+@inject UsoBarragemService UsoBarragemService;
+@inject CaracterizacaoAreaJusanteBarragemService CaracterizacaoAreaJusanteBarragemService;
+@inject CotaAreaVolumeService CotaAreaVolumeService;
+@inject TomadaDaguaService TomadaDaguaService;
+@inject SistemaDrenagemService SistemaDrenagemService;
+@inject DocumentacaoProjetoConstrucaoOperacaoService DocumentacaoProjetoConstrucaoOperacaoService;
+@inject InstrumentosService InstrumentosService;
+@inject NavigationManager NavigationManager
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime;
+@using Model
+
+@using BlazorTable
+@using SGSB.Web.Data
+@using SGSB.Web.Models;
+
+
+<h3 class="alert-warning">Deseja excluir?</h3>
+
+
+<EditForm Model="@BarragemModel" OnSubmit="ExcluirBarragem">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="Nome" class="control-label">Nome da Barragem</label>
+                <InputText @bind-Value="@BarragemModel.Nome" type="Text" class="form-control" />
+                <ValidationMessage For="@(()=> BarragemModel.Nome)" />
+            </div>
+
+
+
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="submit" class="btn btn-danger" value="Excluir" />
+                <input type="button" class="btn" @onclick="@Cancel" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private Barragem BarragemModel = new Barragem();
+
+    [Parameter]
+    public string Id { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+
+        await Delete(Id);
+    }
+
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+
+    }
+
+    public async Task Delete(string Id)
+    {
+
+        BarragemModel = await BarragemService.GetBarragemId(int.Parse(Id));
+
+    }
+
+    protected async Task ExcluirBarragem()
+    {
+        try
+        {
+            // var resultDG = await DadosGeraisService.GetDadosGeraisAsync();
+
+            // var modelDadosGerais = new DadosGeraisViewModel();
+            // modelDadosGerais.BarragemId = modelDadosGerais.Id;
+            // await DadosGeraisService.DeletarDadosGerais(modelDadosGerais);
+            // await TaludeService.DeletarTalude(BarragemModel);
+            // await ReservatorioService.DeletarReservatorio(BarragemModel);
+            // await VertedouroService.DeletarVertedouro(BarragemModel);
+            // await DescarregadorFundoService.DeletarDescarregadorFundo(BarragemModel);
+            // await InformacoesComplementaresService.DeletarInformacoesComplementares(BarragemModel);
+            // await InspecoesService.DeletarInspecoes(BarragemModel);
+            // await UsoBarragemService.DeletarUsoBarragem(BarragemModel);
+            // await CaracterizacaoAreaJusanteBarragemService.DeletarCaracterizacaoAreaJusanteBarragem(BarragemModel);
+            // await CotaAreaVolumeService.DeletarCotaAreaVolume(BarragemModel);
+            // await TomadaDaguaService.DeletarTomadaDagua(BarragemModel);
+            // await SistemaDrenagemService.DeletarSistemaDrenagem(BarragemModel);
+            // await InstrumentosService.DeletarInstrumentos(BarragemModel);
+            if (await BarragemService.DeletarBarragemRelacionais(int.Parse(Id)))
+            {
+
+            }
+            else{
+            }
+
+            // await BarragemService.DeletarBarragem(BarragemModel);
+
+            NavigationManager.NavigateTo("Barragem/index");
+        }
+        catch (Exception e)
+        {
+
+            throw e;
+        }
+
+    }
+
+    
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("Barragem/index");
+    }
+
+
+}

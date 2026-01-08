@@ -1,0 +1,91 @@
+﻿
+@page "/CondicaoFundacao/Editar"
+@page "/CondicaoFundacao/Editar/{id}"
+
+@inject CondicaoFundacaoService CondicaoFundacaoService
+@inject NavigationManager NavigationManager
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime;
+@using Model
+
+@using BlazorTable
+@using SGSB.Web.Data
+
+
+
+<RadzenPanel>
+    <HeaderTemplate>
+        Editar
+    </HeaderTemplate>
+    <ChildContent>
+
+<EditForm Model="@CondicaoFundacaoModel"  OnSubmit="EditCondicaoFundacao">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+   
+            <div class="col-md-8">
+                <div class="form-group">
+                    <label for="nome" class="control-label">Nome da Condição Fundação</label>
+                    <InputText @bind-Value="@CondicaoFundacaoModel.Nome" type="Text" class="form-control" />
+                <ValidationMessage For="@(()=> CondicaoFundacaoModel.Nome)" />
+                </div>
+
+
+
+
+            </div>
+    
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="submit" class="btn btn-primary" value="Editar" />
+                <input type="button" class="btn" @onclick="@Cancel" value="Cancelar" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+    </ChildContent>
+    <SummaryTemplate>
+        Editar
+    </SummaryTemplate>
+</RadzenPanel>
+@code {
+    private CondicaoFundacao CondicaoFundacaoModel = new CondicaoFundacao();
+
+    [Parameter]
+    public string Id { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+
+        Edit(Id);
+    }
+
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+
+    }
+
+    public async Task Edit(string Id)
+    {
+        CondicaoFundacaoModel = await CondicaoFundacaoService.EditCondicaoFundacao( int.Parse(Id));
+
+        StateHasChanged();
+    }
+
+
+
+    protected async Task EditCondicaoFundacao()
+    {
+
+        await CondicaoFundacaoService.EditarCondicaoFundacao(CondicaoFundacaoModel);
+        NavigationManager.NavigateTo("CondicaoFundacao/index");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("CondicaoFundacao/index");
+    }
+
+
+}

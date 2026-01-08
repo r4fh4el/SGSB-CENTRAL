@@ -1,0 +1,9 @@
+﻿@page "/Error/{statusCode}"
+
+<h3>Erro @StatusCode</h3>
+
+<p>Desculpe, ocorreu um erro. Por favor, tente novamente mais tarde.</p>
+
+@code {
+    [Parameter] public int StatusCode { get; set; }
+}

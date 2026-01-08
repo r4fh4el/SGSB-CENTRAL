@@ -1,0 +1,466 @@
+﻿@page "/IndiceCaracterizacaoBH/Index"
+
+@using SGSB.Web.Data
+@inject IndiceCaracterizacaoBHService IndiceCaracterizacaoBHService
+@inject BarragemService BarragemService
+@using Model
+@inject NavigationManager NavigationManager
+@inject HttpClient http
+@using BlazorTable
+@using SGSB.Web.Models;
+
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime
+
+@if (flagBarragem)
+{
+    <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Default">
+        Atenção! Selecionar barragem é obrigatório!
+    </RadzenAlert>
+}
+
+<RadzenCard class="mb-4">
+    <div class="form-group">
+        <label for="barragems" class="control-label">Barragem </label>
+        @*<RadzenDropDown @bind-Value="@BarragemModel.Tipo_Material_Id" Data=@lstTipoMaterialBarragem class="form-control" />*@
+        <RadzenDropDown @bind-Value="@idBarragemIndice" Placeholder="Selecione a barragem" TextProperty="Nome" ValueProperty="Id" Data="@lstBarragem"></RadzenDropDown>
+
+    </div>
+</RadzenCard>
+<RadzenCard>
+    <div Class="rz-p-0 rz-p-md-12">
+        <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+            <RadzenColumn Size="12" SizeMD="6">
+                <RadzenFieldset Text="Dados de entrada para as Fórmulas">
+                    <RadzenStack Gap="1rem">
+                        <RadzenRow Gap="1rem">
+                            <RadzenColumn Size="12" SizeSM="6">
+                                <RadzenStack>
+                                    <RadzenLabel Text="A: Área da bacia hidrográfica (Km²)"></RadzenLabel>
+                                    <RadzenFormField Text="A: Área da bacia hidrográfica (Km²)">
+
+                                        <RadzenNumeric TValue="double" @bind-Value=@objIndiceCaracterizacaoBH.AreaBaciaHidrografica />
+                                    </RadzenFormField>
+
+                                </RadzenStack>
+                            </RadzenColumn>
+
+                        </RadzenRow>
+                        <RadzenRow Gap="1rem">
+                            <RadzenColumn Size="12" SizeSM="6">
+                                <RadzenStack>
+                                    <RadzenLabel Text="P: Perímetro (Km)"></RadzenLabel>
+                                    <RadzenFormField Text="P: Perímetro (Km)">
+
+                                        <RadzenNumeric TValue="double" @bind-Value=@objIndiceCaracterizacaoBH.Perimetro />
+
+                                    </RadzenFormField>
+
+                                </RadzenStack>
+                            </RadzenColumn>
+
+                        </RadzenRow>
+
+                        <RadzenRow Gap="1rem">
+                            <RadzenColumn Size="12" SizeSM="6">
+                                <RadzenStack>
+                                    <RadzenLabel Text="Lc: Comprimento do rio principal (Km)"></RadzenLabel>
+                                    <RadzenFormField Text="Lc: Comprimento do rio principal (Km)">
+
+                                        <RadzenNumeric TValue="double" @bind-Value=@objIndiceCaracterizacaoBH.ComprimentoRioPrincipal />
+
+                                    </RadzenFormField>
+
+                                </RadzenStack>
+                            </RadzenColumn>
+
+                        </RadzenRow>
+
+
+                        <RadzenRow Gap="1rem">
+                            <RadzenColumn Size="12" SizeSM="6">
+                                <RadzenStack>
+                                    <RadzenLabel Text="Lv: Comprimento vetorial do rio principal (Km)"></RadzenLabel>
+                                    <RadzenFormField Text="Lv: Comprimento vetorial do rio principal (Km)">
+
+                                        <RadzenNumeric TValue="double" @bind-Value=@objIndiceCaracterizacaoBH.ComprimentoVetorialRioPrincipal />
+
+                                    </RadzenFormField>
+
+                                </RadzenStack>
+                            </RadzenColumn>
+
+                        </RadzenRow>
+
+
+                        <RadzenRow Gap="1rem">
+                            <RadzenColumn Size="12" SizeSM="6">
+                                <RadzenStack>
+                                    <RadzenLabel Text="Lt: Comprimento total dos rios da bacia (Km)"></RadzenLabel>
+                                    <RadzenFormField Text="Lt: Comprimento total dos rios da bacia (Km)">
+
+                                        <RadzenNumeric TValue="double" @bind-Value=@objIndiceCaracterizacaoBH.ComprimentoTotalRioBacia />
+
+                                    </RadzenFormField>
+
+                                </RadzenStack>
+                            </RadzenColumn>
+
+                        </RadzenRow>
+
+                        <RadzenRow Gap="1rem">
+                            <RadzenColumn Size="12" SizeSM="6">
+                                <RadzenStack>
+                                    <RadzenLabel Text="Amin: Altitude Mínima da bacia (m)"></RadzenLabel>
+                                    <RadzenFormField Text="Amin: Altitude Mínima da bacia (m)">
+
+                                        <RadzenNumeric TValue="double" @bind-Value=@objIndiceCaracterizacaoBH.AltitudeMinimaBacia />
+
+                                    </RadzenFormField>
+
+                                </RadzenStack>
+                            </RadzenColumn>
+
+                        </RadzenRow>
+
+
+                        <RadzenRow Gap="1rem">
+                            <RadzenColumn Size="12" SizeSM="6">
+                                <RadzenStack>
+                                    <RadzenLabel Text="Amax: Altitude Máxima da bacia (m)"></RadzenLabel>
+                                    <RadzenFormField Text="Amax: Altitude Máxima da bacia (m)">
+
+                                        <RadzenNumeric TValue="double" @bind-Value=@objIndiceCaracterizacaoBH.AltitudeMaximaBacia />
+
+                                    </RadzenFormField>
+
+                                </RadzenStack>
+                            </RadzenColumn>
+
+                        </RadzenRow>
+
+
+                        <RadzenRow Gap="1rem">
+                            <RadzenColumn Size="12" SizeSM="6">
+                                <RadzenStack>
+                                    <RadzenLabel Text="Hm: Amplitude altimétrica da bacia (m)"></RadzenLabel>
+                                    <RadzenFormField Text="Hm: Amplitude altimétrica da bacia (m)">
+
+                                        <RadzenNumeric TValue="double" @bind-Value=@objIndiceCaracterizacaoBH.AltitudeAltimetricaBaciaM />
+
+                                    </RadzenFormField>
+
+                                </RadzenStack>
+                            </RadzenColumn>
+
+                        </RadzenRow>
+
+
+
+                        <RadzenRow Gap="1rem">
+                            <RadzenColumn Size="12" SizeSM="6">
+                                <RadzenStack>
+                                    <RadzenLabel Text="Hm: Amplitude altimétrica da bacia (Km)"></RadzenLabel>
+                                    <RadzenFormField Text="Hm: Amplitude altimétrica da bacia (Km)">
+
+                                        <RadzenNumeric TValue="double" @bind-Value=@objIndiceCaracterizacaoBH.AltitudeAltimetricaBaciaKM />
+
+                                    </RadzenFormField>
+
+                                </RadzenStack>
+                            </RadzenColumn>
+
+                        </RadzenRow>
+
+                        <RadzenRow Gap="1rem">
+                            <RadzenColumn Size="12" SizeSM="6">
+                                <RadzenStack>
+                                    <RadzenLabel Text="L: Comprimento axial da bacia (Km) "></RadzenLabel>
+                                    <RadzenFormField Text="L: Comprimento axial da bacia (Km) ">
+
+                                        <RadzenNumeric TValue="double" @bind-Value=@objIndiceCaracterizacaoBH.ComprimentoAxialBacia />
+
+                                    </RadzenFormField>
+
+                                </RadzenStack>
+                            </RadzenColumn>
+
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeMD="6">
+
+                <RadzenFieldset Text="Índices de Caracterização ">
+                    <RadzenStack Gap="1rem">
+                        <RadzenRow class="rz-text-align-center rz-border-success-light" Gap="0.5rem">
+                            <RadzenColumn class="rz-background-color-success-lighter rz-color-on-info-lighter rz-p-5" Style="font-size:10px;">
+                                EQUAÇÕES
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-success-lighter rz-color-on-info-lighter rz-p-5" Style="font-size:10px;">
+                                RESULTADO
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-success-lighter rz-color-on-info-lighter rz-p-5" Style="font-size:10px;">
+                                UNIDADE DE MEDIDA
+                            </RadzenColumn>
+
+                        </RadzenRow>
+                        <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Índice de circularidade (Ic)  - Miller (1953)
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                @indiceCircularidade
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Adimensional
+                            </RadzenColumn>
+
+                        </RadzenRow>
+                        <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Fator de forma (F) - Horton (1945)
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                @fatorForma
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Adimensional
+                            </RadzenColumn>
+
+                        </RadzenRow>
+                        <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Coeficiente de compacidade (Kc) - Lima (1969)
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                @coeficienteCompacidade
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Adimensional
+                            </RadzenColumn>
+                        </RadzenRow>
+                        <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Densidade de drenagem (Dd) - Horton (1945)
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                @densidadeDrenagem
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Adimensional
+                            </RadzenColumn>
+
+                        </RadzenRow>
+
+                        <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Coeficiente de manutenção (Cm)
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                @coeficienteManutencao
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Adimensional
+                            </RadzenColumn>
+
+                        </RadzenRow>
+                        <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Gradiente de canais (Gc)
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                @coeficienteManutencao
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Adimensional
+                            </RadzenColumn>
+
+                        </RadzenRow>
+
+                        <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Relação de relevo (Rr)  - Christofoletti
+                                (1969)
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                @relacaoRelevo
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Adimensional
+                            </RadzenColumn>
+
+                        </RadzenRow>
+
+                        <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Índice de rugosidade (IR) - Christofoletti
+                                (1969)
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                @indiceCircularidade
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Adimensional
+                            </RadzenColumn>
+
+                        </RadzenRow>
+                        <RadzenRow class="rz-text-align-center rz-border-info-light" Gap="1rem">
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Sinuosidade do curso d’água principal (S) - Schumm (1963)
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                @sinuosidadeCurso
+                            </RadzenColumn>
+                            <RadzenColumn class="rz-background-color-info-lighter rz-color-on-info-lighter rz-p-5">
+                                Adimensional
+                            </RadzenColumn>
+
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="form-group">
+
+                    <input type="button" class="btn btn-primary" @onclick="() => Salvar()" value="Salvar" />
+                </div>
+            </div>
+        </div>
+    </div>
+</RadzenCard>
+<style>
+    .shadows div {
+        padding: 1rem;
+        width: 10rem;
+        text-align: center;
+    }
+</style>
+
+
+
+
+@code {
+    Variant variant = Variant.Outlined;
+
+    private List<IndiceCaracterizacaoBH> lstIndiceCaracterizacaoBH;
+    public IndiceCaracterizacaoBH objIndiceCaracterizacaoBH = new IndiceCaracterizacaoBH();
+    private double indiceCircularidade;
+    private double fatorForma;
+    /// <summary>
+    /// Coeficiente de compacidade (Kc) - Lima (1969)
+    /// </summary>
+    private double coeficienteCompacidade;
+    /// <summary>
+    /// Densidade de drenagem (Dd) - Horton (1945)
+    /// </summary>
+    private double densidadeDrenagem;
+
+    //// <summary>
+    /// Coeficiente de manutenção (Cm)
+    /// </summary>
+    private double coeficienteManutencao;
+
+    //// <summary>
+    /// Sinuosidade do curso d’água principal (S) - Schumm (1963)
+    /// </summary>
+    private double sinuosidadeCurso;
+    //// <summary>
+    /// Gradiente de canais (Gc)
+    /// </summary>
+    private double gradienteCanais;
+
+    //// <summary>
+    /// Relação de relevo (Rr)  - Christofoletti
+    /// </summary>
+    private double relacaoRelevo;
+    //// <summary>
+    /// Índice de rugosidade (IR) - Christofoletti (1969)
+    /// </summary>
+    private double indiceRugosidade;
+
+    int idBarragemIndice = 0;
+    bool flagBarragem = false;
+    private List<Barragem> lstBarragem;
+
+    protected override async Task OnInitializedAsync()
+    {
+        lstBarragem = new List<Barragem>();
+        lstBarragem = await BarragemService.GetBarragemAsync();
+
+
+    }
+    protected async Task Salvar()
+    {
+        //////=12,57*((C5/C6^2))
+        indiceCircularidade = 12.57 * (objIndiceCaracterizacaoBH.AreaBaciaHidrografica / Math.Pow(objIndiceCaracterizacaoBH.Perimetro, 2));
+        //////=C5/(C14^2)
+        fatorForma = objIndiceCaracterizacaoBH.Perimetro / Math.Pow(objIndiceCaracterizacaoBH.ComprimentoAxialBacia, 2);
+        //////=0,28*(C6/RAIZ(C5))
+        coeficienteCompacidade = 0.28 * (objIndiceCaracterizacaoBH.Perimetro / Math.Sqrt(objIndiceCaracterizacaoBH.AreaBaciaHidrografica));
+        //////=C9/C5
+        densidadeDrenagem = objIndiceCaracterizacaoBH.ComprimentoTotalRioBacia / objIndiceCaracterizacaoBH.AreaBaciaHidrografica;
+
+        //////=1/E22 teste 2
+        coeficienteManutencao = 1 / densidadeDrenagem;
+
+
+        //////=(C11/(C7*1000))*100
+        gradienteCanais = (objIndiceCaracterizacaoBH.AltitudeMaximaBacia / (objIndiceCaracterizacaoBH.ComprimentoRioPrincipal * 1000)) * 100;
+        //////=C12/(C7)
+        relacaoRelevo = objIndiceCaracterizacaoBH.AltitudeMaximaBacia / (objIndiceCaracterizacaoBH.ComprimentoRioPrincipal);
+        //////=E22*C13   | =C12/1000
+        indiceRugosidade = objIndiceCaracterizacaoBH.AltitudeAltimetricaBaciaM / 1000;
+
+        //////=C7/C8
+        sinuosidadeCurso = objIndiceCaracterizacaoBH.ComprimentoRioPrincipal / objIndiceCaracterizacaoBH.ComprimentoVetorialRioPrincipal;
+
+        var indiceCaracterizacaoBH = new IndiceCaracterizacaoBHModel()
+        {
+            
+                AltitudeAltimetricaBaciaKM = objIndiceCaracterizacaoBH.AltitudeAltimetricaBaciaKM ,
+                AltitudeAltimetricaBaciaM = objIndiceCaracterizacaoBH.AltitudeAltimetricaBaciaM,
+                AltitudeMaximaBacia = objIndiceCaracterizacaoBH.AltitudeMaximaBacia,
+                AltitudeMinimaBacia = objIndiceCaracterizacaoBH.AltitudeMinimaBacia,
+                AltitudeVetorialRioPrincipal = objIndiceCaracterizacaoBH.AltitudeVetorialRioPrincipal,
+                AreaBaciaHidrografica = objIndiceCaracterizacaoBH.AreaBaciaHidrografica,
+                Barragem_ID = idBarragemIndice,
+                ComprimentoAxialBacia = objIndiceCaracterizacaoBH.ComprimentoAxialBacia,
+                ComprimentoRioPrincipal = objIndiceCaracterizacaoBH.ComprimentoAxialBacia,
+                ComprimentoTotalRioBacia = objIndiceCaracterizacaoBH.ComprimentoAxialBacia,
+                ComprimentoVetorialRioPrincipal = objIndiceCaracterizacaoBH.ComprimentoAxialBacia,
+                Perimetro = objIndiceCaracterizacaoBH.Perimetro,
+                ResultadoCoeficienteCompacidade = coeficienteCompacidade,
+                ResultadoCoeficienteManutencao = coeficienteManutencao,
+                ResultadoDensidadeDrenagem = densidadeDrenagem,
+                ResultadoFatorForma = fatorForma,
+                ResultadoGradienteCanais = gradienteCanais,
+                ResultadoIndiceCircularidade = indiceCircularidade,
+                ResultadoIndiceRugosidade = indiceRugosidade,
+                ResultadoRelacaoRelevo = relacaoRelevo,
+                ResultadoSinuosidadeCursoDagua = sinuosidadeCurso
+        };
+
+        var resultado = await IndiceCaracterizacaoBHService.GetIndiceCaracterizacaoBH();
+        var resultadoFiltrado = resultado.Where(x => x.Barragem_ID == idBarragemIndice).Count() > 0;
+
+        if (resultadoFiltrado && resultado.Count() > 0)
+        {
+            indiceCaracterizacaoBH.Id = resultado.Find(x => x.Barragem_ID == idBarragemIndice).Id;
+            await IndiceCaracterizacaoBHService.EditarIndiceCaracterizacaoBH(indiceCaracterizacaoBH);
+        }
+        else
+        {
+ 
+            await IndiceCaracterizacaoBHService.CadastrarIndiceCaracterizacaoBH(indiceCaracterizacaoBH);
+        }
+
+    }
+
+    protected void Submit(IndiceCaracterizacaoBH arg)
+    {
+        //
+    }
+}
+

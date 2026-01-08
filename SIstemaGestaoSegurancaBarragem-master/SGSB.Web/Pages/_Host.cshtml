@@ -1,0 +1,186 @@
+﻿@page "/"
+@namespace SGSB.Web.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="~/" />
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+    <link href="css/site.css" rel="stylesheet" />
+    <link href="SGSB.Web.styles.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    @* <link rel="icon" type="image/png" href="favicon.png" /> *@
+    @* <script src="_content/BlazorComponent/js/blazor-component.js"></script> *@
+    <link rel="stylesheet" href="_content/Radzen.Blazor/css/material-base.css">
+    <link rel="stylesheet" href="_content/Radzen.Blazor/css/standard-base.css">
+    <script src="_content/Plotly.Blazor/plotly-latest.min.js" type="text/javascript"></script>
+    <script src="_content/Plotly.Blazor/plotly-interop.js" type="text/javascript"></script>
+    <script src="_framework/blazor.{webassembly|server}.js"
+            autostart="true"></script>
+    <script src="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.js"></script>
+    <script src="_framework/blazor.{webassembly|server}.js"
+            autostart="true"></script>
+    <script src="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.js"></script>
+
+
+
+    @*   ///////////teste///////////////////
+
+    // script.js *@
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        var mapaOnda;
+        var mapaKML;
+        // site.js
+        // function initializeMap() {
+        //      mapaOnda = L.map('mapaOnda').setView([51.505, -0.09], 13);
+        //     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapaOnda);
+        // }
+
+        function addPolygon() {
+            var polygon = L.polygon(
+                [[51.509, -0.08], [51.503, -0.06], [51.51, -0.047]]
+            )
+                .addTo(mapaOnda);
+        }
+
+        function initializeMap() {
+            // Coordenadas do centro do mapa (exemplo)
+            mapaOnda = L.map('mapaOnda').setView([-14.91049614092632, -40.57034143018902], 15);
+
+            // Adicionar um mapa de fundo (exemplo: OpenStreetMap)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(mapaOnda);
+
+            // Adicionar polígonos ao mapa (exemplo)
+            // Coordenadas do polígono
+            var polygonCoords = [
+                [-14.91049614092632, -40.57034143018902],
+                [-14.91034000190952, -40.57061426635375],
+                [-14.90827747424342, -40.56923867120679],
+                [-14.90762349552329, -40.56768057373424],
+                [-14.90762349250617, -40.56764999247465],
+                [-14.9069882830279, -40.56628429609113],
+                [-14.90696715937094, -40.56616329014102],
+                [-14.90695655685706, -40.56609245595087],
+                [-14.90694594810291, -40.56602158144637],
+                [-14.90691450401768, -40.56594252796562],
+                [-14.90644672621277, -40.56438611688616],
+                [-14.90642870815299, -40.5643432579765],
+                [-14.90641143509891, -40.56428938404746],
+                [-14.90612832493781, -40.56299092040666],
+                [-14.90611867954004, -40.5629396935859],
+                [-14.90610851546228, -40.56290923980017],
+                [-14.90530710396549, -40.56095567266382],
+                [-14.90529513209214, -40.56091376171418],
+                [-14.90524979662174, -40.55907227718576],
+                [-14.90523995531922, -40.55896711692024],
+                [-14.90524081003707, -40.55891488330188],
+                [-14.90524183546115, -40.55885222947162],
+                [-14.90518587472247, -40.55710722737452],
+                [-14.90514093581785, -40.55705067811404],
+                [-14.90435185715476, -40.55602143116099],
+                [-14.90430940769049, -40.55598758191629],
+                [-14.90334627924332, -40.55619255178393],
+                [-14.90322972526766, -40.55621825485085],
+                [-14.90287939371643, -40.55623390663733],
+                [-14.90249440146664, -40.55683318299842],
+                [-14.90246794610443, -40.55689698769365],
+                [-14.90242769083012, -40.55697031209815],
+                [-14.90241386978107, -40.55700202290483],
+                [-14.90224082688639, -40.55819745780502],
+                [-14.90224397464082, -40.55826570037639],
+                [-14.90224607012827, -40.55831116104948],
+                [-14.90225910139846, -40.55834553101412],
+                [-14.90255828736827, -40.55968269968564],
+                [-14.9025735817334, -40.55979354977376],
+                [-14.90258745798197, -40.5598710626578],
+                [-14.90260132053332, -40.55994850043992],
+                [-14.9026038136281, -40.55999278756405],
+                [-14.90260465134605, -40.56000388026195],
+                [-14.90264089177021, -40.56176800672946],
+                [-14.90325873411082, -40.56315174785636],
+                [-14.9034065068815, -40.56505867086758],
+                [-14.90364015570495, -40.5656582499058],
+                [-14.90396026329258, -40.56784508007708],
+                [-14.90422614708184, -40.56894561025235],
+                [-14.90423644810443, -40.56895622716587],
+                [-14.90489765717507, -40.57070701006048],
+                [-14.90496463861619, -40.5707904589003],
+                [-14.90498705660266, -40.57082173678907],
+                [-14.905735560453, -40.57097327246399],
+                [-14.90578914544992, -40.57097217713924],
+                [-14.90634397589328, -40.57126961469496],
+                [-14.9063661912325, -40.57128944213862],
+                [-14.90704395755952, -40.5717525720078],
+                [-14.90710623275987, -40.57177024799419],
+                [-14.90854978453072, -40.57188941970206],
+                [-14.90856634506263, -40.57188939359579],
+                [-14.90859946198089, -40.57188934243118],
+                [-14.90909340638719, -40.57233895640459],
+                [-14.90909939096152, -40.57234440371924],
+                [-14.90973203808357, -40.57235650475702],
+                [-14.90974845935443, -40.57235631756833],
+                [-14.90978128185312, -40.57235594323475],
+                [-14.91080294420001, -40.57201094131168],
+                [-14.91163505811674, -40.57163797767211],
+                [-14.91049614092632, -40.57034143018902]  // Fechando o polígono
+            ];
+
+            var polygon = L.polygon(polygonCoords, { color: 'red' }).addTo(mapaOnda);
+        }
+
+
+        function inicializarMapaKML(polygonCoords) {
+            // Coordenadas do centro do mapa (exemplo)
+            mapaKML = L.map('mapaKML').setView([-14.91049614092632, -40.57034143018902], 15);
+
+            // Adicionar um mapa de fundo (exemplo: OpenStreetMap)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(mapaKML);
+
+            // Adicionar polígonos ao mapa (exemplo)
+            // Coordenadas do polígono
+
+
+            var polygon = L.polygon(polygonCoords, { color: 'red' }).addTo(mapaKML);
+            showMessage(message);
+        }
+        function showMessage(message) {
+            alert(message);
+        }
+
+    </script>
+</head>
+<body>
+    <component type="typeof(App)" render-mode="Server" />
+
+    <div id="blazor-error-ui">
+        <environment include="Staging,Production">
+            Por gentileza, clique aqui para recarregar a pagina
+        </environment>
+        <environment include="Development">
+            Por gentileza, clique aqui para recarregar a pagina
+        </environment>
+        <a href="" class="reload">Recarregar</a>
+        <a class="dismiss">🗙</a>
+    </div>
+    <script src="_content/Radzen.Blazor/Radzen.Blazor.js" autostart="true"></script>
+    <script src="_framework/blazor.server.js" autostart="true"></script>
+    <script src="_content/BlazorTable/BlazorTable.min.js" autostart="true"></script>
+
+    
+   
+
+</body>
+</html>

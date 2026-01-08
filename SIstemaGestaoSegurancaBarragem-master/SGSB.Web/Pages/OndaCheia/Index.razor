@@ -1,0 +1,36 @@
+﻿@page "/OndaCheia/Index"
+
+
+<h3>Onda de Cheia</h3>
+
+@* <button @onclick="ShowMessage">Show Message</button> *@
+<div id="mapaOnda" style="height: 500px;"></div>
+@* <button @onclick="AddPolygon">Add Polygon</button> *@
+@code {
+    // Injeta o serviço de JSRuntime
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; }
+    private bool polygonAdded = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("initializeMap");
+        }
+    }
+
+    private async Task AddPolygon()
+    {
+        if (!polygonAdded)
+        {
+            await JSRuntime.InvokeVoidAsync("addPolygon");
+            polygonAdded = true;
+        }
+    }
+    private async Task ShowMessage()
+    {
+        // Chama a função JavaScript usando JS Interop
+        await JSRuntime.InvokeVoidAsync("showMessage", "Hello from Blazor!");
+    }
+}

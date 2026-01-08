@@ -1,0 +1,219 @@
+﻿@page
+@model SGSB.Web.Pages.Maps.SIGModel
+
+<script>
+	function initMap2() {
+
+		var $parentElement = document.getElementById("map2");
+		function getBounds(polygon) {
+			return polygon.getPath().getArray().reduce(function (bounds, latlng) {
+				return bounds.extend(latlng)
+			}, new google.maps.LatLngBounds());
+		}
+
+
+		function createSVGPolygonPoints(polygon, overlayView) {
+			var polygonBounds = getBounds(polygon);
+			var polygonPaths = polygon.getPath().getArray()
+
+			var projection = overlayView.getProjection();
+			var polygonBoundsTopLeftLatLng = new google.maps.LatLng(
+				polygonBounds.getNorthEast().lat(),
+				polygonBounds.getSouthWest().lng()
+			);
+			var polygonBoundsTopLeftPoint = projection.fromLatLngToDivPixel(polygonBoundsTopLeftLatLng);
+			var svgPolygonPoints = polygonPaths.map(function (latlng) {
+				var latlngPoint = projection.fromLatLngToDivPixel(latlng);
+				var x = latlngPoint.x - polygonBoundsTopLeftPoint.x;
+				var y = latlngPoint.y - polygonBoundsTopLeftPoint.y;
+				return x + "," + y;
+			});
+
+			return svgPolygonPoints;
+		}
+
+
+		function createSVGPolygon(polygon, overlayView) {
+			var svgPolygonPoints = createSVGPolygonPoints(polygon, overlayView);
+			var svgPolygonPointsString = svgPolygonPoints.join(" ");
+			var $svgPolygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+			$svgPolygon.setAttribute("points", svgPolygonPointsString);
+			return $svgPolygon;
+		}
+
+
+		function createSVGFromPolygon(polygon, overlayView) {
+			var projection = overlayView.getProjection();
+			var bounds = getBounds(polygon);
+			var sw = projection.fromLatLngToDivPixel(bounds.getSouthWest());
+			var ne = projection.fromLatLngToDivPixel(bounds.getNorthEast());
+
+			var viewBoxWidth = ne.x - sw.x;
+			var viewBoxHeight = sw.y - ne.y;
+
+			var $svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+			$svg.setAttribute("viewBox", "0 0 " + viewBoxWidth.toString() + " " + viewBoxHeight.toString());
+			$svg.setAttribute("preserveAspectRatio", "none");
+
+			// required by iOS safari,
+			// or else, when you zoom in/out the items inside SVG will not scale accordingly
+			$svg.style.width = "100%";
+			$svg.style.height = "100%";
+
+			return $svg;
+		}
+
+
+		function getRelativeSizeFromZoom(size, zoomLevel, map) {
+			var currentZoomLevel = map.getZoom();
+			return size * Math.pow(2, currentZoomLevel - zoomLevel);
+		}
+
+
+
+		function SVGOverlay(polygon, map) {
+			this.polygon = polygon;
+			this.map = map;
+			this.$div = null;
+			this.$polygon = null;
+			this.setMap(map);
+
+			var self = this;
+
+			// polygon changed shape
+			google.maps.event.addListener(this.polygon.getPath(), "set_at", function () {
+				if (self.$div) {
+					self.$div.innerHTML = "";
+					var $newSVG = self.createSVG();
+					self.$div.appendChild($newSVG);
+				}
+			});
+
+			// number of corners increased
+			google.maps.event.addListener(this.polygon.getPath(), "insert_at", function () {
+				if (self.$div) {
+					self.$div.innerHTML = "";
+					var $newSVG = self.createSVG();
+					self.$div.appendChild($newSVG);
+				}
+			});
+
+			// increasing number of corners was undone
+			google.maps.event.addListener(this.polygon.getPath(), "remove_at", function () {
+				if (self.$div) {
+					self.$div.innerHTML = "";
+					var $newSVG = self.createSVG();
+					self.$div.appendChild($newSVG);
+				}
+			});
+		}
+
+		SVGOverlay.prototype = new google.maps.OverlayView();
+		SVGOverlay.prototype.onAdd = function () {
+			var $div = document.createElement("div");
+			$div.style.position = "absolute";
+			$div.style.display = "inline-block";
+
+			var $svg = this.createSVG();
+			$div.appendChild($svg);
+
+			console.log("ADDED DIV", $div);
+
+			this.$div = $div;
+			var panes = this.getPanes();
+			panes.overlayLayer.appendChild($div);
+		}
+
+		SVGOverlay.prototype.createSVG = function () {
+			var $svg = createSVGFromPolygon(this.polygon, this);
+			var $polygon = createSVGPolygon(this.polygon, this);
+			$polygon.style["fill"] = "white";
+			$polygon.style["fill-opacity"] = "0.5";
+			$polygon.style["stroke"] = "white";
+			$polygon.style["stroke-opacity"] = "1";
+			$polygon.style["stroke-width"] = getRelativeSizeFromZoom(5, 18, this.map).toString();
+
+			this.$polygon = $polygon;
+			$svg.appendChild($polygon);
+			return $svg;
+		}
+
+
+		SVGOverlay.prototype.draw = function () {
+			var projection = this.getProjection();
+			var bounds = getBounds(this.polygon);
+			var swLatLng = bounds.getSouthWest();
+			var neLatLng = bounds.getNorthEast();
+			var sw = projection.fromLatLngToDivPixel(swLatLng);
+			var ne = projection.fromLatLngToDivPixel(neLatLng);
+
+			var $div = this.$div;
+			if ($div) {
+				$div.style.transform = "translate(" + sw.x + "px, " + ne.y + "px)";
+				$div.style.width = (ne.x - sw.x) + "px";
+				$div.style.height = (sw.y - ne.y) + "px";
+			}
+
+			// no need to resize this.$svg
+			// this.$svg will automatically scale to parent div size
+		}
+
+
+		SVGOverlay.prototype.onRemove = function () {
+			this.$div.parentNode.removeChild(this.$div);
+			this.$div = null;
+			this.polygon = null;
+		}
+
+
+		var map = new google.maps.Map(document.getElementById('map'), {
+			// Williamstown General Hospital
+			center: { lat: -37.8639369, lng: 144.8919866 },
+			zoom: 18,
+			minZoom: 16,
+			gestureHandling: 'greedy',
+			disableDefaultUI: true,
+			mapTypeId: google.maps.MapTypeId.SATELLITE
+		});
+
+		var drawingManager = new google.maps.drawing.DrawingManager({
+			drawingMode: google.maps.drawing.OverlayType.POLYGON,
+			drawingControl: true,
+			drawingControlOptions: {
+				drawingModes: [google.maps.drawing.OverlayType.POLYGON]
+			},
+			polygonOptions: {
+				fillColor: "white",
+				fillOpacity: 0.5,
+				strokeColor: "white",
+				strokeOpacity: 1,
+				strokeWidth: 1,
+				editable: true,
+				clickable: false
+			}
+		});
+
+		drawingManager.setMap(map);
+
+		var svgOverlays = [];
+		google.maps.event.addListener(drawingManager, "polygoncomplete", function (polygon) {
+			polygon.setOptions({
+				editable: true,
+				fillOpacity: 0.1,
+				strokeColor: "none",
+				strokeWeight: 0,
+				strokePosition: google.maps.StrokePosition.OUTSIDE
+			});
+
+			drawingManager.setDrawingMode(null);
+			svgOverlays.push(new SVGOverlay(polygon, map));
+		});
+	}
+
+</script>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<div id="map2" style="height: 100vh"></div>
+
+@{
+
+}

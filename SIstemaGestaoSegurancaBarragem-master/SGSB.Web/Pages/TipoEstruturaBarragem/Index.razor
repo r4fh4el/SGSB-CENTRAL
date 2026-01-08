@@ -1,0 +1,97 @@
+﻿@page "/TipoEstruturaBarragem/Index"
+
+@using SGSB.Web.Data
+@inject TipoEstruturaBarragemService TipoEstruturaBarragemService
+@using Model 
+@inject NavigationManager NavigationManager
+@inject HttpClient http
+@using BlazorTable
+
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime
+
+@if (TipoEstruturaBarragem == null)
+{
+    <p><em>Carregando...</em></p>
+}
+else
+{
+    <div class="col-md-3">
+        <a href="TipoEstruturaBarragem/cadastro" class="btn btn-success h2">Adicionar Novo </a>
+    </div>
+
+    <Table style="font-size:14px;" TableItem="TipoEstruturaBarragem" Items="TipoEstruturaBarragem" PageSize="10">
+        <Column TableItem="TipoEstruturaBarragem" Title="ID" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%" />
+        <Column TableItem="TipoEstruturaBarragem" Title="Nome" Field="@(x => x.Nome)" Sortable="true" Filterable="true" Width="30%" />
+
+
+        <Column TableItem="TipoEstruturaBarragem" Title="Visualizar" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%">
+            <Template>
+
+                <a href="TipoEstruturaBarragem/Visualizar/@context.Id" class="btn btn-info h4"> Visualizar</a>
+            </Template>
+        </Column>
+        <Column TableItem="TipoEstruturaBarragem" Title="Editar" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%">
+            <Template>
+
+                <a TableItem="TipoEstruturaBarragem" href="TipoEstruturaBarragem/Editar/@context.Id" class="btn btn-warning h4"> Editar</a>
+            </Template>
+        </Column>
+        <Column TableItem="TipoEstruturaBarragem" Title="Excluir" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%">
+            <Template>
+
+                <a href="../TipoEstruturaBarragem/Excluir/@context.Id" class="btn btn-danger h4"> Excluir</a>
+            </Template>
+        </Column>
+
+        <Pager ShowPageNumber="true" ShowTotalCount="true" />
+    </Table>
+
+}
+
+@code {
+
+    private List<TipoEstruturaBarragem> TipoEstruturaBarragem;
+    //private TipoEstruturaBarragem TipoEstruturaBarragemModel = new TipoEstruturaBarragem();
+    protected override async Task OnInitializedAsync()
+    {
+        TipoEstruturaBarragem = await TipoEstruturaBarragemService.GetTipoEstruturaBarragem();
+ 
+    }
+
+
+    private TipoEstruturaBarragem objTipoEstruturaBarragemModel = new TipoEstruturaBarragem();
+
+
+    private async Task ChangeHandler(ChangeEventArgs args)
+    {
+
+    }
+
+    protected async Task Editar(int id)
+    {
+       await TipoEstruturaBarragemService.EditarTipoEstruturaBarragem(objTipoEstruturaBarragemModel);
+
+    }
+    protected async Task Visualizar(int id)
+    {
+
+        await TipoEstruturaBarragemService.CadastrarTipoEstruturaBarragem(objTipoEstruturaBarragemModel);
+      
+    }
+
+    protected async Task CreateTipoEstruturaBarragem()
+    {
+
+        await TipoEstruturaBarragemService.CadastrarTipoEstruturaBarragem(objTipoEstruturaBarragemModel);
+        TipoEstruturaBarragem.Add(objTipoEstruturaBarragemModel);
+
+        StateHasChanged();
+
+
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("TipoEstruturaBarragem/index");
+    }
+
+}
