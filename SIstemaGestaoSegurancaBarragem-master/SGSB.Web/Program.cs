@@ -4,7 +4,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SGSB.Web
@@ -13,6 +15,12 @@ namespace SGSB.Web
     {
         public static void Main(string[] args)
         {
+            // Forçar cultura invariante para modo invariante do .NET
+            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+            CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+            
             CreateHostBuilder(args).Build().Run();
         }
 
@@ -23,7 +31,7 @@ namespace SGSB.Web
                     webBuilder.UseStartup<Startup>();
 
                     // Defina o ambiente aqui
-                    webBuilder.UseEnvironment("Development"); // ou "Staging", "Production", etc.
+                    webBuilder.UseEnvironment("Production"); // Alterado para Production
                 });
 
 
