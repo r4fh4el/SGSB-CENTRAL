@@ -29,14 +29,25 @@ echo "----------------------------------------"
 journalctl -u sgsb-web.service -n 30 --no-pager | grep -i -E "error|exception|fail|500|Culture" | tail -20
 
 echo ""
-echo "[3/6] Instalando dotnet-ef tool (se necessário)..."
+echo "[3/6] Instalando dotnet-ef tool (versão 7.x para .NET 7.0)..."
 echo "----------------------------------------"
 dotnet tool list -g | grep dotnet-ef > /dev/null
 if [ $? -ne 0 ]; then
-    echo "Instalando dotnet-ef..."
-    dotnet tool install --global dotnet-ef 2>&1
+    echo "Instalando dotnet-ef versão 7.0.20 (compatível com .NET 7.0)..."
+    dotnet tool install --global dotnet-ef --version 7.0.20 2>&1
+    if [ $? -ne 0 ]; then
+        echo "Tentando versão 7.0.0..."
+        dotnet tool install --global dotnet-ef --version 7.0.0 2>&1
+    fi
 else
     echo "✓ dotnet-ef já está instalado"
+    # Verificar versão e reinstalar se necessário
+    EF_VERSION=$(dotnet tool list -g | grep dotnet-ef | awk '{print $2}')
+    if [[ "$EF_VERSION" == "10."* ]]; then
+        echo "Removendo versão incompatível e instalando 7.0.20..."
+        dotnet tool uninstall --global dotnet-ef 2>&1
+        dotnet tool install --global dotnet-ef --version 7.0.20 2>&1
+    fi
 fi
 
 echo ""
