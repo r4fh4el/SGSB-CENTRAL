@@ -23,22 +23,27 @@ namespace SGSB.Web
                 return;
             }
             
-            // Inicializar workaround ANTES de qualquer coisa
+            // FORCAR CULTURA INVARIANTE ANTES DE QUALQUER COISA
+            // Isso DEVE ser a primeira coisa executada, antes de qualquer biblioteca ser carregada
+            try
+            {
+                // Configurar cultura invariante globalmente
+                CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+                CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
+                Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+                Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+                
+                // Configurar para todos os threads futuros
+                CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+                CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
+                
+                // Tambem definir no AppDomain
+                AppDomain.CurrentDomain.SetData("REGEX_DEFAULT_MATCH_TIMEOUT", TimeSpan.FromSeconds(2.0));
+            }
+            catch { }
+            
+            // Inicializar workaround
             GlobalizationWorkaround.Initialize();
-            
-            // Forçar cultura invariante ANTES de qualquer inicialização
-            // Isso deve ser feito antes de qualquer código do .NET ser executado
-            AppDomain.CurrentDomain.SetData("REGEX_DEFAULT_MATCH_TIMEOUT", TimeSpan.FromSeconds(2.0));
-            
-            // Configurar cultura invariante globalmente
-            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
-            CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-            
-            // Configurar para todos os threads futuros
-            CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
-            CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
             
             CreateHostBuilder(args).Build().Run();
         }
