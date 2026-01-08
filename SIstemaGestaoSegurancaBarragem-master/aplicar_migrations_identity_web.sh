@@ -15,29 +15,42 @@ export LANG=C
 export LANGUAGE=C
 
 echo ""
-echo "[1/4] Verificando migrations pendentes..."
+echo "[1/5] Instalando dotnet-ef tool (se necessário)..."
+echo "----------------------------------------"
+dotnet tool list -g | grep dotnet-ef > /dev/null
+if [ $? -ne 0 ]; then
+    echo "Instalando dotnet-ef..."
+    dotnet tool install --global dotnet-ef 2>&1
+else
+    echo "✓ dotnet-ef já está instalado"
+fi
+
+echo ""
+echo "[2/5] Verificando migrations pendentes..."
 echo "----------------------------------------"
 dotnet ef migrations list --context ApplicationDbContext 2>&1 | head -20
 
 echo ""
-echo "[2/4] Aplicando migrations do Identity..."
+echo "[3/5] Aplicando migrations do Identity..."
 echo "----------------------------------------"
 dotnet ef database update --context ApplicationDbContext 2>&1
 
 if [ $? -eq 0 ]; then
     echo ""
-    echo "[3/4] ✓ Migrations aplicadas com sucesso!"
+    echo "[4/5] ✓ Migrations aplicadas com sucesso!"
 else
     echo ""
-    echo "[3/4] ✗ Erro ao aplicar migrations. Verifique os logs acima."
+    echo "[4/5] ✗ Erro ao aplicar migrations. Verifique os logs acima."
     echo ""
-    echo "[4/4] Tentando criar migrations se não existirem..."
+    echo "Tentando criar migrations se não existirem..."
     dotnet ef migrations add CreateIdentitySchema --context ApplicationDbContext 2>&1
-    dotnet ef database update --context ApplicationDbContext 2>&1
+    if [ $? -eq 0 ]; then
+        dotnet ef database update --context ApplicationDbContext 2>&1
+    fi
 fi
 
 echo ""
-echo "[4/4] Verificando tabelas do Identity no banco..."
+echo "[5/5] Verificando tabelas do Identity no banco..."
 echo "----------------------------------------"
 echo "Execute no SQL Server para verificar:"
 echo "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME LIKE 'AspNet%'"
