@@ -29,7 +29,7 @@ namespace SGSB.Web.Infra
         };
 
         // public static string URI = @"https://localhost:7042";
-        public static string URI = @"https://localhost:7042";
+        public static string URI = @"http://72.60.57.220";
         public static string URI_WEB = @"https://sgsb.com.br/kmz/BARRAGEMAGUAFRIA.kmz";
         public static string ONESIGNAL_APP_ID = @"b00d5a16-6c5d-4a2d-b9d0-43c37518565e";
         public static string ONE_SIGNAL_API_KEY = @"OGVlZmM0N2UtMWQzMC00ZmFkLWI2NzktOWQwMjY1MDJkMWQ1";

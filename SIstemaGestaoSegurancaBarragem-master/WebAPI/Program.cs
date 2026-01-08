@@ -27,19 +27,20 @@ builder.Services.AddSignalR();
 builder.Services.AddSignalRCore();
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false).AddEntityFrameworkStores<Contexto>();
 builder.Services.AddControllers();
-builder.Services.Configure<RequestLocalizationOptions>(
-      options =>
-      {
-          var supportedCultures = new List<CultureInfo>
-              {
-                    new CultureInfo("pt-BR")
-              };
-
-          options.DefaultRequestCulture = new RequestCulture(culture: "pt-BR", uiCulture: "pt-BR");
-          options.SupportedCultures = supportedCultures;
-          options.SupportedUICultures = supportedCultures;
-          options.RequestCultureProviders.Insert(0, new CookieRequestCultureProvider());
-      });
+// Configuração de cultura desabilitada para modo invariante
+// builder.Services.Configure<RequestLocalizationOptions>(
+//       options =>
+//       {
+//           var supportedCultures = new List<CultureInfo>
+//               {
+//                     new CultureInfo("pt-BR")
+//               };
+//
+//           options.DefaultRequestCulture = new RequestCulture(culture: "pt-BR", uiCulture: "pt-BR");
+//           options.SupportedCultures = supportedCultures;
+//           options.SupportedUICultures = supportedCultures;
+//           options.RequestCultureProviders.Insert(0, new CookieRequestCultureProvider());
+//       });
 
 //// INTERFACES e REPOSITORIOS
 
@@ -89,7 +90,7 @@ builder.Services.AddSingleton<IZona, RepositorioZona>();
 
 
 
-//// SERVI�OS e DOMINIOS
+//// SERVI�OS e DOMINIOS
 builder.Services.AddSingleton<IServicoTipoMaterialBarragem, ServicoTipoMaterialBarragem>();
 builder.Services.AddSingleton<IServicoBarragem, ServicoBarragem>();
 builder.Services.AddSingleton<IServicoTipoEstruturaBarragem, ServicoTipoEstruturaBarragem>();
