@@ -8,9 +8,9 @@ using SGSB.Web.Data;
 
 namespace SGSB.Web
 {
-    public class ApplyMigrations
+    public static class ApplyMigrations
     {
-        public static int Main(string[] args)
+        public static int Run(string[] args)
         {
             // FORCAR CULTURA INVARIANTE ANTES DE QUALQUER COISA
             // Isso deve ser a primeira coisa executada

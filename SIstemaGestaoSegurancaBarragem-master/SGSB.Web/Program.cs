@@ -18,7 +18,7 @@ namespace SGSB.Web
             // Verificar se o argumento e para aplicar migrations
             if (args.Length > 0 && args[0] == "ApplyMigrations")
             {
-                var exitCode = ApplyMigrations.Main(args);
+                var exitCode = ApplyMigrations.Run(args);
                 Environment.Exit(exitCode);
                 return;
             }
