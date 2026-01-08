@@ -16,14 +16,33 @@ export LANGUAGE=C
 BASE_DIR="/var/www/sgsb/SIstemaGestaoSegurancaBarragem-master"
 cd "$BASE_DIR"
 
-# 1. Verificar dotnet-ef
+# 1. Verificar e configurar dotnet-ef
 echo "[1/7] Verificando dotnet-ef..."
 echo "----------------------------------------"
-dotnet ef --version
+# Garantir que o PATH inclui dotnet tools
+export PATH=$PATH:$HOME/.dotnet:$HOME/.dotnet/tools
+
+# Verificar se dotnet-ef esta instalado
+if ! command -v dotnet-ef &> /dev/null; then
+    # Tentar usar o caminho completo
+    if [ -f "$HOME/.dotnet/tools/dotnet-ef" ]; then
+        echo "dotnet-ef encontrado em $HOME/.dotnet/tools/dotnet-ef"
+    else
+        echo "ERRO: dotnet-ef nao encontrado"
+        echo "Verificando instalacao global..."
+        dotnet tool list --global | grep dotnet-ef
+        if [ $? -ne 0 ]; then
+            echo "Execute primeiro: ./instalar_dotnet_ef_net7.sh"
+            exit 1
+        fi
+    fi
+fi
+
+# Tentar executar dotnet ef
+dotnet ef --version 2>&1
 if [ $? -ne 0 ]; then
-    echo "ERRO: dotnet-ef nao esta instalado ou nao esta no PATH"
-    echo "Execute primeiro: ./instalar_dotnet_ef_net7.sh"
-    exit 1
+    echo "AVISO: dotnet ef nao esta no PATH, mas continuando..."
+    echo "Tentando restaurar ferramentas locais..."
 fi
 echo ""
 
@@ -31,15 +50,30 @@ echo ""
 echo "[2/7] Aplicando migrations do Identity (SGSB.Web)..."
 echo "----------------------------------------"
 cd "$BASE_DIR/SGSB.Web"
-dotnet ef database update --context ApplicationDbContext
+
+# Restaurar ferramentas locais primeiro
+echo "Restaurando ferramentas .NET..."
+dotnet tool restore
+if [ $? -ne 0 ]; then
+    echo "AVISO: dotnet tool restore falhou, continuando..."
+fi
+
+# Tentar aplicar migrations
+echo "Aplicando migrations do Identity..."
+dotnet ef database update --context ApplicationDbContext 2>&1
 if [ $? -ne 0 ]; then
     echo "AVISO: Erro ao aplicar migrations do Identity"
     echo "Verificando se as migrations existem..."
-    dotnet ef migrations list
+    dotnet ef migrations list --context ApplicationDbContext 2>&1
     if [ $? -ne 0 ]; then
         echo "Criando migrations iniciais do Identity..."
-        dotnet ef migrations add CreateIdentitySchema --context ApplicationDbContext
-        dotnet ef database update --context ApplicationDbContext
+        dotnet ef migrations add CreateIdentitySchema --context ApplicationDbContext 2>&1
+        if [ $? -eq 0 ]; then
+            dotnet ef database update --context ApplicationDbContext 2>&1
+        else
+            echo "ERRO: Nao foi possivel criar migrations"
+            echo "Verifique se o DbContext ApplicationDbContext existe"
+        fi
     fi
 fi
 echo ""
