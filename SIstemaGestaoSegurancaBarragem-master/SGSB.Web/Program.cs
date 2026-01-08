@@ -15,6 +15,9 @@ namespace SGSB.Web
     {
         public static void Main(string[] args)
         {
+            // Inicializar workaround ANTES de qualquer coisa
+            GlobalizationWorkaround.Initialize();
+            
             // Forçar cultura invariante ANTES de qualquer inicialização
             // Isso deve ser feito antes de qualquer código do .NET ser executado
             AppDomain.CurrentDomain.SetData("REGEX_DEFAULT_MATCH_TIMEOUT", TimeSpan.FromSeconds(2.0));
