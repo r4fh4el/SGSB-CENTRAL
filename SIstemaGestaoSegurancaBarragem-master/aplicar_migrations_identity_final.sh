@@ -11,6 +11,18 @@ export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true
 export LC_ALL=C
 export LANG=C
 export LANGUAGE=C
+export LC_CTYPE=C
+export LC_NUMERIC=C
+export LC_TIME=C
+export LC_COLLATE=C
+export LC_MONETARY=C
+export LC_MESSAGES=C
+export LC_PAPER=C
+export LC_NAME=C
+export LC_ADDRESS=C
+export LC_TELEPHONE=C
+export LC_MEASUREMENT=C
+export LC_IDENTIFICATION=C
 
 # Diretorio do projeto
 PROJECT_DIR="/var/www/sgsb/SIstemaGestaoSegurancaBarragem-master/SGSB.Web"
@@ -95,34 +107,35 @@ echo ""
 echo "[5/6] Aplicando migrations do Identity..."
 echo "----------------------------------------"
 
+# Usar caminho completo do dotnet-ef com todas as variaveis de ambiente
+DOTNET_EF_PATH="$HOME/.dotnet/tools/dotnet-ef"
+
+# Criar funcao wrapper que garante cultura invariante
+run_dotnet_ef() {
+    local cmd="$1"
+    shift
+    # Forcar todas as variaveis de cultura antes de executar
+    env LC_ALL=C LANG=C LANGUAGE=C LC_CTYPE=C LC_NUMERIC=C LC_TIME=C LC_COLLATE=C LC_MONETARY=C LC_MESSAGES=C DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true "$DOTNET_EF_PATH" "$cmd" "$@"
+}
+
 # Tentar listar migrations primeiro
-if [ "$DOTNET_EF_CMD" = "dotnet ef" ]; then
-    dotnet ef migrations list --context ApplicationDbContext 2>&1 | head -20
-    MIGRATIONS_EXIST=$?
-else
-    $DOTNET_EF_CMD migrations list --project "$PROJECT_DIR/SGSB.Web.csproj" --startup-project "$PROJECT_DIR/SGSB.Web.csproj" --context ApplicationDbContext 2>&1 | head -20
-    MIGRATIONS_EXIST=$?
-fi
+echo "Verificando migrations existentes..."
+run_dotnet_ef migrations list --project "$PROJECT_DIR/SGSB.Web.csproj" --startup-project "$PROJECT_DIR/SGSB.Web.csproj" --context ApplicationDbContext 2>&1 | head -20
+MIGRATIONS_EXIST=$?
 
 if [ $MIGRATIONS_EXIST -eq 0 ]; then
     echo "Migrations encontradas, aplicando ao banco..."
-    if [ "$DOTNET_EF_CMD" = "dotnet ef" ]; then
-        dotnet ef database update --context ApplicationDbContext
-    else
-        $DOTNET_EF_CMD database update --project "$PROJECT_DIR/SGSB.Web.csproj" --startup-project "$PROJECT_DIR/SGSB.Web.csproj" --context ApplicationDbContext
-    fi
+    run_dotnet_ef database update --project "$PROJECT_DIR/SGSB.Web.csproj" --startup-project "$PROJECT_DIR/SGSB.Web.csproj" --context ApplicationDbContext
+    UPDATE_RESULT=$?
 else
     echo "Nenhuma migration encontrada, criando migrations iniciais..."
-    if [ "$DOTNET_EF_CMD" = "dotnet ef" ]; then
-        dotnet ef migrations add CreateIdentitySchema --context ApplicationDbContext
-        if [ $? -eq 0 ]; then
-            dotnet ef database update --context ApplicationDbContext
-        fi
+    run_dotnet_ef migrations add CreateIdentitySchema --project "$PROJECT_DIR/SGSB.Web.csproj" --startup-project "$PROJECT_DIR/SGSB.Web.csproj" --context ApplicationDbContext
+    if [ $? -eq 0 ]; then
+        echo "Migration criada, aplicando ao banco..."
+        run_dotnet_ef database update --project "$PROJECT_DIR/SGSB.Web.csproj" --startup-project "$PROJECT_DIR/SGSB.Web.csproj" --context ApplicationDbContext
+        UPDATE_RESULT=$?
     else
-        $DOTNET_EF_CMD migrations add CreateIdentitySchema --project "$PROJECT_DIR/SGSB.Web.csproj" --startup-project "$PROJECT_DIR/SGSB.Web.csproj" --context ApplicationDbContext
-        if [ $? -eq 0 ]; then
-            $DOTNET_EF_CMD database update --project "$PROJECT_DIR/SGSB.Web.csproj" --startup-project "$PROJECT_DIR/SGSB.Web.csproj" --context ApplicationDbContext
-        fi
+        UPDATE_RESULT=1
     fi
 fi
 echo ""
@@ -130,10 +143,14 @@ echo ""
 # 6. Verificar resultado
 echo "[6/6] Verificando resultado..."
 echo "----------------------------------------"
-if [ $? -eq 0 ]; then
+if [ ${UPDATE_RESULT:-1} -eq 0 ]; then
     echo "SUCESSO: Migrations aplicadas com sucesso!"
 else
     echo "AVISO: Pode ter havido erros. Verifique os logs acima."
+    echo ""
+    echo "Se o erro persistir, tente executar manualmente:"
+    echo "  cd $PROJECT_DIR"
+    echo "  env LC_ALL=C LANG=C DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true $DOTNET_EF_PATH database update --project SGSB.Web.csproj --startup-project SGSB.Web.csproj --context ApplicationDbContext"
 fi
 echo ""
 
