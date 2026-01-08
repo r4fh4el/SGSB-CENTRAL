@@ -235,13 +235,19 @@ var urlCliente2 = "https://www.teste2.com.br";
 
 app.UseCors(x => x.WithOrigins(urlCliente1, urlCliente2));
 app.UseSwagger();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
-    app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebAPI v1"));
 }
+
+// Habilitar Swagger UI em todos os ambientes (Development e Production)
+app.UseSwaggerUI(c => 
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebAPI v1");
+    c.RoutePrefix = "swagger"; // Acessar em /swagger
+});
 
 app.UseRouting();
 
