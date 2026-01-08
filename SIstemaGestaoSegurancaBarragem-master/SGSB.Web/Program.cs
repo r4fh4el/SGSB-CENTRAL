@@ -30,8 +30,8 @@ namespace SGSB.Web
                 {
                     webBuilder.UseStartup<Startup>();
 
-                    // Defina o ambiente aqui
-                    webBuilder.UseEnvironment("Production"); // Alterado para Production
+                    // Ambiente será definido pela variável de ambiente ASPNETCORE_ENVIRONMENT
+                    // Não forçar aqui para permitir configuração via systemd
                 });
 
 
